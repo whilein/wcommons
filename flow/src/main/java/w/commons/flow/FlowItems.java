@@ -19,14 +19,12 @@ package w.commons.flow;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.stream.Collector;
-
 /**
  * @author whilein
  */
-public interface FlowItems<T> {
+public interface FlowItems<T> extends BaseFlowItems<T> {
 
-    <R, A> @NotNull Flow<R> collect(@NotNull Collector<? super T, A, R> collector);
+    <A, R> @NotNull Flow<R> collect(@NotNull FlowCollector<? super T, A, R> collector);
 
     @NotNull
     Flow<T> findFirst();
@@ -56,10 +54,5 @@ public interface FlowItems<T> {
     @NotNull FlowItems<T> filter(
             @NotNull FlowFilter<T> filter
     );
-
-    void call();
-
-    void callAsync();
-
 
 }

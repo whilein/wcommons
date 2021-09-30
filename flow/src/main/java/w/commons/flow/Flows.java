@@ -35,7 +35,6 @@ import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
-import java.util.stream.Collector;
 
 /**
  * @author whilein
@@ -149,7 +148,7 @@ public final class Flows {
         private void _callAsync(final Executor executor) {
             executor.execute(this::call);
         }
-        
+
         @Override
         public void callAsync() {
             _callAsync(ForkJoinPool.commonPool());
@@ -506,25 +505,74 @@ public final class Flows {
 
     }
 
-    @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class IntFlowItemsImpl
-            implements IntFlowItems {
+    @FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
+    @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+    private static abstract class AbstractFlowItems<T> implements BaseFlowItems<T> {
 
         String name;
-        FlowConsumer<IntFlowSink> sink;
+
+        protected abstract void run() throws Exception;
+
+        private void _callAsync(final Executor executor) {
+            executor.execute(this::call);
+        }
 
         @Override
-        public @NotNull <C> Flow<C> collect(final @NonNull IntFlowCollector<C> collector) {
+        public void call() {
+            try {
+                run();
+            } catch (final Exception e) {
+                throw new RuntimeException("Error occurred whilst executing flow " + name, e);
+            }
+        }
+
+        @Override
+        public void callAsync() {
+            _callAsync(ForkJoinPool.commonPool());
+        }
+
+        @Override
+        public void callAsync(final @NonNull Executor executor) {
+            _callAsync(executor);
+        }
+    }
+
+    @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+    private static final class IntFlowItemsImpl extends AbstractFlowItems<Integer>
+            implements IntFlowItems {
+
+        FlowConsumer<IntFlowSink> sink;
+
+        public IntFlowItemsImpl(
+                final String name,
+                final FlowConsumer<IntFlowSink> sink
+        ) {
+            super(name);
+
+            this.sink = sink;
+        }
+
+        @Override
+        public @NotNull <A, R> Flow<R> collect(final @NonNull IntFlowCollector<A, R> collector) {
             return new FlowImpl<>(name, () -> {
-                val collection = collector.init();
+                final var ref = new Object() {
+                    A collection;
+                };
 
                 sink.accept(value -> {
+                    A collection = ref.collection;
+
+                    if (collection == null)
+                        ref.collection = collection = collector.init();
+
                     collector.accumulate(collection, value);
+
                     return true;
                 });
 
-                return collection;
+                return ref.collection == null
+                        ? collector.empty()
+                        : collector.finish(ref.collection);
             });
         }
 
@@ -554,90 +602,93 @@ public final class Flows {
 
         @Override
         public @NotNull IntFlowItems map(final @NonNull IntToIntFlowMapper mapper) {
-            return new IntFlowItemsImpl(name, newEmitter -> sink.accept(value -> newEmitter.next(mapper.map(value))));
+            return new IntFlowItemsImpl(name, newSink -> sink.accept(value -> newSink.next(mapper.map(value))));
         }
 
         @Override
         public @NotNull <A> FlowItems<A> mapToObj(final @NotNull IntFlowMapper<A> mapper) {
-            return new FlowItemsImpl<>(name, newEmitter -> sink.accept(
-                    value -> newEmitter.next(mapper.map(value))));
+            return new FlowItemsImpl<>(name, newSink -> sink.accept(
+                    value -> newSink.next(mapper.map(value))));
         }
 
         @Override
         public @NotNull IntFlowItems filter(final @NotNull IntFlowFilter filter) {
-            return new IntFlowItemsImpl(name, newEmitter -> sink.accept(value -> {
+            return new IntFlowItemsImpl(name, newSink -> sink.accept(value -> {
                 if (!filter.test(value))
                     return true;
 
-                return newEmitter.next(value);
+                return newSink.next(value);
             }));
         }
 
-
         @Override
         public @NotNull IntFlowItems forEach(final @NonNull IntFlowConsumer loop) {
-            return new IntFlowItemsImpl(name, newEmitter -> sink.accept(value -> {
+            return new IntFlowItemsImpl(name, newSink -> sink.accept(value -> {
                 loop.accept(value);
-                return newEmitter.next(value);
+                return newSink.next(value);
             }));
         }
 
         @Override
         public @NotNull IntFlowItems forEachCounted(final @NonNull IntFlowCountedLoop loop) {
-            return new IntFlowItemsImpl(name, newEmitter -> {
+            return new IntFlowItemsImpl(name, newSink -> {
                 final var counter = new Object() {
                     int value;
                 };
 
                 sink.accept(value -> {
                     loop.accept(counter.value++, value);
-                    return newEmitter.next(value);
+                    return newSink.next(value);
                 });
             });
         }
 
         @Override
-        public void call() {
-            try {
-                sink.accept(value -> false);
-            } catch (final Exception e) {
-                throw new RuntimeException("Error occurred whilst executing flow " + name, e);
-            }
+        protected void run() throws Exception {
+            sink.accept(value -> true);
         }
-
-        @Override
-        public void callAsync() {
-            ForkJoinPool.commonPool().execute(this::call);
-        }
-
     }
 
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class FlowItemsImpl<T>
+    private static final class FlowItemsImpl<T> extends AbstractFlowItems<T>
             implements FlowItems<T> {
 
-        String name;
         FlowConsumer<FlowSink<T>> sink;
 
+        public FlowItemsImpl(
+                final String name,
+                final FlowConsumer<FlowSink<T>> sink
+        ) {
+            super(name);
+
+            this.sink = sink;
+        }
+
+
         @Override
-        @SuppressWarnings("unchecked")
-        public @NotNull <R, A> Flow<R> collect(final @NotNull Collector<? super T, A, R> collector) {
+        public @NotNull <A, R> Flow<R> collect(final @NonNull FlowCollector<? super T, A, R> collector) {
             return new FlowImpl<>(name, () -> {
-                val accumulator = collector.accumulator();
-                val result = collector.supplier().get();
+                final var ref = new Object() {
+                    A collection;
+                };
 
                 sink.accept(value -> {
-                    accumulator.accept(result, value);
+                    A collection = ref.collection;
+
+                    if (collection == null)
+                        ref.collection = collection = collector.init();
+
+                    collector.accumulate(collection, value);
 
                     return true;
                 });
 
-                return collector.characteristics().contains(Collector.Characteristics.IDENTITY_FINISH)
-                        ? (R) result
-                        : collector.finisher().apply(result);
+                return ref.collection == null
+                        ? collector.empty()
+                        : collector.finish(ref.collection);
             });
         }
+
 
         @Override
         public @NotNull Flow<T> findFirst() {
@@ -710,60 +761,50 @@ public final class Flows {
 
         @Override
         public @NotNull <A> FlowItems<A> map(final @NonNull FlowMapper<T, A> mapper) {
-            return new FlowItemsImpl<>(name, newEmitter -> sink.accept(
-                    value -> newEmitter.next(mapper.map(value))));
+            return new FlowItemsImpl<>(name, newSink -> sink.accept(
+                    value -> newSink.next(mapper.map(value))));
         }
 
         @Override
         public @NotNull FlowItems<T> filter(final @NotNull FlowFilter<T> filter) {
-            return new FlowItemsImpl<>(name, newEmitter -> sink.accept(value -> {
+            return new FlowItemsImpl<>(name, newSink -> sink.accept(value -> {
                 if (!filter.test(value))
                     return true;
 
-                return newEmitter.next(value);
+                return newSink.next(value);
             }));
         }
 
         @Override
         public @NotNull FlowItems<T> forEach(final @NonNull FlowConsumer<T> loop) {
-            return new FlowItemsImpl<>(name, newEmitter -> sink.accept(value -> {
+            return new FlowItemsImpl<>(name, newSink -> sink.accept(value -> {
                 loop.accept(value);
-                return newEmitter.next(value);
+                return newSink.next(value);
             }));
         }
 
         @Override
         public @NotNull IntFlowItems mapToInt(final @NonNull ToIntFlowMapper<T> mapper) {
-            return new IntFlowItemsImpl(name, newEmitter -> sink.accept(
-                    value -> newEmitter.next(mapper.map(value))));
+            return new IntFlowItemsImpl(name, newSink -> sink.accept(
+                    value -> newSink.next(mapper.map(value))));
         }
 
         @Override
         public @NotNull FlowItems<T> forEachCounted(final @NonNull FlowCountedLoop<T> loop) {
-            return new FlowItemsImpl<>(name, newEmitter -> {
+            return new FlowItemsImpl<>(name, newSink -> {
                 val counter = new AtomicInteger();
 
                 sink.accept(value -> {
                     loop.accept(counter.getAndIncrement(), value);
-                    return newEmitter.next(value);
+                    return newSink.next(value);
                 });
             });
         }
 
         @Override
-        public void call() {
-            try {
-                sink.accept(value -> false);
-            } catch (final Exception e) {
-                throw new RuntimeException("Error occurred whilst executing flow " + name, e);
-            }
+        protected void run() throws Exception {
+            sink.accept(value -> true);
         }
-
-        @Override
-        public void callAsync() {
-            ForkJoinPool.commonPool().execute(this::call);
-        }
-
     }
 
 }

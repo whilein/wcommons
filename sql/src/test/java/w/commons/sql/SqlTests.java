@@ -21,9 +21,9 @@ import lombok.val;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import w.commons.flow.FlowCollectors;
 
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -60,7 +60,7 @@ class SqlTests {
     void fetch() {
         val result = messenger.fetch("SELECT * FROM `_`.`USERS`")
                 .map(rs -> rs.getString("NAME") + ':' + rs.getString("BALANCE"))
-                .collect(Collectors.joining(";"))
+                .collect(FlowCollectors.joining(";"))
                 .call();
 
         assertEquals("User0:0;User1:50;User2:100;User3:500;User4:1000", result);

@@ -18,29 +18,17 @@ package w.commons.flow;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.Executor;
+
 /**
  * @author whilein
  */
-public interface IntFlowItems extends BaseFlowItems<Integer> {
+public interface BaseFlowItems<T> {
 
-    <A, R> @NotNull Flow<R> collect(@NotNull IntFlowCollector<A, R> collector);
+    void call();
 
-    @NotNull IntFlow findFirst();
+    void callAsync();
 
-    @NotNull IntFlowItems map(
-            @NotNull IntToIntFlowMapper mapper
-    );
-
-    <A> @NotNull FlowItems<A> mapToObj(
-            @NotNull IntFlowMapper<A> mapper
-    );
-
-    @NotNull IntFlowItems forEachCounted(@NotNull IntFlowCountedLoop loop);
-
-    @NotNull IntFlowItems forEach(@NotNull IntFlowConsumer loop);
-
-    @NotNull IntFlowItems filter(
-            @NotNull IntFlowFilter filter
-    );
+    void callAsync(@NotNull Executor executor);
 
 }

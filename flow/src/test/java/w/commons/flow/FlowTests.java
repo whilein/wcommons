@@ -66,7 +66,7 @@ class FlowTests {
     void collectToList() {
         final List<Number> numbers = Flows.ofIntEmitter(numEmitter(0, 100))
                 .mapToObj(Integer::valueOf)
-                .collect(Collectors.<Number>toUnmodifiableList())
+                .collect(FlowCollectors.<Number>toUnmodifiableList())
                 .call();
 
         assertEquals(IntStream.range(0, 100).boxed().collect(Collectors.toList()), numbers);
