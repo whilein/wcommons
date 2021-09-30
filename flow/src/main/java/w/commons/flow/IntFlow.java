@@ -22,6 +22,7 @@ import java.util.OptionalInt;
 import java.util.concurrent.Executor;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 
 /**
  * @author whilein
@@ -54,6 +55,8 @@ public interface IntFlow {
     @NotNull IntFlow orElse(int value);
 
     @NotNull IntFlow orElseGet(@NotNull IntSupplier value);
+
+    @NotNull IntFlow orElseCall(@NotNull Supplier<@NotNull IntFlow> value);
 
     @NotNull IntFlow filter(
             @NotNull IntFlowFilter filter

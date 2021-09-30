@@ -182,6 +182,17 @@ public final class Flows {
         }
 
         @Override
+        public @NotNull IntFlow orElseCall(final @NotNull Supplier<@NotNull IntFlow> value) {
+            return new IntFlowImpl(name, () -> {
+                try {
+                    return run();
+                } catch (final FlowEmpty e) {
+                    return value.get().run();
+                }
+            });
+        }
+
+        @Override
         public void callAsync(
                 final @NonNull IntConsumer consumer
         ) {
@@ -361,6 +372,17 @@ public final class Flows {
                     return run();
                 } catch (final FlowEmpty e) {
                     return value;
+                }
+            });
+        }
+
+        @Override
+        public @NotNull Flow<T> orElseCall(final @NotNull Supplier<@NotNull Flow<T>> value) {
+            return new FlowImpl<>(name, () -> {
+                try {
+                    return run();
+                } catch (final FlowEmpty e) {
+                    return value.get().run();
                 }
             });
         }

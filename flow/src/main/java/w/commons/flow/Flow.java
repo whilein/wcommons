@@ -57,6 +57,8 @@ public interface Flow<T> {
 
     @NotNull Flow<T> orElseGet(@NotNull Supplier<T> value);
 
+    @NotNull Flow<T> orElseCall(@NotNull Supplier<@NotNull Flow<T>> value);
+
     @NotNull Flow<T> filter(
             @NotNull FlowFilter<T> filter
     );
