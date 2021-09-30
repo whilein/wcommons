@@ -14,37 +14,13 @@
  *    limitations under the License.
  */
 
-package w.flow;
-
-import org.jetbrains.annotations.NotNull;
+package w.commons.flow;
 
 /**
  * @author whilein
  */
-public interface IntFlowItems {
+public interface IntFlowFilter {
 
-    <C> @NotNull Flow<C> collect(@NotNull IntFlowCollector<C> collector);
-
-    @NotNull IntFlow findFirst();
-
-    @NotNull IntFlowItems map(
-            @NotNull IntToIntFlowMapper mapper
-    );
-
-    <A> @NotNull FlowItems<A> mapToObj(
-            @NotNull IntFlowMapper<A> mapper
-    );
-
-    @NotNull IntFlowItems forEachCounted(@NotNull IntFlowCountedLoop loop);
-
-    @NotNull IntFlowItems forEach(@NotNull IntFlowConsumer loop);
-
-    @NotNull IntFlowItems filter(
-            @NotNull IntFlowFilter filter
-    );
-
-    void call();
-
-    void callAsync();
+    boolean test(int value) throws Exception;
 
 }

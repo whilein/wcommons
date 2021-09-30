@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package w.sql;
+package w.commons.sql;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -28,13 +28,12 @@ import lombok.experimental.FieldDefaults;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import w.flow.Flow;
-import w.flow.FlowConsumer;
-import w.flow.FlowItems;
-import w.flow.FlowSink;
-import w.flow.Flows;
-import w.flow.IntFlow;
-import w.flow.IntFlowSupplier;
+import w.commons.flow.FlowConsumer;
+import w.commons.flow.FlowItems;
+import w.commons.flow.FlowSink;
+import w.commons.flow.Flows;
+import w.commons.flow.IntFlow;
+import w.commons.flow.IntFlowSupplier;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,7 +42,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.LineNumberReader;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,7 +49,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 
 import static java.sql.PreparedStatement.RETURN_GENERATED_KEYS;
 

@@ -14,15 +14,13 @@
  *    limitations under the License.
  */
 
-package w.flow;
-
-import org.jetbrains.annotations.NotNull;
+package w.commons.flow;
 
 /**
  * @author whilein
  */
-public interface FlowSink<T> {
+public interface FlowMapper<F, T> {
 
-    boolean next(@NotNull T value) throws Exception;
+    T map(F value) throws Exception;
 
 }

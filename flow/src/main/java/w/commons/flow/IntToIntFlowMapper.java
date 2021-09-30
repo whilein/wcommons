@@ -14,13 +14,13 @@
  *    limitations under the License.
  */
 
-package w.flow;
+package w.commons.flow;
 
 /**
  * @author whilein
  */
-public interface IntFlowConsumer {
+public interface IntToIntFlowMapper {
 
-    void accept(int value) throws Exception;
+    int map(int value) throws Exception;
 
 }

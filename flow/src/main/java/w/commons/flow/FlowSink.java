@@ -14,13 +14,15 @@
  *    limitations under the License.
  */
 
-package w.flow;
+package w.commons.flow;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author whilein
  */
-public interface FlowConsumer<T> {
+public interface FlowSink<T> {
 
-    void accept(T value) throws Exception;
+    boolean next(@NotNull T value) throws Exception;
 
 }

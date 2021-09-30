@@ -14,18 +14,13 @@
  *    limitations under the License.
  */
 
-package w.flow;
+package w.commons.flow;
 
 /**
  * @author whilein
  */
-public interface IntFlowCollector<C> {
+public interface IntFlowConsumer {
 
-    C init();
-    //C empty();
-
-    void accumulate(C collection, int value) throws Exception;
-
-    //C finish(C collection);
+    void accept(int value) throws Exception;
 
 }

@@ -14,27 +14,18 @@
  *    limitations under the License.
  */
 
-package w.sql;
+package w.commons.flow;
 
-import org.jetbrains.annotations.NotNull;
+/**
+ * @author whilein
+ */
+public interface IntFlowCollector<C> {
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.Reader;
-import java.nio.file.Path;
+    C init();
+    //C empty();
 
-public interface ScriptRunner {
+    void accumulate(C collection, int value) throws Exception;
 
-    @NotNull ScriptRunner classLoader(@NotNull ClassLoader cl);
-    @NotNull ScriptRunner schema(@NotNull String schema);
-
-    @NotNull ScriptRunner run(@NotNull String resource);
-
-    @NotNull ScriptRunner run(@NotNull File file);
-    @NotNull ScriptRunner run(@NotNull Path path);
-
-    @NotNull ScriptRunner run(@NotNull InputStream is);
-
-    @NotNull ScriptRunner run(@NotNull Reader reader);
+    //C finish(C collection);
 
 }

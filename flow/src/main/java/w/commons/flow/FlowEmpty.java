@@ -14,13 +14,17 @@
  *    limitations under the License.
  */
 
-package w.flow;
+package w.commons.flow;
+
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 /**
  * @author whilein
  */
-public interface IntFlowSink {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class FlowEmpty extends RuntimeException {
 
-    boolean next(int value) throws Exception;
+    public static final FlowEmpty INSTANCE = new FlowEmpty();
 
 }

@@ -14,13 +14,13 @@
  *    limitations under the License.
  */
 
-package w.flow;
+package w.commons.flow;
 
 /**
  * @author whilein
  */
-public interface IntFlowCombiner {
+public interface IntFlowSink {
 
-    int combine(int left, int right) throws Exception;
+    boolean next(int value) throws Exception;
 
 }

@@ -14,17 +14,37 @@
  *    limitations under the License.
  */
 
-package w.flow;
+package w.commons.flow;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author whilein
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class FlowEmpty extends RuntimeException {
+public interface IntFlowItems {
 
-    public static final FlowEmpty INSTANCE = new FlowEmpty();
+    <C> @NotNull Flow<C> collect(@NotNull IntFlowCollector<C> collector);
+
+    @NotNull IntFlow findFirst();
+
+    @NotNull IntFlowItems map(
+            @NotNull IntToIntFlowMapper mapper
+    );
+
+    <A> @NotNull FlowItems<A> mapToObj(
+            @NotNull IntFlowMapper<A> mapper
+    );
+
+    @NotNull IntFlowItems forEachCounted(@NotNull IntFlowCountedLoop loop);
+
+    @NotNull IntFlowItems forEach(@NotNull IntFlowConsumer loop);
+
+    @NotNull IntFlowItems filter(
+            @NotNull IntFlowFilter filter
+    );
+
+    void call();
+
+    void callAsync();
 
 }
