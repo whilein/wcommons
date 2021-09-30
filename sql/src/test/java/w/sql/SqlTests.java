@@ -61,7 +61,7 @@ class SqlTests {
 
     @Test
     void fetch() {
-        val result = messenger.fetch("SELECT * FROM `USERS`")
+        val result = messenger.fetch("SELECT * FROM `_`.`USERS`")
                 .map(rs -> rs.getString("NAME") + ':' + rs.getString("BALANCE"))
                 .collect(Collectors.joining(";"))
                 .call();
@@ -71,7 +71,7 @@ class SqlTests {
 
     @Test
     void update() {
-        val query = "INSERT INTO `USERS`(`NAME`, `BALANCE`) VALUES (?, ?)";
+        val query = "INSERT INTO `_`.`USERS`(`NAME`, `BALANCE`) VALUES (?, ?)";
 
         val firstResult = messenger.updateWithKeys(query, "User123", 123)
                 .call();
