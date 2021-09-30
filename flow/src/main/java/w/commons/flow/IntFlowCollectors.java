@@ -46,12 +46,44 @@ public class IntFlowCollectors {
         return new ToIntObjectMap<>(keyMapper, valueMapper);
     }
 
+    public static @NotNull IntFlowCollector<@NotNull IntList, int @NotNull []> toArray() {
+        return ToArray.INSTANCE;
+    }
+
     public static @NotNull IntFlowCollector<?, @NotNull IntList> toIntList() {
         return new ToIntCollection<>(IntArrayList::new);
     }
 
     public static @NotNull IntFlowCollector<?, @NotNull IntSet> toIntSet() {
         return new ToIntCollection<>(IntOpenHashSet::new);
+    }
+
+    @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class ToArray implements IntFlowCollector<IntList, int[]> {
+
+        private static final ToArray INSTANCE = new ToArray();
+
+        @Override
+        public IntList init() {
+            return new IntArrayList();
+        }
+
+        @Override
+        public int[] empty() {
+            return new int[0];
+        }
+
+        @Override
+        public void accumulate(final IntList collection, final int value) {
+            collection.add(value);
+        }
+
+        @Override
+        public int[] finish(final IntList collection) {
+            return collection.toIntArray();
+        }
+
     }
 
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)

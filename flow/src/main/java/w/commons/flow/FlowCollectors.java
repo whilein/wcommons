@@ -1,3 +1,19 @@
+/*
+ *    Copyright 2021 Whilein
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package w.commons.flow;
 
 import lombok.AccessLevel;
@@ -16,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
 
@@ -29,17 +46,29 @@ public class FlowCollectors {
     private static final FlowCollector TO_LIST = new ToCollection(ArrayList::new);
     private static final FlowCollector TO_SET = new ToCollection(HashSet::new);
 
-    private static final FlowCollector TO_UNMODIFIABLE_LIST
-            = new ToUnmodifiableCollection<List<?>>(ArrayList::new, Collections::emptyList, Collections::unmodifiableList);
+    private static final FlowCollector TO_UNMODIFIABLE_LIST = new ToUnmodifiableCollection<List<?>>(
+            ArrayList::new,
+            Collections::emptyList,
+            Collections::unmodifiableList
+    );
 
-    private static final FlowCollector TO_UNMODIFIABLE_SET
-            = new ToUnmodifiableCollection<Set<?>>(HashSet::new, Collections::emptySet, Collections::unmodifiableSet);
+    private static final FlowCollector TO_UNMODIFIABLE_SET = new ToUnmodifiableCollection<Set<?>>(
+            HashSet::new,
+            Collections::emptySet,
+            Collections::unmodifiableSet
+    );
 
     public static <T> @NotNull FlowCollector<T, ?, T @NotNull []> toFixedLengthArray(
-            final Supplier<T[]> factory,
-            final ToIntFunction<T> toIndex
+            final @NonNull Supplier<T[]> factory,
+            final @NonNull ToIntFunction<T> toIndex
     ) {
         return new ToFixedArray<>(factory, toIndex);
+    }
+
+    public static <T> @NotNull FlowCollector<T, @NotNull List<T>, T @NotNull []> toArray(
+            final @NonNull IntFunction<T[]> factory
+    ) {
+        return new ToArray<>(factory);
     }
 
     public static <T> @NotNull FlowCollector<T, ?, @NotNull List<T>> toUnmodifiableList() {
@@ -127,6 +156,34 @@ public class FlowCollectors {
         public String finish(final StringBuilder container) {
             finished = true;
             return container.toString();
+        }
+
+    }
+
+    @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class ToArray<T> implements FlowCollector<T, List<T>, T[]> {
+
+        IntFunction<T[]> factory;
+
+        @Override
+        public List<T> init() {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public T[] empty() {
+            return factory.apply(0);
+        }
+
+        @Override
+        public void accumulate(final List<T> collection, final T value) {
+            collection.add(value);
+        }
+
+        @Override
+        public T[] finish(final List<T> collection) {
+            return collection.toArray(factory);
         }
 
     }
