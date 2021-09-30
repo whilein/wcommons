@@ -23,13 +23,3 @@ jobs:
         run: echo ::set-output name=RESULT::$(echo $GITHUB_REF | cut -d / -f 3)
       - name: Publish with Gradle
         run: ./gradlew publish --no-parallel --no-daemon --build-cache -Pgithub.tag=${{ steps.github_tag.outputs.RESULT }} -Pgpr.user=${{ github.actor }} -Pgpr.password=${{secrets.GITHUB_TOKEN}}
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          draft: false
-          prerelease: ${{ endsWith(github.ref, '-SNAPSHOT') }}
