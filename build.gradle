@@ -10,6 +10,52 @@ subprojects {
         mavenCentral()
     }
 
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                pom {
+                    name = project.name
+                    description = project.description
+
+                    url = 'https://github.com/LastCraftInc/wcommons'
+
+                    licenses {
+                        license {
+                            name = 'The Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id = 'whilein'
+                            name = 'whilein'
+                            email = 'whilein.1@gmail.com'
+                        }
+                    }
+                }
+
+                groupId = project.group
+                artifactId = project.name
+                version = project.version
+
+                from components.java
+            }
+        }
+
+        repositories {
+            // github packages
+            maven {
+                url = "https://maven.pkg.github.com/LastCraftInc/wcommons"
+
+                credentials {
+                    username = findProperty('gpr.user')
+                    password = findProperty('gpr.password')
+                }
+            }
+        }
+    }
+
     dependencies {
         compileOnly 'org.projectlombok:lombok:1.18.20'
         annotationProcessor 'org.projectlombok:lombok:1.18.20'
