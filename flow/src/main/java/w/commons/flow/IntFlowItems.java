@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author whilein
  */
-public interface IntFlowItems extends BaseFlowItems<Integer> {
+public interface IntFlowItems extends BaseFlowItems {
 
     <A, R> @NotNull Flow<R> collect(@NotNull IntFlowCollector<A, R> collector);
 

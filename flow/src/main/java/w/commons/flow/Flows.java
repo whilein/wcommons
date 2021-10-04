@@ -17,6 +17,7 @@
 package w.commons.flow;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -122,12 +123,36 @@ public final class Flows {
         return new FlowItemsImpl<>(null, sink);
     }
 
-    @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class IntFlowImpl implements IntFlow {
-
+    @Getter
+    @FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
+    @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+    private static abstract class AbstractFlow implements BaseFlow {
         String name;
+
+        protected abstract void _callAsync(final Executor executor);
+
+        @Override
+        public final void callAsync() {
+            _callAsync(ForkJoinPool.commonPool());
+        }
+
+        @Override
+        public final void callAsyncUsing(final @NonNull Executor executor) {
+            _callAsync(executor);
+        }
+
+    }
+
+    @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+    private static final class IntFlowImpl extends AbstractFlow implements IntFlow {
+
         IntFlowSupplier call;
+
+        public IntFlowImpl(final String name, final IntFlowSupplier call) {
+            super(name);
+
+            this.call = call;
+        }
 
         @Override
         public int run() throws Exception {
@@ -145,18 +170,8 @@ public final class Flows {
             }
         }
 
-        private void _callAsync(final Executor executor) {
+        protected void _callAsync(final Executor executor) {
             executor.execute(this::call);
-        }
-
-        @Override
-        public void callAsync() {
-            _callAsync(ForkJoinPool.commonPool());
-        }
-
-        @Override
-        public void callAsync(final @NonNull Executor executor) {
-            _callAsync(executor);
         }
 
         @Override
@@ -327,12 +342,19 @@ public final class Flows {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class FlowImpl<T> implements Flow<T> {
 
+        @Getter
         String name;
+
         FlowSupplier<T> call;
 
         @Override
-        public CompletableFuture<T> toFuture() {
+        public @NotNull CompletableFuture<T> toFuture() {
             return CompletableFuture.supplyAsync(this::call);
+        }
+
+        @Override
+        public @NotNull CompletableFuture<T> toFuture(final @NotNull Executor executor) {
+            return CompletableFuture.supplyAsync(this::call, executor);
         }
 
         @Override
@@ -361,7 +383,7 @@ public final class Flows {
         }
 
         @Override
-        public void callAsync(final @NonNull Executor executor) {
+        public void callAsyncUsing(final @NonNull Executor executor) {
             _callAsync(executor);
         }
 
@@ -477,6 +499,36 @@ public final class Flows {
             });
         }
 
+        private <A, R> Flow<R> _parallel(
+                final Flow<A> another,
+                final FlowCombiner<T, A, R> combiner,
+                final Executor executor
+        ) {
+            return new FlowImpl<>(name, () -> {
+                val x = toFuture(executor);
+                val y = another.toFuture(executor);
+
+                return combiner.combine(x.get(), y.get());
+            });
+        }
+
+        @Override
+        public @NotNull <A, R> Flow<R> parallel(
+                final @NonNull Flow<A> another,
+                final @NonNull FlowCombiner<T, A, R> combiner
+        ) {
+            return _parallel(another, combiner, ForkJoinPool.commonPool());
+        }
+
+        @Override
+        public @NotNull <A, R> Flow<R> parallel(
+                final @NonNull Flow<A> another,
+                final @NonNull FlowCombiner<T, A, R> combiner,
+                final @NonNull Executor executor
+        ) {
+            return _parallel(another, combiner, executor);
+        }
+
         @Override
         public @NotNull <A, R> Flow<A> combine(
                 final @NonNull FlowMapper<T, Flow<R>> another,
@@ -528,14 +580,15 @@ public final class Flows {
     }
 
     @FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
-    @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-    private static abstract class AbstractFlowItems<T> implements BaseFlowItems<T> {
+    private static abstract class AbstractFlowItems extends AbstractFlow implements BaseFlowItems {
 
-        String name;
+        public AbstractFlowItems(final String name) {
+            super(name);
+        }
 
         protected abstract void run() throws Exception;
 
-        private void _callAsync(final Executor executor) {
+        protected final void _callAsync(final Executor executor) {
             executor.execute(this::call);
         }
 
@@ -548,19 +601,10 @@ public final class Flows {
             }
         }
 
-        @Override
-        public void callAsync() {
-            _callAsync(ForkJoinPool.commonPool());
-        }
-
-        @Override
-        public void callAsync(final @NonNull Executor executor) {
-            _callAsync(executor);
-        }
     }
 
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-    private static final class IntFlowItemsImpl extends AbstractFlowItems<Integer>
+    private static final class IntFlowItemsImpl extends AbstractFlowItems
             implements IntFlowItems {
 
         FlowConsumer<IntFlowSink> sink;
@@ -672,7 +716,7 @@ public final class Flows {
     }
 
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-    private static final class FlowItemsImpl<T> extends AbstractFlowItems<T>
+    private static final class FlowItemsImpl<T> extends AbstractFlowItems
             implements FlowItems<T> {
 
         FlowConsumer<FlowSink<T>> sink;

@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * @author whilein
  */
-public interface FlowItems<T> extends BaseFlowItems<T> {
+public interface FlowItems<T> extends BaseFlowItems {
 
     <A, R> @NotNull Flow<R> collect(@NotNull FlowCollector<? super T, A, R> collector);
 

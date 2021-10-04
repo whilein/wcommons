@@ -16,7 +16,9 @@
 
 package w.commons.flow;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -27,17 +29,21 @@ import java.util.function.Supplier;
 /**
  * @author whilein
  */
-public interface Flow<T> {
+public interface Flow<T> extends BaseFlow {
 
-    CompletableFuture<T> toFuture();
+    /**
+     * Выполняет флоу асинхронно и результат будет в фьючере
+     *
+     * @return фьючер
+     */
+    @NotNull CompletableFuture<T> toFuture();
 
+    @NotNull CompletableFuture<T> toFuture(@NotNull Executor executor);
+
+    @ApiStatus.Internal
     T run() throws Exception;
 
     T call();
-
-    void callAsync();
-
-    void callAsync(@NotNull Executor executor);
 
     void callAsync(@NotNull Consumer<T> result);
 
@@ -52,6 +58,21 @@ public interface Flow<T> {
     );
 
     @NotNull Flow<@NotNull Optional<T>> toOptional();
+
+    <A, R> @NotNull Flow<R> parallel(
+            @NotNull Flow<A> another,
+            @NotNull FlowCombiner<@Nullable T, @Nullable A, R> combiner
+    );
+
+    /**
+     * Если текущий флоу пустой, то первое значение в combiner'е будет null,
+     * а если another пустой, то второе значение будет null
+     */
+    <A, R> @NotNull Flow<R> parallel(
+            @NotNull Flow<A> another,
+            @NotNull FlowCombiner<@Nullable T, @Nullable A, R> combiner,
+            @NotNull Executor executor
+    );
 
     @NotNull Flow<T> orElse(T value);
 

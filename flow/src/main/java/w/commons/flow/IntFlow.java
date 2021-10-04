@@ -27,15 +27,11 @@ import java.util.function.Supplier;
 /**
  * @author whilein
  */
-public interface IntFlow {
+public interface IntFlow extends BaseFlow {
 
     int call();
 
     int run() throws Exception;
-
-    void callAsync();
-
-    void callAsync(@NotNull Executor executor);
 
     void callAsync(@NotNull IntConsumer result);
 

@@ -51,6 +51,23 @@ class FlowTests {
         assertNull(result);
     }
 
+    @Test
+    void parallel() {
+        val result = delayed("Hello ")
+                .parallel(delayed("world"), (x, y) -> x + y)
+                .parallel(delayed("!"), (x, y) -> x + y)
+                .call();
+
+        assertEquals("Hello world!", result);
+    }
+
+    private static <T> Flow<T> delayed(final T value) {
+        return Flows.ofSupplier(() -> {
+            Thread.sleep(1000);
+
+            return value;
+        });
+    }
 
     @Test
     void intFilter() {

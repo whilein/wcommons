@@ -16,11 +16,20 @@
 
 package w.commons.flow;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.concurrent.Executor;
+
 /**
  * @author whilein
  */
-public interface BaseFlowItems extends BaseFlow {
+public interface BaseFlow {
 
-    void call();
+    @Nullable String getName();
+
+    void callAsync();
+
+    void callAsyncUsing(@NotNull Executor executor);
 
 }
