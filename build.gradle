@@ -44,6 +44,8 @@ subprojects {
         }
 
         repositories {
+            mavenLocal()
+
             // github packages
             maven {
                 url = "https://maven.pkg.github.com/LastCraftInc/wcommons"

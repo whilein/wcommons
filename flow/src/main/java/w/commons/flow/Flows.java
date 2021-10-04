@@ -814,6 +814,7 @@ public final class Flows {
 
                 sink.accept(value -> {
                     output.value = function.map(value);
+                    output.hasValue = true;
                     return false;
                 });
 
