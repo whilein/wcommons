@@ -1,6 +1,6 @@
 name: test
 
-on: [ push, pull_request ]
+on: [ push ]
 
 jobs:
   test:
@@ -18,8 +18,3 @@ jobs:
       run: chmod +x gradlew
     - name: Test with Gradle
       run: ./gradlew --no-parallel --no-daemon --build-cache test
-    - name: Publish Unit Test Results
-      uses: EnricoMi/publish-unit-test-result-action@v1.9
-      if: always()
-      with:
-        files: build/test-results/**/*.xml
