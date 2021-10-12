@@ -23,7 +23,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -45,9 +44,9 @@ public interface Flow<T> extends BaseFlow {
 
     T call();
 
-    void callAsync(@NotNull Consumer<T> result);
+    void callAsync(@NotNull FlowConsumer<T> result);
 
-    void callAsync(@NotNull Consumer<T> result, @NotNull Executor executor);
+    void callAsync(@NotNull FlowConsumer<T> result, @NotNull Executor executor);
 
     <A> @NotNull Flow<A> map(
             @NotNull FlowMapper<T, A> function

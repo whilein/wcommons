@@ -19,10 +19,13 @@ package w.commons.flow;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.concurrent.Executor;
+
 /**
  * @author whilein
  */
 public interface FlowItems<T> extends BaseFlowItems {
+
 
     <A, R> @NotNull Flow<R> collect(@NotNull FlowCollector<? super T, A, R> collector);
 
@@ -40,6 +43,40 @@ public interface FlowItems<T> extends BaseFlowItems {
 
     <A> @NotNull FlowItems<A> map(
             @NotNull FlowMapper<T, @Nullable A> function
+    );
+
+    <A> @NotNull FlowItems<A> flatMap(
+            @NotNull FlowMapper<T, @NotNull FlowItems<A>> fn
+    );
+
+    <A> @NotNull FlowItems<A> flatMapParallel(
+            @NotNull FlowMapper<T, @NotNull FlowItems<A>> fn
+    );
+
+    <A> @NotNull FlowItems<A> flatMapParallel(
+            @NotNull FlowMapper<T, @NotNull FlowItems<A>> fn,
+            @NotNull Executor executor
+    );
+
+    <A> @NotNull FlowItems<A> compose(
+            @NotNull FlowMapper<T, @NotNull Flow<A>> fn
+    );
+
+    <A> @NotNull FlowItems<A> composeParallel(
+            @NotNull FlowMapper<T, @NotNull Flow<A>> fn
+    );
+
+    /**
+     * Параллельно заменяет все T на A
+     *
+     * @param fn       Функция, которая заменит T, на Flow<A>
+     * @param <A>      Новое значение
+     * @param executor Экзекутор, который выполнит замену
+     * @return Течение с новыми значениями
+     */
+    <A> @NotNull FlowItems<A> composeParallel(
+            @NotNull FlowMapper<T, @NotNull Flow<A>> fn,
+            @NotNull Executor executor
     );
 
     @NotNull FlowItems<T> forEachCounted(@NotNull FlowCountedLoop<T> loop);

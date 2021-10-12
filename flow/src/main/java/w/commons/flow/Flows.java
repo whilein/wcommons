@@ -26,13 +26,14 @@ import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
@@ -369,7 +370,7 @@ public final class Flows {
             } catch (final FlowEmpty e) {
                 return null;
             } catch (final Exception e) {
-                throw new RuntimeException("Error occurred whilst executing flow " + name, e);
+                throw new RuntimeException("Error occurred whilst executing flow a " + name, e);
             }
         }
 
@@ -422,23 +423,38 @@ public final class Flows {
 
         @Override
         public void callAsync(
-                final @NonNull Consumer<T> consumer
+                final @NonNull FlowConsumer<T> consumer
         ) {
             _callAsync(consumer, ForkJoinPool.commonPool());
         }
 
         @Override
         public void callAsync(
-                final @NonNull Consumer<T> consumer,
+                final @NonNull FlowConsumer<T> consumer,
                 final @NonNull Executor executor) {
             _callAsync(consumer, executor);
         }
 
         private void _callAsync(
-                final @NonNull Consumer<T> consumer,
+                final @NonNull FlowConsumer<T> consumer,
                 final @NonNull Executor executor
         ) {
-            executor.execute(() -> consumer.accept(call()));
+            executor.execute(() -> {
+                T result = null;
+
+                try {
+                    result = run();
+                } catch (final FlowEmpty ignored) {
+                } catch (final Exception e) {
+                    throw new RuntimeException("Error occurred whilst asynchronously executing a flow " + name, e);
+                }
+
+                try {
+                    consumer.accept(result);
+                } catch (final Exception e) {
+                    throw new RuntimeException("Error occurred whilst asynchronously executing a flow " + name, e);
+                }
+            });
         }
 
         @Override
@@ -586,7 +602,8 @@ public final class Flows {
             super(name);
         }
 
-        protected abstract void run() throws Exception;
+        @Override
+        public abstract void run() throws Exception;
 
         protected final void _callAsync(final Executor executor) {
             executor.execute(this::call);
@@ -710,7 +727,7 @@ public final class Flows {
         }
 
         @Override
-        protected void run() throws Exception {
+        public void run() throws Exception {
             sink.accept(value -> true);
         }
     }
@@ -735,23 +752,23 @@ public final class Flows {
         public @NotNull <A, R> Flow<R> collect(final @NonNull FlowCollector<? super T, A, R> collector) {
             return new FlowImpl<>(name, () -> {
                 final var ref = new Object() {
-                    A collection;
+                    A container;
                 };
 
                 sink.accept(value -> {
-                    A collection = ref.collection;
+                    A container = ref.container;
 
-                    if (collection == null)
-                        ref.collection = collection = collector.init();
+                    if (container == null)
+                        ref.container = container = collector.init();
 
-                    collector.accumulate(collection, value);
+                    collector.accumulate(container, value);
 
                     return true;
                 });
 
-                return ref.collection == null
+                return ref.container == null
                         ? collector.empty()
-                        : collector.finish(ref.collection);
+                        : collector.finish(ref.container);
             });
         }
 
@@ -832,6 +849,130 @@ public final class Flows {
                     value -> newSink.next(mapper.map(value))));
         }
 
+        @SuppressWarnings("unchecked")
+        private <A> FlowItems<A> _flatMapParallel(final FlowMapper<T, FlowItems<A>> fn,
+                                                  final Executor executor) {
+            return new FlowItemsImpl<>(name, newSink -> {
+                // чтобы сохранить порядок, нам нужно знать, в каком порядке это было изначально
+                val tasks = new ArrayList<FlowItems<A>>();
+
+                sink.accept(value -> tasks.add(fn.map(value)));
+
+                if (tasks.isEmpty()) {
+                    return;
+                }
+
+                val taskCount = tasks.size();
+
+                val completedArray = new Object[taskCount][];
+
+                val latch = new CountDownLatch(taskCount);
+
+                for (int i = 0; i < taskCount; i++) {
+                    final int idx = i;
+
+                    tasks.get(idx).collect(FlowCollectors.toArray(Object[]::new))
+                            .callAsync(result -> {
+                                completedArray[idx] = result;
+                                latch.countDown();
+                            }, executor);
+                }
+
+                // ждём, пока у нас выполнится всё
+                latch.await();
+
+                // отдаём по очереди дальше
+                for (val array : completedArray) {
+                    for (val value : array) {
+                        newSink.next((A) value);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public @NotNull <A> FlowItems<A> flatMap(final @NotNull FlowMapper<T, @NotNull FlowItems<A>> fn) {
+            return new FlowItemsImpl<>(name, newSink -> {
+                val subject = new LinkedList<FlowItems<A>>();
+
+                sink.accept(value -> {
+                    subject.add(fn.map(value));
+                    return true;
+                });
+
+                for (val item : subject) {
+                    item.forEach(newSink::next).run();
+                }
+            });
+        }
+
+        @Override
+        public @NotNull <A> FlowItems<A> flatMapParallel(final @NotNull FlowMapper<T, @NotNull FlowItems<A>> fn) {
+            return _flatMapParallel(fn, ForkJoinPool.commonPool());
+        }
+
+        @Override
+        public @NotNull <A> FlowItems<A> flatMapParallel(
+                final @NotNull FlowMapper<T, @NotNull FlowItems<A>> fn,
+                final @NotNull Executor executor
+        ) {
+            return _flatMapParallel(fn, ForkJoinPool.commonPool());
+        }
+
+        @Override
+        public @NotNull <A> FlowItems<A> compose(final @NotNull FlowMapper<T, @NotNull Flow<A>> fn) {
+            return new FlowItemsImpl<>(name, newSink -> sink.accept(
+                    value -> newSink.next(fn.map(value).run())));
+        }
+
+        @SuppressWarnings("unchecked")
+        private <A> FlowItems<A> _composeParallel(final FlowMapper<T, Flow<A>> fn,
+                                                  final Executor executor) {
+            return new FlowItemsImpl<>(name, newSink -> {
+                // чтобы сохранить порядок, нам нужно знать, в каком порядке это было изначально
+                val tasks = new ArrayList<Flow<A>>();
+
+                sink.accept(value -> tasks.add(fn.map(value)));
+
+                if (tasks.isEmpty()) {
+                    return;
+                }
+
+                val completedArray = new Object[tasks.size()];
+                val latch = new CountDownLatch(tasks.size());
+
+                for (int i = 0; i < tasks.size(); i++) {
+                    final int idx = i;
+
+                    tasks.get(idx).callAsync(result -> {
+                        completedArray[idx] = result;
+                        latch.countDown();
+                    }, executor);
+                }
+
+                // ждём, пока у нас выполнится всё
+                latch.await();
+
+                // отдаём по очереди дальше
+                for (val value : completedArray) {
+                    newSink.next((A) value);
+                }
+            });
+        }
+
+        @Override
+        public @NotNull <A> FlowItems<A> composeParallel(final @NotNull FlowMapper<T, @NotNull Flow<A>> fn) {
+            return _composeParallel(fn, ForkJoinPool.commonPool());
+        }
+
+        @Override
+        public @NotNull <A> FlowItems<A> composeParallel(
+                final @NotNull FlowMapper<T, @NotNull Flow<A>> fn,
+                final @NotNull Executor executor
+        ) {
+            return _composeParallel(fn, executor);
+        }
+
         @Override
         public @NotNull FlowItems<T> filter(final @NotNull FlowFilter<T> filter) {
             return new FlowItemsImpl<>(name, newSink -> sink.accept(value -> {
@@ -859,17 +1000,19 @@ public final class Flows {
         @Override
         public @NotNull FlowItems<T> forEachCounted(final @NonNull FlowCountedLoop<T> loop) {
             return new FlowItemsImpl<>(name, newSink -> {
-                val counter = new AtomicInteger();
+                final var t = new Object() {
+                    int counter;
+                };
 
                 sink.accept(value -> {
-                    loop.accept(counter.getAndIncrement(), value);
+                    loop.accept(t.counter++, value);
                     return newSink.next(value);
                 });
             });
         }
 
         @Override
-        protected void run() throws Exception {
+        public void run() throws Exception {
             sink.accept(value -> true);
         }
     }

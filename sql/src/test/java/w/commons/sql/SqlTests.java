@@ -41,7 +41,7 @@ class SqlTests {
         config.setUsername("admin");
         config.setPassword("admin");
         config.setJdbcUrl("jdbc:h2:mem:" + Integer.toHexString(new Random().nextInt(Integer.MAX_VALUE)));
-        config.setMaximumPoolSize(1);
+        config.setMaximumPoolSize(8);
         config.setMinimumIdle(1);
 
         messenger = HikariMessenger.create(config);
@@ -57,13 +57,27 @@ class SqlTests {
     }
 
     @Test
+    void flatMap() {
+        val selectUsers = "SELECT `ID`, `NAME` FROM `_`.`USERS`";
+        val selectTagByUserId = "SELECT `TAG` FROM `_`.`USER_TAGS` WHERE `USER_ID`=?";
+
+        val result = messenger.fetch(selectUsers)
+                .flatMap(user -> messenger.fetch(selectTagByUserId, user.getInt("ID"))
+                        .map(rs -> rs.getString("TAG")))
+                .collect(FlowCollectors.joining(", "))
+                .call();
+
+        assertEquals("Первый, Гей, Второй, Пидор, Третий, Долбоёб, Четвертый, Чмо, Пятый, Камбет", result);
+    }
+
+    @Test
     void fetch() {
         val result = messenger.fetch("SELECT * FROM `_`.`USERS`")
                 .map(rs -> rs.getString("NAME") + ':' + rs.getString("BALANCE"))
                 .collect(FlowCollectors.joining(";"))
                 .call();
 
-        assertEquals("User0:0;User1:50;User2:100;User3:500;User4:1000", result);
+        assertEquals("User1:0;User2:50;User3:100;User4:500;User5:1000", result);
     }
 
     @Test

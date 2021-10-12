@@ -16,11 +16,16 @@
 
 package w.commons.flow;
 
+import org.jetbrains.annotations.ApiStatus;
+
 /**
  * @author whilein
  */
 public interface BaseFlowItems extends BaseFlow {
 
     void call();
+
+    @ApiStatus.Internal
+    void run() throws Exception;
 
 }
