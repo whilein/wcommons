@@ -1,0 +1,10 @@
+dependencies {
+    implementation 'com.maxmind.geoip2:geoip2:2.15.0'
+    implementation 'org.kamranzafar:jtar:2.3'
+
+    compileOnly project(':geo-api')
+
+    testImplementation 'com.maxmind.geoip2:geoip2:2.15.0'
+    testImplementation 'org.kamranzafar:jtar:2.3'
+    testImplementation project(':geo-api')
+}
