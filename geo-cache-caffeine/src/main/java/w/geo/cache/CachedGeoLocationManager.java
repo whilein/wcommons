@@ -65,10 +65,8 @@ public final class CachedGeoLocationManager implements GeoLocationManager {
     public @NotNull GeoLocation lookup(final @NotNull InetAddress address) {
         val location = cache.get(address);
 
-        if (location == null) {
-            return UnknownGeoLocation.INSTANCE;
-        }
-
-        return location;
+        return location == null
+                ? UnknownGeoLocation.INSTANCE
+                : location;
     }
 }
