@@ -90,15 +90,15 @@ public class FlowCollectors {
     }
 
     public static <K, V, T> @NotNull FlowCollector<T, ?, @NotNull Map<K, V>> toUnmodifiableMap(
-            final FlowMapper<T, K> keyMapper,
-            final FlowMapper<T, V> valueMapper
+            final @NotNull FlowMapper<? super T, ? extends K> keyMapper,
+            final @NotNull FlowMapper<? super T, ? extends V> valueMapper
     ) {
         return new ToUnmodifiableMap<>(keyMapper, valueMapper);
     }
 
     public static <K, V, T> @NotNull FlowCollector<T, ?, @NotNull Map<K, V>> toMap(
-            final FlowMapper<? super T, ? extends K> keyMapper,
-            final FlowMapper<? super T, ? extends V> valueMapper
+            final @NotNull FlowMapper<? super T, ? extends K> keyMapper,
+            final @NotNull FlowMapper<? super T, ? extends V> valueMapper
     ) {
         return new ToMap<>(keyMapper, valueMapper);
     }
@@ -280,8 +280,8 @@ public class FlowCollectors {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class ToUnmodifiableMap<K, V, T> implements FlowCollector<T, Map<K, V>, Map<K, V>> {
 
-        FlowMapper<T, K> keyMapper;
-        FlowMapper<T, V> valueMapper;
+        FlowMapper<? super T, ? extends K> keyMapper;
+        FlowMapper<? super T, ? extends V> valueMapper;
 
         @Override
         public Map<K, V> init() {
