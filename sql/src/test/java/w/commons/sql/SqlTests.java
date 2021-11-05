@@ -63,7 +63,7 @@ class SqlTests {
 
         val result = messenger.fetch(selectUsers)
                 .flatMap(user -> messenger.fetch(selectTagByUserId, user.getInt("ID"))
-                        .map(rs -> rs.getString("TAG")))
+                        .map(tag -> tag.getString("TAG")))
                 .collect(FlowCollectors.joining(", "))
                 .call();
 
