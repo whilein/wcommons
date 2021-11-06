@@ -42,15 +42,15 @@ import java.util.function.Supplier;
 public class IntFlowCollectors {
 
     public static <V, T> @NotNull FlowCollector<T, ?, @NotNull Int2ObjectMap<V>> toIntObjectMap(
-            final @NotNull ToIntFlowMapper<T> keyMapper,
-            final @NotNull FlowMapper<T, V> valueMapper
+            final @NotNull ToIntFlowMapper<? super T> keyMapper,
+            final @NotNull FlowMapper<? super T, ? extends V> valueMapper
     ) {
         return new ToIntObjectMap<>(keyMapper, valueMapper);
     }
 
     public static <K, T> @NotNull FlowCollector<T, ?, @NotNull Object2IntMap<K>> toObjectIntMap(
-            final @NotNull FlowMapper<T, K> keyMapper,
-            final @NotNull ToIntFlowMapper<T> valueMapper
+            final @NotNull FlowMapper<? super T, K> keyMapper,
+            final @NotNull ToIntFlowMapper<? super T> valueMapper
     ) {
         return new ToObjectIntMap<>(keyMapper, valueMapper);
     }
@@ -100,8 +100,8 @@ public class IntFlowCollectors {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class ToObjectIntMap<K, T> implements FlowCollector<T, Object2IntMap<K>, Object2IntMap<K>> {
 
-        FlowMapper<T, K> keyMapper;
-        ToIntFlowMapper<T> valueMapper;
+        FlowMapper<? super T, ? extends K> keyMapper;
+        ToIntFlowMapper<? super T> valueMapper;
 
         @Override
         public Object2IntOpenHashMap<K> init() {
@@ -129,8 +129,8 @@ public class IntFlowCollectors {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class ToIntObjectMap<V, T> implements FlowCollector<T, Int2ObjectMap<V>, Int2ObjectMap<V>> {
 
-        ToIntFlowMapper<T> keyMapper;
-        FlowMapper<T, V> valueMapper;
+        ToIntFlowMapper<? super T> keyMapper;
+        FlowMapper<? super T, ? extends V> valueMapper;
 
         @Override
         public Int2ObjectOpenHashMap<V> init() {
