@@ -3,6 +3,6 @@ include ':sql'
 include ':flow'
 include ':geo-api'
 include ':geo-maxmind-impl'
-// todo geo ipinfo impl
+include ':geo-ipinfo-impl'
 include ':geo-cache-caffeine'
 include ':geo-cache-guava'

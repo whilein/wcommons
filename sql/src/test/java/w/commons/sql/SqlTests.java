@@ -57,6 +57,20 @@ class SqlTests {
     }
 
     @Test
+    void collect() {
+        val selectUsers = "SELECT `ID`, `NAME` FROM `_`.`USERS`";
+
+        val result = messenger.fetch(selectUsers)
+                .collect(FlowCollectors.toUnmodifiableMap(
+                        rs -> rs.getInt("ID"),
+                        rs -> rs.getString("NAME")
+                ))
+                .call();
+
+        assertEquals("{1=User1, 2=User2, 3=User3, 4=User4, 5=User5}", result.toString());
+    }
+
+    @Test
     void flatMap() {
         val selectUsers = "SELECT `ID`, `NAME` FROM `_`.`USERS`";
         val selectTagByUserId = "SELECT `TAG` FROM `_`.`USER_TAGS` WHERE `USER_ID`=?";

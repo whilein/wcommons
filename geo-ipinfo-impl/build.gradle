@@ -1,0 +1,7 @@
+dependencies {
+    compileOnly project(':geo-api')
+    compileOnly 'com.google.code.gson:gson:2.8.9'
+
+    testImplementation 'com.google.code.gson:gson:2.8.9'
+    testImplementation project(':geo-api')
+}
