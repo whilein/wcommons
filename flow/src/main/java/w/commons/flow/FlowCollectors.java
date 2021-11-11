@@ -27,6 +27,7 @@ import w.utils.pair.Pair;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -102,6 +103,34 @@ public class FlowCollectors {
         return new ToMap<>(Pair::getLeft, Pair::getRight, mapFactory);
     }
 
+    public <K extends Enum<K>, V, T> @NotNull FlowCollector<T, ?, Map<K, V>> toUnmodifiableEnumMap(
+            final @NotNull FlowMapper<? super T, ? extends K> keyMapper,
+            final @NotNull FlowMapper<? super T, ? extends V> valueMapper,
+            final @NotNull Class<K> enumType
+    ) {
+        return new ToUnmodifiableMap<>(keyMapper, valueMapper, () -> new EnumMap<>(enumType));
+    }
+
+    public <K extends Enum<K>, V, T> @NotNull FlowCollector<T, ?, Map<K, V>> toEnumMap(
+            final @NotNull FlowMapper<? super T, ? extends K> keyMapper,
+            final @NotNull FlowMapper<? super T, ? extends V> valueMapper,
+            final @NotNull Class<K> enumType
+    ) {
+        return new ToMap<>(keyMapper, valueMapper, () -> new EnumMap<>(enumType));
+    }
+
+    public <K extends Enum<K>, V, T extends Pair<K, V>> @NotNull FlowCollector<T, ?, Map<K, V>> toUnmodifiableEnumMap(
+            final @NotNull Class<K> enumType
+    ) {
+        return new ToUnmodifiableMap<>(Pair::getLeft, Pair::getRight, () -> new EnumMap<>(enumType));
+    }
+
+    public <K extends Enum<K>, V, T extends Pair<K, V>> @NotNull FlowCollector<T, ?, Map<K, V>> toEnumMap(
+            final @NotNull Class<K> enumType
+    ) {
+        return new ToMap<>(Pair::getLeft, Pair::getRight, () -> new EnumMap<>(enumType));
+    }
+
     public <K, V, T> @NotNull FlowCollector<T, ?, @NotNull Map<K, V>> toUnmodifiableMap(
             final @NotNull FlowMapper<? super T, ? extends K> keyMapper,
             final @NotNull FlowMapper<? super T, ? extends V> valueMapper,
@@ -117,7 +146,6 @@ public class FlowCollectors {
     ) {
         return new ToMap<>(keyMapper, valueMapper, mapFactory);
     }
-
 
     public <K, V, T extends Pair<K, V>> @NotNull FlowCollector<T, ?, @NotNull Map<K, V>> toUnmodifiableMap() {
         return new ToUnmodifiableMap<>(Pair::getLeft, Pair::getRight, HashMap::new);
