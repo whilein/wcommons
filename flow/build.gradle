@@ -1,5 +1,5 @@
 dependencies {
     compileOnly 'it.unimi.dsi:fastutil-core:8.5.6'
 
-    compileOnly project(':utils')
+    implementation project(':utils')
 }
