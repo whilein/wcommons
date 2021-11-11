@@ -16,10 +16,18 @@
 
 package w.commons.flow;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.IntPredicate;
+
 /**
  * @author whilein
  */
 public interface IntFlowFilter {
+
+    static @NotNull IntFlowFilter of(final @NotNull IntPredicate predicate) {
+        return predicate::test;
+    }
 
     boolean test(int value) throws Exception;
 

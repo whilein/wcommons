@@ -16,10 +16,18 @@
 
 package w.commons.flow;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Predicate;
+
 /**
  * @author whilein
  */
 public interface FlowFilter<T> {
+
+    static <T> @NotNull FlowFilter<T> of(final @NotNull Predicate<T> predicate) {
+        return predicate::test;
+    }
 
     boolean test(T value) throws Exception;
 
