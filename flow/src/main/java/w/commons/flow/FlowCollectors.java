@@ -90,28 +90,56 @@ public class FlowCollectors {
         return TO_UNMODIFIABLE_SET;
     }
 
+    public <K, V, T extends Pair<K, V>> @NotNull FlowCollector<T, ?, @NotNull Map<K, V>> toUnmodifiableMap(
+            final @NotNull Supplier<Map<K, V>> mapFactory
+    ) {
+        return new ToUnmodifiableMap<>(Pair::getLeft, Pair::getRight, mapFactory);
+    }
+
+    public <K, V, T extends Pair<K, V>> @NotNull FlowCollector<T, ?, @NotNull Map<K, V>> toMap(
+            final @NotNull Supplier<Map<K, V>> mapFactory
+    ) {
+        return new ToMap<>(Pair::getLeft, Pair::getRight, mapFactory);
+    }
+
+    public <K, V, T> @NotNull FlowCollector<T, ?, @NotNull Map<K, V>> toUnmodifiableMap(
+            final @NotNull FlowMapper<? super T, ? extends K> keyMapper,
+            final @NotNull FlowMapper<? super T, ? extends V> valueMapper,
+            final @NotNull Supplier<Map<K, V>> mapFactory
+    ) {
+        return new ToUnmodifiableMap<>(keyMapper, valueMapper, mapFactory);
+    }
+
+    public <K, V, T> @NotNull FlowCollector<T, ?, @NotNull Map<K, V>> toMap(
+            final @NotNull FlowMapper<? super T, ? extends K> keyMapper,
+            final @NotNull FlowMapper<? super T, ? extends V> valueMapper,
+            final @NotNull Supplier<Map<K, V>> mapFactory
+    ) {
+        return new ToMap<>(keyMapper, valueMapper, mapFactory);
+    }
+
+
     public <K, V, T extends Pair<K, V>> @NotNull FlowCollector<T, ?, @NotNull Map<K, V>> toUnmodifiableMap() {
-        return new ToUnmodifiableMap<>(Pair::getLeft, Pair::getRight);
+        return new ToUnmodifiableMap<>(Pair::getLeft, Pair::getRight, HashMap::new);
     }
 
     public <K, V, T extends Pair<K, V>> @NotNull FlowCollector<T, ?, @NotNull Map<K, V>> toMap() {
-        return new ToMap<>(Pair::getLeft, Pair::getRight);
+        return new ToMap<>(Pair::getLeft, Pair::getRight, HashMap::new);
     }
 
     public <K, V, T> @NotNull FlowCollector<T, ?, @NotNull Map<K, V>> toUnmodifiableMap(
             final @NotNull FlowMapper<? super T, ? extends K> keyMapper,
             final @NotNull FlowMapper<? super T, ? extends V> valueMapper
     ) {
-        return new ToUnmodifiableMap<>(keyMapper, valueMapper);
+        return new ToUnmodifiableMap<>(keyMapper, valueMapper, HashMap::new);
     }
 
     public <K, V, T> @NotNull FlowCollector<T, ?, @NotNull Map<K, V>> toMap(
             final @NotNull FlowMapper<? super T, ? extends K> keyMapper,
             final @NotNull FlowMapper<? super T, ? extends V> valueMapper
     ) {
-        return new ToMap<>(keyMapper, valueMapper);
+        return new ToMap<>(keyMapper, valueMapper, HashMap::new);
     }
-
 
     public <T> @NotNull FlowCollector<T, ?, @NotNull List<T>> toList() {
         return (FlowCollector) TO_LIST;
@@ -292,9 +320,11 @@ public class FlowCollectors {
         FlowMapper<? super T, ? extends K> keyMapper;
         FlowMapper<? super T, ? extends V> valueMapper;
 
+        Supplier<Map<K, V>> factory;
+
         @Override
         public Map<K, V> init() {
-            return new HashMap<>();
+            return factory.get();
         }
 
         @Override
@@ -321,14 +351,16 @@ public class FlowCollectors {
         FlowMapper<? super T, ? extends K> keyMapper;
         FlowMapper<? super T, ? extends V> valueMapper;
 
+        Supplier<Map<K, V>> factory;
+
         @Override
         public Map<K, V> init() {
-            return new HashMap<>();
+            return factory.get();
         }
 
         @Override
         public Map<K, V> empty() {
-            return new HashMap<>();
+            return factory.get();
         }
 
         @Override
