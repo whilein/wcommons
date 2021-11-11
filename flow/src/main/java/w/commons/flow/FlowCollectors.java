@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
+import w.utils.pair.Pair;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,45 +59,53 @@ public class FlowCollectors {
             Collections::unmodifiableSet
     );
 
-    public static <T> @NotNull FlowCollector<T, ?, T @NotNull []> toFixedLengthArray(
+    public <T> @NotNull FlowCollector<T, ?, T @NotNull []> toFixedLengthArray(
             final @NonNull Supplier<T[]> factory,
             final @NonNull ToIntFunction<T> toIndex
     ) {
         return new ToFixedArray<>(factory, toIndex);
     }
 
-    public static <T> @NotNull FlowCollector<T, @NotNull List<T>, T @NotNull []> toArray(
+    public <T> @NotNull FlowCollector<T, @NotNull List<T>, T @NotNull []> toArray(
             final @NonNull IntFunction<T[]> factory
     ) {
         return new ToArray<>(factory);
     }
 
-    public static <T> @NotNull FlowCollector<T, ?, @NotNull List<T>> toUnmodifiableList() {
+    public <T> @NotNull FlowCollector<T, ?, @NotNull List<T>> toUnmodifiableList() {
         return TO_UNMODIFIABLE_LIST;
     }
 
-    public static @NotNull FlowCollector<@NotNull String, @NotNull StringBuilder, @NotNull String> joining() {
+    public @NotNull FlowCollector<@NotNull String, @NotNull StringBuilder, @NotNull String> joining() {
         return new Joining("");
     }
 
-    public static @NotNull FlowCollector<@NotNull String, @NotNull StringBuilder, @NotNull String> joining(
+    public @NotNull FlowCollector<@NotNull String, @NotNull StringBuilder, @NotNull String> joining(
             final @NotNull String delimiter
     ) {
         return new Joining(delimiter);
     }
 
-    public static <T> @NotNull FlowCollector<T, ?, @NotNull Set<T>> toUnmodifiableSet() {
+    public <T> @NotNull FlowCollector<T, ?, @NotNull Set<T>> toUnmodifiableSet() {
         return TO_UNMODIFIABLE_SET;
     }
 
-    public static <K, V, T> @NotNull FlowCollector<T, ?, @NotNull Map<K, V>> toUnmodifiableMap(
+    public <K, V, T extends Pair<K, V>> @NotNull FlowCollector<T, ?, @NotNull Map<K, V>> toUnmodifiableMap() {
+        return new ToUnmodifiableMap<>(Pair::getLeft, Pair::getRight);
+    }
+
+    public <K, V, T extends Pair<K, V>> @NotNull FlowCollector<T, ?, @NotNull Map<K, V>> toMap() {
+        return new ToMap<>(Pair::getLeft, Pair::getRight);
+    }
+
+    public <K, V, T> @NotNull FlowCollector<T, ?, @NotNull Map<K, V>> toUnmodifiableMap(
             final @NotNull FlowMapper<? super T, ? extends K> keyMapper,
             final @NotNull FlowMapper<? super T, ? extends V> valueMapper
     ) {
         return new ToUnmodifiableMap<>(keyMapper, valueMapper);
     }
 
-    public static <K, V, T> @NotNull FlowCollector<T, ?, @NotNull Map<K, V>> toMap(
+    public <K, V, T> @NotNull FlowCollector<T, ?, @NotNull Map<K, V>> toMap(
             final @NotNull FlowMapper<? super T, ? extends K> keyMapper,
             final @NotNull FlowMapper<? super T, ? extends V> valueMapper
     ) {
@@ -104,15 +113,15 @@ public class FlowCollectors {
     }
 
 
-    public static <T> @NotNull FlowCollector<T, ?, @NotNull List<T>> toList() {
+    public <T> @NotNull FlowCollector<T, ?, @NotNull List<T>> toList() {
         return (FlowCollector) TO_LIST;
     }
 
-    public static <T> @NotNull FlowCollector<T, ?, @NotNull Set<T>> toSet() {
+    public <T> @NotNull FlowCollector<T, ?, @NotNull Set<T>> toSet() {
         return (FlowCollector) TO_SET;
     }
 
-    public static <T, R extends Collection<T>> @NotNull FlowCollector<T, ?, R> toCollection(
+    public <T, R extends Collection<T>> @NotNull FlowCollector<T, ?, R> toCollection(
             final @NonNull Supplier<R> factory
     ) {
         return (FlowCollector<T, ?, R>) new ToCollection<>(factory);

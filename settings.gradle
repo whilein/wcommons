@@ -6,3 +6,5 @@ include ':geo-maxmind-impl'
 include ':geo-ipinfo-impl'
 include ':geo-cache-caffeine'
 include ':geo-cache-guava'
+
+include ':utils'
