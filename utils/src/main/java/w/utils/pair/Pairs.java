@@ -27,27 +27,27 @@ public class Pairs {
         return new MutablePairImpl<>(left, right);
     }
 
-    public @NotNull Predicate<Pair<?, ?>> isNull() {
+    public <K, V> @NotNull Predicate<Pair<K, V>> isNull() {
         return pair -> pair.getLeft() == null && pair.getRight() == null;
     }
 
-    public @NotNull Predicate<Pair<?, ?>> isNotNull() {
+    public <K, V> @NotNull Predicate<Pair<K, V>> isNotNull() {
         return pair -> pair.getLeft() != null && pair.getRight() != null;
     }
 
-    public @NotNull Predicate<Pair<?, ?>> isLeftNull() {
+    public <K, V> @NotNull Predicate<Pair<K, V>> isLeftNull() {
         return pair -> pair.getLeft() == null;
     }
 
-    public @NotNull Predicate<Pair<?, ?>> isRightNull() {
+    public <K, V> @NotNull Predicate<Pair<K, V>> isRightNull() {
         return pair -> pair.getRight() == null;
     }
 
-    public @NotNull Predicate<Pair<?, ?>> isLeftNotNull() {
+    public <K, V> @NotNull Predicate<Pair<K, V>> isLeftNotNull() {
         return pair -> pair.getLeft() != null;
     }
 
-    public @NotNull Predicate<Pair<?, ?>> isRightNotNull() {
+    public <K, V> @NotNull Predicate<Pair<K, V>> isRightNotNull() {
         return pair -> pair.getRight() != null;
     }
 
