@@ -29,16 +29,15 @@ import java.util.Arrays;
 @UtilityClass
 public class Matchers {
 
-    public @NotNull Matcher name(final @NotNull String name) {
+    public @NotNull Matcher named(final @NotNull String name) {
         return info -> info.getName().equals(name);
     }
 
-    public @NotNull Matcher returnType(final @NotNull Class<?> returnType) {
+    public @NotNull Matcher returns(final @NotNull Class<?> returnType) {
         val type = Type.getType(returnType);
 
         return info -> info.getReturnType().equals(type);
     }
-
 
     public @NotNull Matcher takesArguments(final int count) {
         return info -> info.getArguments().length == count;
