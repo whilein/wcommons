@@ -1,0 +1,6 @@
+dependencies {
+    implementation project(':asm')
+
+    testImplementation project(':asm')
+    testImplementation 'org.ow2.asm:asm:9.2'
+}
