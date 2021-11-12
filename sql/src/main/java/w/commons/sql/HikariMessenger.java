@@ -60,25 +60,16 @@ import static java.sql.PreparedStatement.RETURN_GENERATED_KEYS;
 public final class HikariMessenger implements Messenger {
 
     @Getter
+    Dialect dialect;
+
+    @Getter
     HikariDataSource dataSource;
 
     public static @NotNull Messenger create(
+            final @NonNull Dialect dialect,
             final @NonNull HikariConfig config
     ) {
-        return new HikariMessenger(new HikariDataSource(config));
-    }
-
-    public static @NotNull Messenger create(
-            final @NonNull String jdbc,
-            final @NonNull String user,
-            final @NonNull String password
-    ) {
-        val dataSource = new HikariDataSource();
-        dataSource.setJdbcUrl(jdbc);
-        dataSource.setUsername(user);
-        dataSource.setPassword(password);
-
-        return new HikariMessenger(dataSource);
+        return new HikariMessenger(dialect, new HikariDataSource(config));
     }
 
     @Override

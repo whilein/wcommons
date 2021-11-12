@@ -31,9 +31,12 @@ import java.sql.SQLException;
  */
 public interface Messenger {
 
+    @NotNull Dialect getDialect();
+
     @NotNull ScriptRunner scriptRunner();
 
     @NotNull DataSource getDataSource();
+
     @NotNull Connection getConnection() throws SQLException;
 
     @NotNull IntFlow update(@NotNull String query, @Nullable Object @NotNull ... parameters);

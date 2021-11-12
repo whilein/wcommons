@@ -44,7 +44,7 @@ class SqlTests {
         config.setMaximumPoolSize(8);
         config.setMinimumIdle(1);
 
-        messenger = HikariMessenger.create(config);
+        messenger = HikariMessenger.create(Dialect.H2, config);
 
         messenger.scriptRunner()
                 .run("init.sql")

@@ -3,6 +3,7 @@ rootProject.name = 'wcommons'
 include ':asm'
 
 include ':sql'
+include ':sql-orm'
 include ':flow'
 include ':geo-api'
 include ':geo-maxmind-impl'
