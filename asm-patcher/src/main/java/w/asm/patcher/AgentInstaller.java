@@ -24,7 +24,6 @@ import w.asm.Asm;
 
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.jar.Attributes;
@@ -41,9 +40,6 @@ public final class AgentInstaller {
     private final long PID;
     private final String JAVA_EXECUTABLE;
 
-    private final Class<?> AGENT_MAIN;
-    private final Field AGENT_INSTRUMENTATION;
-
     private volatile Instrumentation instrumentation;
 
     static {
@@ -54,15 +50,6 @@ public final class AgentInstaller {
         JAVA_EXECUTABLE = process.info().command()
                 .orElseGet(() -> System.getProperty("JAVA_HOME") // or default
                         + "/bin/java");
-
-        try {
-            AGENT_MAIN = ClassLoader.getSystemClassLoader().loadClass("w.asm.patcher.AgentMain");
-
-            AGENT_INSTRUMENTATION = AGENT_MAIN.getDeclaredField("instrumentation");
-            AGENT_INSTRUMENTATION.setAccessible(true);
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     /**
@@ -75,7 +62,7 @@ public final class AgentInstaller {
     private Path createAgentJar() throws IOException {
         val temporary = Files.createTempFile("wcommons", ".jar");
 
-        val agentMainName = AGENT_MAIN.getName();
+        val agentMainName = "w.asm.patcher.AgentMain";
 
         val manifest = new Manifest();
         val manifestAttributes = manifest.getMainAttributes();
@@ -89,7 +76,7 @@ public final class AgentInstaller {
             val mainClass = new ZipEntry(agentMainName.replace('.', '/') + ".class");
 
             jar.putNextEntry(mainClass);
-            jar.write(Asm.toByteArray(AGENT_MAIN));
+            jar.write(Asm.toByteArray(AgentInstaller.class.getClassLoader(), agentMainName));
         }
 
         return temporary;
@@ -99,12 +86,10 @@ public final class AgentInstaller {
      * Запустить Jar, ибо нельзя подключать агент в той же JVM, начиная с Java 9
      *
      * @param agent Путь до Jar агента
-     * @throws IOException            ошибка, если не удалось запустить процесс
-     * @throws InterruptedException   ошибка, если не удалось дождаться завершения процесса
-     * @throws IllegalAccessException ошибка, если по какой-то причине не
-     *                                вызвался {@link Field#setAccessible(boolean)} у {@link AgentMain}
+     * @throws IOException          ошибка, если не удалось запустить процесс
+     * @throws InterruptedException ошибка, если не удалось дождаться завершения процесса
      */
-    private Instrumentation runAgent(final Path agent) throws IOException, InterruptedException, IllegalAccessException {
+    private Instrumentation runAgent(final Path agent) throws IOException, InterruptedException {
         val cp = AgentInstaller.class.getProtectionDomain().getCodeSource()
                 .getLocation();
 
@@ -129,7 +114,16 @@ public final class AgentInstaller {
 
         process.waitFor();
 
-        return (Instrumentation) AGENT_INSTRUMENTATION.get(null);
+        try {
+            val agentMain = ClassLoader.getSystemClassLoader().loadClass("w.asm.patcher.AgentMain");
+
+            val field = agentMain.getDeclaredField("instrumentation");
+            field.setAccessible(true);
+
+            return (Instrumentation) field.get(null);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @SneakyThrows

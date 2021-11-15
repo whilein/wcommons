@@ -28,10 +28,10 @@ import java.io.IOException;
 @UtilityClass
 public class Asm {
 
-    public byte @NotNull [] toByteArray(final @NotNull Class<?> type) throws IOException {
-        val internalClassName = type.getName().replace('.', '/');
+    public byte @NotNull [] toByteArray(final @NotNull ClassLoader cl, final @NotNull String type) throws IOException {
+        val internalClassName = type.replace('.', '/');
 
-        val inputStream = type.getClassLoader().getResourceAsStream(internalClassName + ".class");
+        val inputStream = cl.getResourceAsStream(internalClassName + ".class");
 
         try (inputStream) {
             if (inputStream == null) {

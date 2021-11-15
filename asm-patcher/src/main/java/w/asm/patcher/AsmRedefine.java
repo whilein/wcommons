@@ -18,6 +18,8 @@ package w.asm.patcher;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+
 /**
  * @author whilein
  */
@@ -26,5 +28,12 @@ public interface AsmRedefine {
     @NotNull AsmRedefineMethod on(@NotNull Matcher matcher);
 
     void apply();
+
+    /**
+     * Применить изменения с сохранением в папку
+     *
+     * @param file Папка
+     */
+    void apply(@NotNull File file);
 
 }

@@ -1,10 +1,24 @@
+String getCommit() {
+    def stdout = new ByteArrayOutputStream()
+
+    exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput = stdout
+    }
+
+    return stdout.toString().trim()
+}
+
+def releaseVersion = findProperty('github.tag') ?: getCommit()
+println("Release version: ${releaseVersion}")
+
 subprojects {
     apply plugin: 'java'
     apply plugin: 'java-library'
     apply plugin: 'maven-publish'
 
     group 'io.github.whilein.wcommons'
-    version findProperty('github.tag') ?: 'unknown'
+    version releaseVersion
 
     repositories {
         mavenCentral()

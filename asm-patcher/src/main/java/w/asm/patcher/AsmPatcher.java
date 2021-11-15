@@ -17,6 +17,7 @@
 package w.asm.patcher;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
@@ -30,6 +31,9 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
@@ -46,7 +50,10 @@ public class AsmPatcher {
     public @NotNull AsmRedefine redefine(
             final @NotNull Class<?> type
     ) {
-        return new AsmRedefineImpl(type, new ArrayList<>());
+        return new AsmRedefineImpl(
+                type,
+                new ArrayList<>()
+        );
     }
 
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -74,7 +81,7 @@ public class AsmPatcher {
     }
 
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class AsmRedefineImpl implements AsmRedefine {
 
         Class<?> type;
@@ -86,8 +93,17 @@ public class AsmPatcher {
         }
 
         @Override
-        @SneakyThrows
+        public void apply(final @NotNull File file) {
+            _apply(file);
+        }
+
+        @Override
         public void apply() {
+            _apply(null);
+        }
+
+        @SneakyThrows
+        private void _apply(final File file) {
             if (interceptors.isEmpty()) {
                 return;
             }
@@ -109,9 +125,10 @@ public class AsmPatcher {
                         try {
                             val reader = new ClassReader(buffer);
 
-                            val writer = new ClassWriter(reader,
-                                    ClassWriter.COMPUTE_FRAMES |
-                                            ClassWriter.COMPUTE_MAXS);
+                            val writer = new ClassWriter(
+                                    reader,
+                                    ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS
+                            );
 
                             reader.accept(new ClassVisitor(Opcodes.ASM9, writer) {
                                 @Override
@@ -142,13 +159,29 @@ public class AsmPatcher {
                                 }
                             }, 0);
 
-                            return writer.toByteArray();
-                        } catch (final Throwable t) {
-                            t.printStackTrace();
+                            val bytes = writer.toByteArray();
+
+                            if (file != null) {
+                                val classFile = new File(file, className + ".class");
+                                val packageDir = classFile.getParentFile();
+
+                                if (!packageDir.exists() && !packageDir.mkdirs()) {
+                                    throw new IOException("Cannot make dir for " + classFile);
+                                }
+
+                                try (val os = new FileOutputStream(classFile)) {
+                                    os.write(bytes);
+                                }
+                            }
+
+                            return bytes;
+                        } catch (final Exception e) {
+                            e.printStackTrace();
                         } finally {
                             instrumentation.removeTransformer(this);
                         }
                     }
+
                     return ClassFileTransformer.super.transform(loader, className,
                             classBeingRedefined, protectionDomain, buffer);
                 }
