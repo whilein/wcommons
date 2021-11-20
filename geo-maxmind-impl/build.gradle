@@ -1,5 +1,5 @@
 dependencies {
-    implementation 'com.maxmind.geoip2:geoip2:2.15.0'
+    implementation 'com.maxmind.geoip2:geoip2:2.16.1'
     implementation 'org.kamranzafar:jtar:2.3'
 
     compileOnly project(':geo-api')
