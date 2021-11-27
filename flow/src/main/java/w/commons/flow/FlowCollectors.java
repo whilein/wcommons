@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
-import w.utils.pair.Pair;
+import w.util.pair.Pair;
 
 import java.util.ArrayList;
 import java.util.Collection;

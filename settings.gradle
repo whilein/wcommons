@@ -11,4 +11,4 @@ include ':geo-ipinfo-impl'
 include ':geo-cache-caffeine'
 include ':geo-cache-guava'
 
-include ':utils'
+include ':util'
