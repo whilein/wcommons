@@ -39,8 +39,8 @@ public class Pairs {
         return new PairImpl<>(left, right);
     }
 
-    public <L, R> @NotNull MutablePair<L, R> mutableOf(final L left, final R right) {
-        return new MutablePairImpl<>(left, right);
+    public <L, R> @NotNull MutPair<L, R> mutableOf(final L left, final R right) {
+        return new MutPairImpl<>(left, right);
     }
 
     public <K, V> @NotNull Predicate<Pair<K, V>> isNull() {
@@ -101,24 +101,24 @@ public class Pairs {
     @Setter
     @FieldDefaults(level = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class MutablePairImpl<L, R> extends AbstractPair<L, R> implements MutablePair<L, R> {
+    private static final class MutPairImpl<L, R> extends AbstractPair<L, R> implements MutPair<L, R> {
 
         L left;
         R right;
 
         @Override
-        public <L1> @NotNull MutablePair<L1, R> withLeft(final L1 newValue) {
-            return new MutablePairImpl<>(newValue, right);
+        public <L1> @NotNull MutPair<L1, R> withLeft(final L1 newValue) {
+            return new MutPairImpl<>(newValue, right);
         }
 
         @Override
-        public <R1> @NotNull MutablePair<L, R1> withRight(final R1 newValue) {
-            return new MutablePairImpl<>(left, newValue);
+        public <R1> @NotNull MutPair<L, R1> withRight(final R1 newValue) {
+            return new MutPairImpl<>(left, newValue);
         }
 
         @Override
-        public @NotNull MutablePair<L, R> copy() {
-            return new MutablePairImpl<>(left, right);
+        public @NotNull MutPair<L, R> copy() {
+            return new MutPairImpl<>(left, right);
         }
 
     }
