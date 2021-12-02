@@ -3,8 +3,11 @@ rootProject.name = 'wcommons'
 include ':asm'
 include ':asm-patcher'
 
+include ':config'
+
 include ':sql'
 include ':flow'
+
 include ':geo-api'
 include ':geo-maxmind-impl'
 include ':geo-ipinfo-impl'
