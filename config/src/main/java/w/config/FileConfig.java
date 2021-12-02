@@ -18,28 +18,15 @@ package w.config;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.Reader;
-import java.nio.file.Path;
-
 /**
  * @author whilein
  */
-public interface ConfigParser {
+public interface FileConfig extends ConfigObject {
 
-    @NotNull ConfigObject newObject();
+    void saveDefaults(@NotNull String resource);
 
-    @NotNull ConfigObject parse(@NotNull File file);
+    void save();
 
-    @NotNull ConfigObject parse(@NotNull Path path);
-
-    @NotNull ConfigObject parse(@NotNull Reader reader);
-
-    @NotNull ConfigObject parse(@NotNull InputStream stream);
-
-    @NotNull ConfigObject parse(@NotNull String input);
-
-    @NotNull ConfigObject parse(byte @NotNull [] input);
+    void reload();
 
 }

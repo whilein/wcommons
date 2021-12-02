@@ -48,7 +48,7 @@ public abstract class AbstractJacksonConfigParser implements JacksonConfigParser
     ObjectMapper objectMapper;
 
     private ConfigObject loadObject(final Map<?, ?> map) {
-        val object = new ConfigObjectImplAbstract(new LinkedHashMap<>());
+        val object = new ConfigObjectImpl(new LinkedHashMap<>());
         loadObject(map, object);
 
         return object;
@@ -73,6 +73,11 @@ public abstract class AbstractJacksonConfigParser implements JacksonConfigParser
         try (val is = Files.newInputStream(path)) {
             return _parse(is);
         }
+    }
+
+    @Override
+    public @NotNull ConfigObject newObject() {
+        return new ConfigObjectImpl(new LinkedHashMap<>());
     }
 
     @Override
@@ -111,9 +116,9 @@ public abstract class AbstractJacksonConfigParser implements JacksonConfigParser
         return loadObject(objectMapper.readValue(is, Map.class));
     }
 
-    private final class ConfigObjectImplAbstract extends AbstractMapConfigObject {
+    private final class ConfigObjectImpl extends AbstractMapConfigObject {
 
-        private ConfigObjectImplAbstract(final Map<String, Object> map) {
+        private ConfigObjectImpl(final Map<String, Object> map) {
             super(map);
         }
 
@@ -125,7 +130,7 @@ public abstract class AbstractJacksonConfigParser implements JacksonConfigParser
 
         @Override
         protected ConfigObject createObject(final Map<String, Object> map) {
-            return new ConfigObjectImplAbstract(map);
+            return new ConfigObjectImpl(map);
         }
 
         @Override
