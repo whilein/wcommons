@@ -1,0 +1,17 @@
+sourceSets {
+    ap {
+        java.srcDir("src/ap/java")
+        resources.srcDir("src/ap/resources")
+
+        compileClasspath = sourceSets.main.compileClasspath + sourceSets.main.output
+        runtimeClasspath = sourceSets.main.runtimeClasspath + sourceSets.main.output
+    }
+}
+
+jar {
+    from sourceSets.ap.output
+}
+
+processApResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
