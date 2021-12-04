@@ -22,4 +22,4 @@ jobs:
         id: github_tag
         run: echo ::set-output name=RESULT::$(echo $GITHUB_REF | cut -d / -f 3)
       - name: Publish with Gradle
-        run: ./gradlew publish --no-parallel --no-daemon --build-cache -Pgithub.tag=${{ steps.github_tag.outputs.RESULT }} -Pgpr.user=${{ github.actor }} -Pgpr.password=${{secrets.GITHUB_TOKEN}}
+        run: ./gradlew publishAllPublicationsToMavenRepository --no-parallel --no-daemon --build-cache -Pgithub.tag=${{ steps.github_tag.outputs.RESULT }} -Pgpr.user=${{ github.actor }} -Pgpr.password=${{secrets.GITHUB_TOKEN}}
