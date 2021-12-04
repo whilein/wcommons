@@ -29,6 +29,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -53,6 +54,16 @@ public abstract class AbstractMapConfigObject implements ConfigObject {
     @Override
     public @NotNull Map<@NotNull String, @NotNull Object> asMap() {
         return map;
+    }
+
+    @Override
+    public @NotNull Set<@NotNull String> keySet() {
+        return map.keySet();
+    }
+
+    @Override
+    public @NotNull Collection<@NotNull Object> values() {
+        return map.values();
     }
 
     @Override
@@ -286,13 +297,17 @@ public abstract class AbstractMapConfigObject implements ConfigObject {
 
     @Override
     public @NotNull Optional<@NotNull String> findString(final @NotNull String key) {
-        return Optional.ofNullable(map.get(key)).map(String.class::cast);
+        return Optional.ofNullable(map.get(key))
+                .filter(String.class::isInstance)
+                .map(String.class::cast);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public @NotNull Optional<@NotNull ConfigObject> findObject(final @NotNull String key) {
-        return Optional.ofNullable(map.get(key)).map(element -> createObject((Map<String, Object>) element));
+        return Optional.ofNullable(map.get(key))
+                .filter(Map.class::isInstance)
+                .map(element -> createObject((Map<String, Object>) element));
     }
 
 }

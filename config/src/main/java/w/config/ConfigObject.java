@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,7 +39,26 @@ import java.util.Set;
  */
 public interface ConfigObject {
 
+    /**
+     * Представить объект как {@link Map}.
+     *
+     * @return Объект в виде {@link Map}
+     */
     @NotNull Map<@NotNull String, @NotNull Object> asMap();
+
+    /**
+     * Получить ключи объекта.
+     *
+     * @return Сет из ключей.
+     */
+    @NotNull Set<@NotNull String> keySet();
+
+    /**
+     * Получить значения объекта.
+     *
+     * @return Коллекция значений.
+     */
+    @NotNull Collection<@NotNull Object> values();
 
     void writeTo(@NotNull Writer writer);
 

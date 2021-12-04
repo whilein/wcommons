@@ -26,7 +26,13 @@ import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * @author whilein
@@ -39,8 +45,74 @@ public final class SimpleFileConfig implements FileConfig {
 
     private static final ConfigParser JSON = JsonConfigParser.create(), YAML = YamlConfigParser.create();
 
-    File file;
-    File parentFile;
+    private interface Src {
+
+        boolean exists();
+
+        void makeParentDirectory() throws IOException;
+
+        @NotNull OutputStream openOutput() throws IOException;
+
+        @NotNull InputStream openInput() throws IOException;
+    }
+
+    @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class NioSrc implements Src {
+        Path path;
+        Path parentPath;
+
+        @Override
+        public boolean exists() {
+            return Files.exists(path);
+        }
+
+        @Override
+        public void makeParentDirectory() throws IOException {
+            Files.createDirectories(parentPath);
+        }
+
+        @Override
+        public @NotNull OutputStream openOutput() throws IOException {
+            return Files.newOutputStream(path);
+        }
+
+        @Override
+        public @NotNull InputStream openInput() throws IOException {
+            return Files.newInputStream(path);
+        }
+    }
+
+    @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class IoSrc implements Src {
+        File file;
+        File parentFile;
+
+        @Override
+        public boolean exists() {
+            return file.exists();
+        }
+
+        @Override
+        public void makeParentDirectory() throws IOException {
+            if (!parentFile.exists() && !parentFile.mkdirs()) {
+                throw new IOException("Cannot mkdir: " + parentFile);
+            }
+        }
+
+        @Override
+        public @NotNull OutputStream openOutput() throws IOException {
+            return new FileOutputStream(file);
+        }
+
+        @Override
+        public @NotNull InputStream openInput() throws IOException {
+            return new FileInputStream(file);
+        }
+    }
+
+    Src src;
 
     ConfigParser parser;
 
@@ -48,27 +120,11 @@ public final class SimpleFileConfig implements FileConfig {
     @Delegate(types = ConfigObject.class)
     ConfigObject delegate;
 
-    @SneakyThrows
-    private static FileConfig _create(
-            final File file,
-            final ConfigParser parser
-    ) {
-        val canonicalFile = file.getCanonicalFile();
-
-        val config = new SimpleFileConfig(canonicalFile, canonicalFile.getParentFile(), parser);
-        config.reload();
-
-        return config;
-    }
-
-    private static FileConfig _create(
-            final File file
-    ) {
-        val fileName = file.getName();
+    private static ConfigParser _findParser(final String fileName) {
         val extensionSeparator = fileName.lastIndexOf('.');
 
         if (extensionSeparator == -1) {
-            throw new IllegalStateException("Cannot get an extension of file " + file);
+            throw new IllegalStateException("Cannot get an extension of file " + fileName);
         }
 
         val extension = fileName.substring(extensionSeparator + 1);
@@ -84,10 +140,59 @@ public final class SimpleFileConfig implements FileConfig {
                 parser = JSON;
                 break;
             default:
-                throw new IllegalStateException("Cannot find config parser for " + file);
+                throw new IllegalStateException("Cannot find config parser for " + fileName);
         }
 
-        return _create(file, parser);
+        return parser;
+    }
+
+    @SneakyThrows
+    private static FileConfig _create(
+            final Path path,
+            final ConfigParser parser
+    ) {
+        val absolutePath = path.toAbsolutePath();
+
+        val config = new SimpleFileConfig(new NioSrc(absolutePath, absolutePath.getParent()), parser);
+        config.reload();
+
+        return config;
+    }
+
+    @SneakyThrows
+    private static FileConfig _create(
+            final File file,
+            final ConfigParser parser
+    ) {
+        val canonicalFile = file.getCanonicalFile();
+
+        val config = new SimpleFileConfig(new IoSrc(canonicalFile, canonicalFile.getParentFile()), parser);
+        config.reload();
+
+        return config;
+    }
+
+    private static FileConfig _create(
+            final Path path
+    ) {
+        return _create(path, _findParser(path.getFileName().toString()));
+    }
+
+    private static FileConfig _create(
+            final File file
+    ) {
+        return _create(file, _findParser(file.getName()));
+    }
+
+    public static @NotNull FileConfig create(
+            final @NotNull Path path,
+            final @NotNull ConfigParser parser
+    ) {
+        return _create(path, parser);
+    }
+
+    public static @NotNull FileConfig create(final @NotNull Path path) {
+        return _create(path);
     }
 
     public static @NotNull FileConfig create(
@@ -124,19 +229,34 @@ public final class SimpleFileConfig implements FileConfig {
         return _create(new File(parent, name));
     }
 
+    public static @NotNull FileConfig create(final @NotNull String parent, final @NotNull String name) {
+        return _create(new File(parent, name));
+    }
+
+    public static @NotNull FileConfig create(
+            final @NotNull String parent,
+            final @NotNull String name,
+            final @NotNull ConfigParser parser
+    ) {
+        return _create(new File(parent, name), parser);
+    }
+
     @Override
     public void save() {
-        if (!parentFile.exists() && !parentFile.mkdirs()) {
-            throw new IllegalStateException("Unable to save config at " + file
-                    + ": can't create parent directory");
-        }
+        try {
+            src.makeParentDirectory();
 
-        delegate.writeTo(file);
+            try (val os = src.openOutput()) {
+                delegate.writeTo(os);
+            }
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void saveDefaults(final @NotNull String resource) {
-        if (!file.exists()) {
+        if (!src.exists()) {
             val caller = STACK_WALKER.getCallerClass();
 
             try (val resourceStream = caller.getResourceAsStream(resource)) {
@@ -145,7 +265,10 @@ public final class SimpleFileConfig implements FileConfig {
                 }
 
                 delegate = parser.parse(resourceStream);
-                delegate.writeTo(file);
+
+                try (val os = src.openOutput()) {
+                    delegate.writeTo(os);
+                }
             } catch (final IOException e) {
                 e.printStackTrace();
             }
@@ -154,8 +277,14 @@ public final class SimpleFileConfig implements FileConfig {
 
     @Override
     public void reload() {
-        delegate = file.exists()
-                ? parser.parse(file)
-                : parser.newObject();
+        if (src.exists()) {
+            try (val is = src.openInput()) {
+                delegate = parser.parse(is);
+            } catch (final Exception e) {
+                delegate = parser.newObject();
+            }
+        } else {
+            delegate = parser.newObject();
+        }
     }
 }
