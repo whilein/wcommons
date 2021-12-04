@@ -93,6 +93,11 @@ subprojects {
         sourceCompatibility = JavaVersion.VERSION_11
     }
 
+    java {
+        withJavadocJar()
+        withSourcesJar()
+    }
+
     test {
         useJUnitPlatform()
 
