@@ -69,7 +69,7 @@ public interface FlowItems<T> extends BaseFlowItems {
     /**
      * Параллельно заменяет все T на A
      *
-     * @param fn       Функция, которая заменит T, на Flow<A>
+     * @param fn       Функция, которая заменит T, на {@code Flow&lt;A&gt;}
      * @param <A>      Новое значение
      * @param executor Экзекутор, который выполнит замену
      * @return Течение с новыми значениями

@@ -64,8 +64,15 @@ public interface Flow<T> extends BaseFlow {
     );
 
     /**
-     * Если текущий флоу пустой, то первое значение в combiner'е будет null,
-     * а если another пустой, то второе значение будет null
+     * Если текущий флоу пустой, то первое значение в combiner'е будет {@code null},
+     * а если another пустой, то второе значение будет {@code null}.
+     *
+     * @param another  Второе значение
+     * @param combiner Функция, которая объединит первое и второе значение
+     * @param executor Исполнитель функции {@code combiner}
+     * @param <A>      Тип второго значения
+     * @param <R>      Тип после объединения первого и второго значения
+     * @return Результат объединения
      */
     <A, R> @NotNull Flow<R> parallel(
             @NotNull Flow<A> another,
