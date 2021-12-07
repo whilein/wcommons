@@ -16,36 +16,17 @@
 
 package w.util.lazy;
 
-import lombok.val;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author whilein
  */
-abstract class LazyTests {
+final class SimpleLazyTests extends LazyTests {
 
-    protected Lazy<UUID> lazy;
-
-    @Test
-    void testBasics() {
-        val firstValue = lazy.get();
-        assertNotNull(firstValue);
-        val secondValue = lazy.get();
-        assertEquals(firstValue, secondValue);
-
-        lazy.clear();
-
-        val thirdValue = lazy.get();
-        assertNotEquals(firstValue, thirdValue);
-
-        assertNotEquals(thirdValue, lazy.clearAndGet());
+    @BeforeEach
+    void setup() {
+        lazy = SimpleLazy.create(UUID::randomUUID);
     }
-
-
 }
