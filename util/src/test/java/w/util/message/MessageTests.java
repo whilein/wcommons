@@ -37,6 +37,14 @@ final class MessageTests {
     }
 
     @Test
+    void escape() {
+        val text = "%%1 escaped text %0";
+
+        val message = Messages.create(text);
+        assertEquals("%1 escaped text foo", message.format("foo"));
+    }
+
+    @Test
     void noFormatList() {
         val text = List.of(
                 "Text without formatting",

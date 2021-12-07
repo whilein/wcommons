@@ -18,7 +18,6 @@ package w.util.message;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -84,11 +83,14 @@ public class Messages {
 
                     style = STYLE_OLD;
                     index = counter++;
+                } else if (nextCh == '%') {
+                    i++;
+                    continue;
                 } else {
                     continue;
                 }
 
-                val textToken = new Text(text.substring(start, i));
+                val textToken = new Text(unescape(text.substring(start, i)));
                 val paramToken = new Param(index);
 
                 textToken.next = paramToken;
@@ -105,7 +107,7 @@ public class Messages {
         }
 
         if (start < text.length()) {
-            val endText = new Text(text.substring(start));
+            val endText = new Text(unescape(text.substring(start)));
 
             if (head == null) {
                 head = endText;
@@ -117,8 +119,13 @@ public class Messages {
         return head;
     }
 
+    private String unescape(final String text) {
+        return text.replace("%%", "%");
+    }
+
     private Message _create(final String text) {
-        return new Line(text, parse(text));
+        val token = parse(text);
+        return new Line(token.toString(), token);
     }
 
     private Message _create(final List<String> texts) {
@@ -127,13 +134,26 @@ public class Messages {
         val line = parse(text);
         val lines = new Token[texts.size()];
 
+        val rawLine = new StringBuilder();
+        val rawLines = new ArrayList<String>();
+
         int counter = 0;
 
         for (val element : texts) {
-            lines[counter++] = parse(element);
+            val token = parse(element);
+            lines[counter++] = token;
+
+            val rawToken = token.toString();
+            rawLine.append(rawToken).append('\n');
+            rawLines.add(rawToken);
         }
 
-        return new Lines(text, List.copyOf(texts), line, lines);
+        return new Lines(
+                rawLine.toString(),
+                Collections.unmodifiableList(rawLines),
+                line,
+                lines
+        );
     }
 
     public static @NotNull Message create(final @NotNull String text) {
@@ -150,12 +170,12 @@ public class Messages {
                 : _create(texts);
     }
 
-    private static List<String> join(final Token[] lines, final Object[] parameters) {
-        val list = new ArrayList<String>(lines.length);
+    private static List<String> join(final Token[] tokens, final Object[] parameters) {
+        val list = new ArrayList<String>(tokens.length);
 
-        for (val line : lines) {
+        for (val token : tokens) {
             val out = new StringBuilder();
-            join(out, line, parameters);
+            token.writeAll(out, parameters);
 
             list.add(out.toString());
         }
@@ -163,13 +183,9 @@ public class Messages {
         return list;
     }
 
-    private static void join(final StringBuilder out, final Token token, final Object[] parameters) {
-        token.writeAll(out, parameters);
-    }
-
     private static String join(final Token token, final Object[] parameters) {
         val out = new StringBuilder();
-        join(out, token, parameters);
+        token.writeAll(out, parameters);
 
         return out.toString();
     }
@@ -240,7 +256,6 @@ public class Messages {
         }
     }
 
-    @ToString
     private static abstract class Token {
 
         Token next;
@@ -254,9 +269,16 @@ public class Messages {
                 next.writeAll(output, params);
             }
         }
+
+        @Override
+        public String toString() {
+            val out = new StringBuilder();
+            writeAll(out, new Object[0]);
+
+            return out.toString();
+        }
     }
 
-    @ToString(callSuper = true)
     @RequiredArgsConstructor
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
     private static final class Text extends Token {
@@ -270,7 +292,6 @@ public class Messages {
 
     }
 
-    @ToString(callSuper = true)
     @RequiredArgsConstructor
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
     private static final class Param extends Token {
