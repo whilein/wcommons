@@ -38,7 +38,13 @@ public class Messages {
     private final int STYLE_OLD = 1;
     private final int STYLE_NEW = 2;
 
+    private final Token EMPTY_TOKEN = new Text("");
+
     private Token parse(final String text) {
+        if (text.isEmpty()) {
+            return EMPTY_TOKEN;
+        }
+
         Token head = null;
         Token tail = null;
 
