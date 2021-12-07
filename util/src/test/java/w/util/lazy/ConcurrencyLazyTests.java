@@ -28,7 +28,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
  * @author whilein
@@ -40,28 +39,6 @@ final class ConcurrencyLazyTests extends LazyTests {
     @BeforeEach
     void setup() {
         lazy = ConcurrentLazy.create(UUID::randomUUID);
-    }
-
-    @Test
-    @SneakyThrows
-    void testNotAtomic() {
-        val threadPool = Executors.newFixedThreadPool(8);
-        val latch = new CountDownLatch(ITERATIONS);
-
-        final Set<UUID> uniqueResults = ConcurrentHashMap.newKeySet();
-
-        for (int i = 0; i < ITERATIONS; i++) {
-            threadPool.execute(() -> {
-                lazy.clear();
-
-                uniqueResults.add(lazy.get());
-                latch.countDown();
-            });
-        }
-
-        latch.await();
-
-        assertNotEquals(ITERATIONS, uniqueResults.size());
     }
 
     @Test
