@@ -25,6 +25,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Supplier;
 
 /**
+ * Простейшая реализация {@link Lazy}.
+ * <p>
+ * Если {@link Lazy#get()} выполняется в разных потоках, то
+ * следует использовать {@link ConcurrentLazy}.
+ *
  * @author whilein
  */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -48,6 +53,11 @@ public final class SimpleLazy<T> implements Lazy<T> {
     @Override
     public void clear() {
         value = empty;
+    }
+
+    @Override
+    public T clearAndGet() {
+        return value = supplier.get();
     }
 
     @Override

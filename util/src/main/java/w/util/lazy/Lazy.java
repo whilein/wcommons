@@ -23,6 +23,16 @@ import java.util.function.Supplier;
  */
 public interface Lazy<T> extends Supplier<T> {
 
+    /**
+     * Очистить сохраненное значение
+     */
     void clear();
+
+    /**
+     * Очистить и получить новое значение
+     *
+     * @return новое значение
+     */
+    T clearAndGet();
 
 }

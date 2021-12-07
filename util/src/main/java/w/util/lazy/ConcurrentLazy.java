@@ -25,6 +25,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Supplier;
 
 /**
+ * Потоко-безопасная реализация {@link Lazy}, которая гарантированно инициализирует
+ * значение только один раз,
+ * <p>
+ * Если вы используете {@link Lazy#clear()} и {@link Lazy#get()}, то
+ * некоторые потоки могут вернуть старое значение.
+ *
  * @author whilein
  */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -61,6 +67,13 @@ public final class ConcurrentLazy<T> implements Lazy<T> {
     public void clear() {
         synchronized (mutex) {
             value = empty;
+        }
+    }
+
+    @Override
+    public T clearAndGet() {
+        synchronized (mutex) {
+            return value = supplier.get();
         }
     }
 

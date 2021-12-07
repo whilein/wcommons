@@ -24,6 +24,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Supplier;
 
 /**
+ * Обёртка {@link Lazy} над {@link ThreadLocal}.
+ *
  * @author whilein
  */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -39,6 +41,12 @@ public final class ThreadLocalLazy<T> implements Lazy<T> {
     @Override
     public void clear() {
         threadLocal.remove();
+    }
+
+    @Override
+    public T clearAndGet() {
+        threadLocal.remove();
+        return threadLocal.get();
     }
 
     @Override
