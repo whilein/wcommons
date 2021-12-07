@@ -19,11 +19,13 @@ package w.util;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
+import java.util.function.ToDoubleFunction;
 
 /**
  * @author whilein
@@ -80,6 +82,34 @@ public class RandomUtils {
                         : new ArrayList<>(collection),
                 count, distinct
         );
+    }
+
+    public <T> @Nullable T weightedRandom(
+            final @NotNull Collection<T> items,
+            final @NotNull ToDoubleFunction<T> weightCalculator
+    ) {
+        val sum = items.stream()
+                .mapToDouble(weightCalculator)
+                .sum();
+
+        val randomizedSum = RANDOM.nextDouble() * sum;
+
+        double from = 0.0;
+
+        T last = null;
+
+        for (val item : items) {
+            val itemWeight = weightCalculator.applyAsDouble(item);
+
+            if (randomizedSum >= from && randomizedSum < from + itemWeight) {
+                return item;
+            }
+
+            last = item;
+            from += itemWeight;
+        }
+
+        return last;
     }
 
     public <T> T getElement(final T @NotNull [] array) {
