@@ -21,10 +21,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import w.util.ObjectUtils;
 
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -95,6 +97,14 @@ public class Pairs {
         public String toString() {
             return "{left=" + getLeft() + ", right=" + getRight() + "}";
         }
+
+        @Override
+        @SneakyThrows
+        @SuppressWarnings("unchecked")
+        public @NotNull Pair<L, R> clone() {
+            return (Pair<L, R>) super.clone();
+        }
+
     }
 
     @Getter
@@ -117,8 +127,17 @@ public class Pairs {
         }
 
         @Override
-        public @NotNull MutPair<L, R> copy() {
-            return new MutPairImpl<>(left, right);
+        public @NotNull MutPair<L, R> clone() {
+            return (MutPair<L, R>) super.clone();
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public @NotNull MutPair<L, R> deepClone() {
+            val newLeft = left instanceof Cloneable ? (L) ObjectUtils.clone(left) : left;
+            val newRight = right instanceof Cloneable ? (R) ObjectUtils.clone(right) : right;
+
+            return new MutPairImpl<>(newLeft, newRight);
         }
 
     }
@@ -142,8 +161,12 @@ public class Pairs {
         }
 
         @Override
-        public @NotNull Pair<L, R> copy() {
-            return new PairImpl<>(left, right);
+        @SuppressWarnings("unchecked")
+        public @NotNull Pair<L, R> deepClone() {
+            val newLeft = left instanceof Cloneable ? (L) ObjectUtils.clone(left) : left;
+            val newRight = right instanceof Cloneable ? (R) ObjectUtils.clone(right) : right;
+
+            return new PairImpl<>(newLeft, newRight);
         }
 
     }

@@ -41,6 +41,8 @@ public interface MutPair<L, R> extends Pair<L, R> {
 
     <R1> @NotNull MutPair<L, R1> withRight(R1 newValue);
 
-    @NotNull MutPair<L, R> copy();
+    @NotNull MutPair<L, R> clone();
+
+    @NotNull MutPair<L, R> deepClone();
 
 }

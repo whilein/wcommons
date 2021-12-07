@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * @author whilein
  */
-public interface Pair<L, R> {
+public interface Pair<L, R> extends Cloneable {
 
     static <L, R> @NotNull Pair<L, R> of(final L left, final R right) {
         return Pairs.immutableOf(left, right);
@@ -41,7 +41,21 @@ public interface Pair<L, R> {
 
     <R1> @NotNull Pair<L, R1> withRight(R1 newValue);
 
-    @NotNull Pair<L, R> copy();
-    // todo deepCopy();
+    /**
+     * Склонировать пару.
+     *
+     * @return новая склонированая пара
+     */
+    @NotNull Pair<L, R> clone();
+
+    /**
+     * Склонировать пару.
+     * <p>
+     * Также, в отличие от {@link #clone()}, клонируется {@code L} и {@code R}, если
+     * они наследуют Cloneable.
+     *
+     * @return новая склонированая пара
+     */
+    @NotNull Pair<L, R> deepClone();
 
 }
