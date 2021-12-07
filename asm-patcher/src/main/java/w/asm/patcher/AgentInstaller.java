@@ -20,7 +20,7 @@ import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
-import w.asm.Asm;
+import w.util.ClassLoaderUtils;
 
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
@@ -76,7 +76,7 @@ public final class AgentInstaller {
             val mainClass = new ZipEntry(agentMainName.replace('.', '/') + ".class");
 
             jar.putNextEntry(mainClass);
-            jar.write(Asm.toByteArray(AgentInstaller.class.getClassLoader(), agentMainName));
+            jar.write(ClassLoaderUtils.getClassBytes(AgentInstaller.class.getClassLoader(), agentMainName));
         }
 
         return temporary;

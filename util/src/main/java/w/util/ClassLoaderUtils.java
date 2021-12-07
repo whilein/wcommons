@@ -41,7 +41,7 @@ public class ClassLoaderUtils {
             final @NonNull ClassLoader classLoader,
             final @NonNull String className
     ) throws IOException {
-        return _getResourceBytes(classLoader, className.replace('.', '/'));
+        return _getResourceBytes(classLoader, className.replace('.', '/') + ".class");
     }
 
     private byte[] _getResourceBytes(
@@ -50,7 +50,7 @@ public class ClassLoaderUtils {
     ) throws IOException {
         try (val inputStream = classLoader.getResourceAsStream(resourceName)) {
             if (inputStream == null) {
-                throw new RuntimeException("Unexpected error occurred");
+                throw new RuntimeException("Resource not found: " + resourceName);
             }
 
             return inputStream.readAllBytes();
