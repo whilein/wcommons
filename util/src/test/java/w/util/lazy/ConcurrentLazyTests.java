@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author whilein
  */
-final class ConcurrencyLazyTests extends LazyTests {
+final class ConcurrentLazyTests extends LazyTests {
 
     private static final int ITERATIONS = 1024;
 
