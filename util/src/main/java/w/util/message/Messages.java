@@ -45,8 +45,7 @@ public class Messages {
             return EMPTY_TOKEN;
         }
 
-        Token head = null;
-        Token tail = null;
+        val builder = new TokenBuilder();
 
         int style = STYLE_UNKNOWN;
         int start = 0;
@@ -96,33 +95,23 @@ public class Messages {
                     continue;
                 }
 
-                val textToken = new Text(unescape(text.substring(start, i)));
-                val paramToken = new Param(index);
+                val textSlice = text.substring(start, i);
 
-                textToken.next = paramToken;
-
-                if (head == null) {
-                    head = textToken;
-                    tail = paramToken;
-                } else {
-                    tail = tail.next = paramToken;
+                if (!textSlice.isEmpty()) {
+                    builder.add(new Text(textSlice));
                 }
+
+                builder.add(new Param(index));
 
                 start = nextChIdx + 1;
             }
         }
 
         if (start < text.length()) {
-            val endText = new Text(unescape(text.substring(start)));
-
-            if (head == null) {
-                head = endText;
-            } else {
-                tail.next = endText;
-            }
+            builder.add(new Text(unescape(text.substring(start))));
         }
 
-        return head;
+        return builder.head;
     }
 
     private String unescape(final String text) {
@@ -259,6 +248,22 @@ public class Messages {
         @Override
         public @NotNull List<@NotNull String> formatAsList(final @Nullable Object @Nullable ... parameters) {
             return Collections.singletonList(format(parameters));
+        }
+    }
+
+    private static final class TokenBuilder {
+        Token head;
+        Token tail;
+
+        void add(final Token newToken) {
+            if (head == null) {
+                head = newToken;
+                tail = newToken;
+            } else if (head == tail) {
+                head.next = tail = newToken;
+            } else {
+                tail.next = tail = newToken;
+            }
         }
     }
 
