@@ -98,7 +98,7 @@ public class Messages {
                 val textSlice = text.substring(start, i);
 
                 if (!textSlice.isEmpty()) {
-                    builder.add(new Text(textSlice));
+                    builder.add(new Text(unescape(textSlice)));
                 }
 
                 builder.add(new Param(index));

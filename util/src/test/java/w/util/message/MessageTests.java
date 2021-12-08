@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 final class MessageTests {
 
     @Test
-    void x() {
+    void commonFormatTest() {
         assertEquals(
                 "Игрок§f зашел в игру (§a1§f/§a16§f)",
                 Messages.create("%s§f зашел в игру (§a%s§f/§a%s§f)")
