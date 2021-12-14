@@ -40,7 +40,7 @@ public class Messages {
 
     private final Token EMPTY_TOKEN = new Text("");
 
-    private Token parse(final String text) {
+    private Token parse(final int offset, final String text) {
         if (text.isEmpty()) {
             return EMPTY_TOKEN;
         }
@@ -49,7 +49,7 @@ public class Messages {
 
         int style = STYLE_UNKNOWN;
         int start = 0;
-        int counter = 0;
+        int counter = offset;
 
         for (int i = 0; i < text.length(); i++) {
             val ch = text.charAt(i);
@@ -119,24 +119,27 @@ public class Messages {
     }
 
     private Message _create(final String text) {
-        val token = parse(text);
+        val token = parse(0, text);
         return new Line(token.toString(), token);
     }
 
     private Message _create(final List<String> texts) {
         val text = String.join("\n", texts);
 
-        val line = parse(text);
+        val line = parse(0, text);
         val lines = new Token[texts.size()];
 
         val rawLine = new StringBuilder();
         val rawLines = new ArrayList<String>();
 
         int counter = 0;
+        int offset = 0;
 
         for (val element : texts) {
-            val token = parse(element);
+            val token = parse(offset, element);
             lines[counter++] = token;
+
+            offset += token.countParameters();
 
             val rawToken = token.toString();
             rawLine.append(rawToken).append('\n');
@@ -273,6 +276,10 @@ public class Messages {
 
         abstract void write(StringBuilder output, Object[] params);
 
+        int countParameters() {
+            return next == null ? 0 : next.countParameters();
+        }
+
         void writeAll(final StringBuilder output, final Object[] params) {
             write(output, params);
 
@@ -308,6 +315,11 @@ public class Messages {
     private static final class Param extends Token {
 
         int index;
+
+        @Override
+        int countParameters() {
+            return super.countParameters() + 1;
+        }
 
         @Override
         public void write(final StringBuilder output, final Object[] params) {

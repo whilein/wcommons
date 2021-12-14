@@ -54,6 +54,41 @@ final class MessageTests {
     }
 
     @Test
+    void formatOldList() {
+        val text = String.join("\n",
+                "§7Статус: %s",
+                "§7Дата окончения: %s",
+                "",
+                "§7Монет: §6%s",
+                "§7Пыли: §b%s",
+                "§7Золота: §e%s",
+                "",
+                "§7Друзей: §f%s§7/§f%s",
+                "",
+                "§7Скин: §f%s",
+                "",
+                "§7Проведено времени на сервере:",
+                "%s"
+        );
+
+        val message = Messages.create(text);
+
+        val params = new Object[]{
+                "ADMIN",
+                "INDEFINITELY",
+                0,
+                0,
+                0,
+                0,
+                1,
+                "Steve",
+                "..."
+        };
+
+        assertEquals(List.of(String.format(text, params).split("\n")), message.formatAsList(params));
+    }
+
+    @Test
     void noFormatList() {
         val text = List.of(
                 "Text without formatting",
