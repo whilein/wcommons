@@ -99,7 +99,8 @@ public class ImplLoader {
                     }
                 }
             }
-        } catch (final Exception ignored) {
+        } catch (final Exception e) {
+            throw new RuntimeException("Cannot load implementation " + type.getName(), e);
         }
 
         return Optional.empty();
