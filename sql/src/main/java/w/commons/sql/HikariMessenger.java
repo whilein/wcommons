@@ -227,22 +227,18 @@ public final class HikariMessenger implements Messenger {
                     }
 
                     if (trimmedLine.endsWith(";")) {
-                        query.append(line, 0, line.lastIndexOf(';'));
+                        query.append(trimmedLine);
 
-                        val statement = connection.createStatement();
-                        statement.execute(query.toString());
+                        try (val statement = connection.createStatement()) {
+                            statement.execute(query.toString());
+                        }
 
                         query.setLength(0);
-
-                        try {
-                            statement.close();
-                        } catch (final Exception ignored) {
-                        }
 
                         continue;
                     }
 
-                    query.append(line);
+                    query.append(trimmedLine);
                     query.append(" ");
                 }
 
