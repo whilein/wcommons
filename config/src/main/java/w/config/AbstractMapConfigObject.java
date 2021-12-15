@@ -118,11 +118,6 @@ public abstract class AbstractMapConfigObject implements ConfigObject {
     }
 
     @Override
-    public @NotNull Set<@NotNull String> getKeys() {
-        return map.keySet();
-    }
-
-    @Override
     public @Nullable String getString(final @NotNull String key) {
         return getString(key, null);
     }

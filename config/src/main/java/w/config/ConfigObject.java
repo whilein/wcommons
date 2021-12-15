@@ -80,8 +80,6 @@ public interface ConfigObject {
 
     int size();
 
-    @NotNull Set<@NotNull String> getKeys();
-
     @Nullable String getString(@NotNull String key);
 
     @Contract("_, !null -> !null")
