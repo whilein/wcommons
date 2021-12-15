@@ -14,36 +14,27 @@
  *    limitations under the License.
  */
 
-package w.util;
+package w.sql.dao;
 
-import lombok.SneakyThrows;
-import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
-import w.util.lookup.FullAccessLookup;
-
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodType;
+import w.sql.dao.column.Column;
+import w.sql.dao.foreignkey.ForeignKey;
 
 /**
  * @author whilein
  */
-@UtilityClass
-public class ObjectUtils {
+public interface TableManagerBuilder<T extends Enum<T> & Column> {
 
-    private final MethodHandle CLONE;
+    @NotNull TableManagerBuilder<T> database(@NotNull String database);
 
-    static {
-        try {
-            CLONE = FullAccessLookup.getLookup().findVirtual(Object.class, "clone",
-                    MethodType.methodType(Object.class));
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+    @NotNull TableManagerBuilder<T> id(@NotNull T column);
 
-    @SneakyThrows
-    public Object clone(final @NotNull Object object) {
-        return CLONE.invokeExact(object);
-    }
+    @NotNull TableManagerBuilder<T> primaryKey(@NotNull T @NotNull ... columns);
+
+    @NotNull TableManagerBuilder<T> uniqueKey(@NotNull T @NotNull ... columns);
+
+    @NotNull TableManagerBuilder<T> foreignKey(@NotNull ForeignKey foreignKey);
+
+    @NotNull TableManager<T> build();
 
 }

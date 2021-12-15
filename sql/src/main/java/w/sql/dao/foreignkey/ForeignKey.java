@@ -14,36 +14,28 @@
  *    limitations under the License.
  */
 
-package w.util;
+package w.sql.dao.foreignkey;
 
-import lombok.SneakyThrows;
-import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
-import w.util.lookup.FullAccessLookup;
-
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodType;
 
 /**
  * @author whilein
  */
-@UtilityClass
-public class ObjectUtils {
+public interface ForeignKey {
 
-    private final MethodHandle CLONE;
-
-    static {
-        try {
-            CLONE = FullAccessLookup.getLookup().findVirtual(Object.class, "clone",
-                    MethodType.methodType(Object.class));
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
+    static @NotNull ForeignKeyBuilder builder(final @NotNull String references) {
+        return DefaultForeignKey.builder(references);
     }
 
-    @SneakyThrows
-    public Object clone(final @NotNull Object object) {
-        return CLONE.invokeExact(object);
+    static @NotNull ForeignKey create(final @NotNull String references) {
+        return DefaultForeignKey.create(references);
     }
+
+    @NotNull String getReferences();
+
+    @NotNull ForeignKeyOption getOnDelete();
+
+    @NotNull ForeignKeyOption getOnUpdate();
+
 
 }

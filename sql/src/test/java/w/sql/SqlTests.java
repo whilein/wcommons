@@ -14,14 +14,16 @@
  *    limitations under the License.
  */
 
-package w.commons.sql;
+package w.sql;
 
 import com.zaxxer.hikari.HikariConfig;
 import lombok.val;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import w.commons.flow.FlowCollectors;
+import w.sql.dao.DefaultTableManager;
 
 import java.util.Random;
 
@@ -54,6 +56,34 @@ class SqlTests {
     @AfterEach
     void closeConnection() {
         messenger.close();
+    }
+
+
+    @Test
+    void testTableManager() {
+        val table = DefaultTableManager.builder(messenger, TestColumn.class, "USERS")
+                .build();
+
+        val id = table.insert(properties -> properties
+                        .set(TestColumn.NAME, "Камбет")
+                        .set(TestColumn.RANK, "Гей"))
+                .call();
+
+        val rank = table.<String>get(id, TestColumn.RANK)
+                .call();
+
+        assertEquals(rank, "Гей");
+
+        val allData = table.getAll(id)
+                .call();
+
+        assertEquals("[NAME = Камбет, RANK = Гей]", allData.toString());
+
+        val byRank = table.<String>getBy(TestColumn.RANK, "Гей", TestColumn.NAME)
+                .findFirst()
+                .call();
+
+        assertEquals("Камбет", byRank);
     }
 
     @Test
@@ -104,6 +134,6 @@ class SqlTests {
         val secondResult = messenger.updateWithKeys(query, "User321", 321)
                 .call();
 
-        assertEquals(firstResult + 1, secondResult);
+        Assertions.assertEquals(firstResult + 1, secondResult);
     }
 }

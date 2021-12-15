@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package w.commons.sql;
+package w.sql;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,6 +34,7 @@ public interface Messenger {
     @NotNull ScriptRunner scriptRunner();
 
     @NotNull DataSource getDataSource();
+
     @NotNull Connection getConnection() throws SQLException;
 
     @NotNull IntFlow update(@NotNull String query, @Nullable Object @NotNull ... parameters);

@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package w.commons.sql;
+package w.sql;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;

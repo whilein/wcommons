@@ -14,27 +14,23 @@
  *    limitations under the License.
  */
 
-package w.commons.sql;
+package w.sql.dao.column;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.Reader;
-import java.nio.file.Path;
+/**
+ * @author whilein
+ */
+public interface ColumnDefinitionBuilder {
 
-public interface ScriptRunner {
+    @NotNull ColumnDefinitionBuilder defaults(int number);
 
-    @NotNull ScriptRunner classLoader(@NotNull ClassLoader cl);
-    @NotNull ScriptRunner schema(@NotNull String schema);
+    @NotNull ColumnDefinitionBuilder defaults(@NotNull String text);
 
-    @NotNull ScriptRunner run(@NotNull String resource);
+    @NotNull ColumnDefinitionBuilder autoIncrement();
 
-    @NotNull ScriptRunner run(@NotNull File file);
-    @NotNull ScriptRunner run(@NotNull Path path);
+    @NotNull ColumnDefinitionBuilder notNull();
 
-    @NotNull ScriptRunner run(@NotNull InputStream is);
-
-    @NotNull ScriptRunner run(@NotNull Reader reader);
+    @NotNull ColumnDefinition build();
 
 }

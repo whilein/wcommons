@@ -14,36 +14,21 @@
  *    limitations under the License.
  */
 
-package w.util;
+package w.sql.dao.property;
 
-import lombok.SneakyThrows;
-import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
-import w.util.lookup.FullAccessLookup;
-
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodType;
+import org.jetbrains.annotations.Nullable;
+import w.sql.dao.column.Column;
 
 /**
  * @author whilein
  */
-@UtilityClass
-public class ObjectUtils {
+public interface Properties<T extends Enum<T> & Column> {
 
-    private final MethodHandle CLONE;
+    <V> V get(@NotNull T key);
 
-    static {
-        try {
-            CLONE = FullAccessLookup.getLookup().findVirtual(Object.class, "clone",
-                    MethodType.methodType(Object.class));
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+    @NotNull Properties<T> set(@NotNull T key, @Nullable Object value);
 
-    @SneakyThrows
-    public Object clone(final @NotNull Object object) {
-        return CLONE.invokeExact(object);
-    }
+    Object[] toArray();
 
 }

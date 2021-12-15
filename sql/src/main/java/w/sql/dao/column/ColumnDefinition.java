@@ -14,36 +14,28 @@
  *    limitations under the License.
  */
 
-package w.util;
+package w.sql.dao.column;
 
-import lombok.SneakyThrows;
-import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
-import w.util.lookup.FullAccessLookup;
-
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodType;
+import w.sql.dao.codec.ResultSetReader;
 
 /**
  * @author whilein
  */
-@UtilityClass
-public class ObjectUtils {
+public interface ColumnDefinition {
 
-    private final MethodHandle CLONE;
-
-    static {
-        try {
-            CLONE = FullAccessLookup.getLookup().findVirtual(Object.class, "clone",
-                    MethodType.methodType(Object.class));
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
+    static @NotNull ColumnDefinitionBuilder builder(final @NotNull String type, final Class<?> javaType) {
+        return DefaultColumnDefinition.builder(type, javaType);
     }
 
-    @SneakyThrows
-    public Object clone(final @NotNull Object object) {
-        return CLONE.invokeExact(object);
-    }
+    @NotNull String getType();
+
+    @NotNull Class<?> getJavaType();
+
+    @NotNull ResultSetReader<?> getReader();
+
+    boolean isAutoIncrement();
+
+    boolean isNotNull();
 
 }
