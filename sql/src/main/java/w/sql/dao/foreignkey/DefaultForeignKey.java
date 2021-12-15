@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import org.jetbrains.annotations.NotNull;
+import w.sql.dao.column.Column;
 
 /**
  * @author whilein
@@ -30,43 +31,69 @@ import org.jetbrains.annotations.NotNull;
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class DefaultForeignKey implements ForeignKey {
+public final class DefaultForeignKey<T extends Enum<T> & Column> implements ForeignKey<T> {
 
-    String references;
+    T column;
+    String referenceDatabase, referenceTable, referenceColumn;
     ForeignKeyOption onDelete, onUpdate;
 
-    public static @NotNull ForeignKeyBuilder builder(final @NotNull String references) {
-        return new ForeignKeyBuilderImpl(references, ForeignKeyOption.NO_ACTION, ForeignKeyOption.NO_ACTION);
+    public static <T extends Enum<T> & Column> @NotNull ForeignKeyBuilder<T> builder(
+            final @NotNull T column,
+            final @NotNull String referenceTable,
+            final @NotNull String referenceColumn
+    ) {
+        return new ForeignKeyBuilderImpl<>(column, null, referenceTable, referenceColumn,
+                ForeignKeyOption.NO_ACTION, ForeignKeyOption.NO_ACTION);
     }
 
-    public static @NotNull ForeignKey create(final @NotNull String references) {
-        return new DefaultForeignKey(references, ForeignKeyOption.NO_ACTION, ForeignKeyOption.NO_ACTION);
+    public static <T extends Enum<T> & Column> @NotNull ForeignKey<T> create(
+            final @NotNull T column,
+            final @NotNull String referenceTable,
+            final @NotNull String referenceColumn
+    ) {
+        return new DefaultForeignKey<>(column, null, referenceTable, referenceColumn,
+                ForeignKeyOption.NO_ACTION, ForeignKeyOption.NO_ACTION);
     }
 
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class ForeignKeyBuilderImpl implements ForeignKeyBuilder {
+    private static final class ForeignKeyBuilderImpl<T extends Enum<T> & Column> implements ForeignKeyBuilder<T> {
 
-        String references;
+        T column;
+
+        @NonFinal
+        String referenceDatabase;
+
+        String referenceTable;
+
+        String referenceColumn;
 
         @NonFinal
         ForeignKeyOption onDelete, onUpdate;
 
         @Override
-        public @NotNull ForeignKeyBuilder onUpdate(final @NotNull ForeignKeyOption option) {
+        public @NotNull ForeignKeyBuilder<T> referenceDatabase(final @NotNull String database) {
+            this.referenceDatabase = database;
+
+            return this;
+        }
+
+        @Override
+        public @NotNull ForeignKeyBuilder<T> onUpdate(final @NotNull ForeignKeyOption option) {
             this.onUpdate = option;
             return this;
         }
 
         @Override
-        public @NotNull ForeignKeyBuilder onDelete(final @NotNull ForeignKeyOption option) {
+        public @NotNull ForeignKeyBuilder<T> onDelete(final @NotNull ForeignKeyOption option) {
             this.onDelete = option;
             return this;
         }
 
         @Override
-        public @NotNull ForeignKey build() {
-            return new DefaultForeignKey(references, onDelete, onUpdate);
+        public @NotNull ForeignKey<T> build() {
+            return new DefaultForeignKey<>(column, referenceDatabase, referenceTable, referenceColumn,
+                    onDelete, onUpdate);
         }
     }
 }

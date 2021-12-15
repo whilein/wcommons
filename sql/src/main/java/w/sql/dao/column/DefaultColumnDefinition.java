@@ -58,25 +58,10 @@ public final class DefaultColumnDefinition implements ColumnDefinition {
         Class<?> javaType;
 
         @NonFinal
-        String defaultValue;
-
-        @NonFinal
         boolean notNull;
 
         @NonFinal
         boolean autoIncrement;
-
-        @Override
-        public @NotNull ColumnDefinitionBuilder defaults(final int number) {
-            defaultValue = String.valueOf(number);
-            return this;
-        }
-
-        @Override
-        public @NotNull ColumnDefinitionBuilder defaults(final @NotNull String text) {
-            defaultValue = '\'' + text + '\'';
-            return this;
-        }
 
         @Override
         public @NotNull ColumnDefinitionBuilder autoIncrement() {

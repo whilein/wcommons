@@ -34,9 +34,11 @@ import w.sql.dao.property.Properties;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -124,8 +126,6 @@ public final class DefaultTableManager<T extends Enum<T> & Column> implements Ta
             final @Nullable Object value,
             final @NotNull T column
     ) {
-        System.out.println();
-        System.out.println(getColumnBy[column.ordinal()][by.ordinal()]);
         return messenger.fetch(getColumnBy[column.ordinal()][by.ordinal()], value)
                 .map(rs -> (V) column.getDefinition().getReader().read(rs, 1));
     }
@@ -465,7 +465,52 @@ public final class DefaultTableManager<T extends Enum<T> & Column> implements Ta
                     hasAnyColumns = true;
                 }
 
-                createTable.append(')');
+                for (val key : uniqueKeys) {
+                    if (hasAnyColumns) {
+                        createTable.append(',');
+                    }
+
+                    createTable.append("UNIQUE KEY (").append(Arrays.stream(key)
+                            .map(column -> "`" + column.name() + "`").
+                            collect(Collectors.joining(", "))).append(")");
+
+                    hasAnyColumns = true;
+                }
+
+                for (val key : primaryKeys) {
+                    if (hasAnyColumns) {
+                        createTable.append(',');
+                    }
+
+                    createTable.append("PRIMARY KEY (").append(Arrays.stream(key)
+                            .map(column -> "`" + column.name() + "`").
+                            collect(Collectors.joining(", "))).append(")");
+
+                    hasAnyColumns = true;
+                }
+
+                for (val key : foreignKeys) {
+                    if (hasAnyColumns) {
+                        createTable.append(',');
+                    }
+
+                    createTable.append("FOREIGN KEY (`").append(key.getColumn().name())
+                            .append("`) REFERENCES ");
+
+                    if (key.getReferenceDatabase() != null) {
+                        createTable.append("`").append(key.getReferenceDatabase()).append("`.");
+                    }
+
+                    createTable
+                            .append("`").append(key.getReferenceTable())
+                            .append("`(`").append(key.getReferenceColumn()).append("`) ON DELETE ")
+                            .append(key.getOnDelete().getName()).append(" ON UPDATE ")
+                            .append(key.getOnUpdate().getName());
+
+                    hasAnyColumns = true;
+                }
+
+                createTable.append(")");
 
                 messenger.update(createTable.toString()).call();
             }

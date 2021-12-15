@@ -24,6 +24,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import w.commons.flow.FlowCollectors;
 import w.sql.dao.DefaultTableManager;
+import w.sql.dao.foreignkey.ForeignKey;
+import w.sql.dao.foreignkey.ForeignKeyOption;
 
 import java.util.Random;
 
@@ -61,25 +63,35 @@ class SqlTests {
 
     @Test
     void testTableManager() {
-        val table = DefaultTableManager.builder(messenger, TestColumn.class, "USERS")
+        val ranksTable = DefaultTableManager.builder(messenger, RankColumn.class, "RANKS")
                 .build();
 
-        val id = table.insert(properties -> properties
-                        .set(TestColumn.NAME, "Камбет")
-                        .set(TestColumn.RANK, "Гей"))
+        val rankId = ranksTable.insert(properties -> properties.set(RankColumn.NAME, "Гей"))
                 .call();
 
-        val rank = table.<String>get(id, TestColumn.RANK)
+        val table = DefaultTableManager.builder(messenger, UserColumn.class, "USERS")
+                .foreignKey(ForeignKey.builder(UserColumn.RANK_ID, "RANKS", "ID")
+                        .onDelete(ForeignKeyOption.CASCADE)
+                        .onUpdate(ForeignKeyOption.NO_ACTION)
+                        .build())
+                .build();
+
+        val userId = table.insert(properties -> properties
+                        .set(UserColumn.NAME, "Камбет")
+                        .set(UserColumn.RANK_ID, rankId))
                 .call();
 
-        assertEquals(rank, "Гей");
-
-        val allData = table.getAll(id)
+        val userRank = table.<Integer>get(userId, UserColumn.RANK_ID)
                 .call();
 
-        assertEquals("[NAME = Камбет, RANK = Гей]", allData.toString());
+        assertEquals(rankId, userRank);
 
-        val byRank = table.<String>getBy(TestColumn.RANK, "Гей", TestColumn.NAME)
+        val userData = table.getAll(userId)
+                .call();
+
+        assertEquals("[NAME = Камбет, RANK_ID = 1]", userData.toString());
+
+        val byRank = table.<String>getBy(UserColumn.RANK_ID, rankId, UserColumn.NAME)
                 .findFirst()
                 .call();
 

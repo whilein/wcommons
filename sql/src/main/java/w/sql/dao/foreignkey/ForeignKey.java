@@ -17,21 +17,37 @@
 package w.sql.dao.foreignkey;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import w.sql.dao.column.Column;
 
 /**
  * @author whilein
  */
-public interface ForeignKey {
+public interface ForeignKey<T extends Enum<T> & Column> {
 
-    static @NotNull ForeignKeyBuilder builder(final @NotNull String references) {
-        return DefaultForeignKey.builder(references);
+    static <T extends Enum<T> & Column> @NotNull ForeignKeyBuilder<T> builder(
+            final @NotNull T column,
+            final @NotNull String referenceTable,
+            final @NotNull String referenceColumn
+    ) {
+        return DefaultForeignKey.builder(column, referenceTable, referenceColumn);
     }
 
-    static @NotNull ForeignKey create(final @NotNull String references) {
-        return DefaultForeignKey.create(references);
+    static <T extends Enum<T> & Column> @NotNull ForeignKey<T> create(
+            final @NotNull T column,
+            final @NotNull String referenceTable,
+            final @NotNull String referenceColumn
+    ) {
+        return DefaultForeignKey.create(column, referenceTable, referenceColumn);
     }
 
-    @NotNull String getReferences();
+    @NotNull T getColumn();
+
+    @Nullable String getReferenceDatabase();
+
+    @NotNull String getReferenceTable();
+
+    @NotNull String getReferenceColumn();
 
     @NotNull ForeignKeyOption getOnDelete();
 

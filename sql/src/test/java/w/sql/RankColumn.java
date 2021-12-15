@@ -29,11 +29,8 @@ import w.sql.dao.column.ColumnDefinition;
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public enum TestColumn implements Column {
+public enum RankColumn implements Column {
     NAME(ColumnDefinition.builder("VARCHAR(16)", String.class)
-            .notNull()
-            .build()),
-    RANK(ColumnDefinition.builder("TEXT", String.class)
             .notNull()
             .build());
 

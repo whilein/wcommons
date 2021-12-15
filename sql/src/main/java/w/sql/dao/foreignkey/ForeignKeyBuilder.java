@@ -17,16 +17,19 @@
 package w.sql.dao.foreignkey;
 
 import org.jetbrains.annotations.NotNull;
+import w.sql.dao.column.Column;
 
 /**
  * @author whilein
  */
-public interface ForeignKeyBuilder {
+public interface ForeignKeyBuilder<T extends Enum<T> & Column> {
 
-    @NotNull ForeignKeyBuilder onUpdate(@NotNull ForeignKeyOption option);
+    @NotNull ForeignKeyBuilder<T> referenceDatabase(@NotNull String database);
 
-    @NotNull ForeignKeyBuilder onDelete(@NotNull ForeignKeyOption option);
+    @NotNull ForeignKeyBuilder<T> onUpdate(@NotNull ForeignKeyOption option);
 
-    @NotNull ForeignKey build();
+    @NotNull ForeignKeyBuilder<T> onDelete(@NotNull ForeignKeyOption option);
+
+    @NotNull ForeignKey<T> build();
 
 }

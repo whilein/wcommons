@@ -14,19 +14,29 @@
  *    limitations under the License.
  */
 
-package w.sql.dao.column;
+package w.sql;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import w.sql.dao.column.Column;
+import w.sql.dao.column.ColumnDefinition;
 
 /**
  * @author whilein
  */
-public interface ColumnDefinitionBuilder {
+@Getter
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+public enum UserColumn implements Column {
+    NAME(ColumnDefinition.builder("VARCHAR(16)", String.class)
+            .notNull()
+            .build()),
+    RANK_ID(ColumnDefinition.builder("INT", Integer.class)
+            .notNull()
+            .build());
 
-    @NotNull ColumnDefinitionBuilder autoIncrement();
-
-    @NotNull ColumnDefinitionBuilder notNull();
-
-    @NotNull ColumnDefinition build();
+    ColumnDefinition definition;
 
 }
