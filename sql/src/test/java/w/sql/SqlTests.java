@@ -22,7 +22,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import w.commons.flow.FlowCollectors;
+import w.flow.FlowCollectors;
 import w.sql.dao.DefaultTableManager;
 import w.sql.dao.foreignkey.ForeignKey;
 import w.sql.dao.foreignkey.ForeignKeyOption;

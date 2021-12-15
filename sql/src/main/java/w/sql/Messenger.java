@@ -18,8 +18,8 @@ package w.sql;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import w.commons.flow.FlowItems;
-import w.commons.flow.IntFlow;
+import w.flow.FlowItems;
+import w.flow.IntFlow;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

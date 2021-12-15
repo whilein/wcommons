@@ -28,12 +28,12 @@ import lombok.experimental.FieldDefaults;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import w.commons.flow.FlowConsumer;
-import w.commons.flow.FlowItems;
-import w.commons.flow.FlowSink;
-import w.commons.flow.Flows;
-import w.commons.flow.IntFlow;
-import w.commons.flow.IntFlowSupplier;
+import w.flow.FlowConsumer;
+import w.flow.FlowItems;
+import w.flow.FlowSink;
+import w.flow.Flows;
+import w.flow.IntFlow;
+import w.flow.IntFlowSupplier;
 
 import java.io.BufferedReader;
 import java.io.File;

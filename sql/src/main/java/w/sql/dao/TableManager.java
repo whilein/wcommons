@@ -18,9 +18,9 @@ package w.sql.dao;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import w.commons.flow.Flow;
-import w.commons.flow.FlowItems;
-import w.commons.flow.IntFlow;
+import w.flow.Flow;
+import w.flow.FlowItems;
+import w.flow.IntFlow;
 import w.sql.dao.column.Column;
 import w.sql.dao.property.Properties;
 
