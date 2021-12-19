@@ -56,8 +56,8 @@ public class IntFlowCollectors {
     }
 
 
-    public static @NotNull IntFlowCollector<@NotNull IntList, int @NotNull []> toArray() {
-        return ToArray.INSTANCE;
+    public static @NotNull IntFlowCollector<@NotNull IntList, int @NotNull []> toIntArray() {
+        return new ToIntArray();
     }
 
     public static @NotNull IntFlowCollector<?, @NotNull IntList> toIntList() {
@@ -70,9 +70,7 @@ public class IntFlowCollectors {
 
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class ToArray implements IntFlowCollector<IntList, int[]> {
-
-        private static final ToArray INSTANCE = new ToArray();
+    private static final class ToIntArray implements IntFlowCollector<IntList, int[]> {
 
         @Override
         public IntList init() {
