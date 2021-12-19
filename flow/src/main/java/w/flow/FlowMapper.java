@@ -16,10 +16,16 @@
 
 package w.flow;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * @author whilein
  */
 public interface FlowMapper<F, T> {
+
+    static <T> @NotNull FlowMapper<T, T> identity() {
+        return x -> x;
+    }
 
     T map(F value) throws Exception;
 
