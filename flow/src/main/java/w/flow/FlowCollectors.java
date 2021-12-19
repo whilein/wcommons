@@ -27,12 +27,14 @@ import w.util.pair.Pair;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
@@ -42,23 +44,7 @@ import java.util.function.ToIntFunction;
  * @author whilein
  */
 @UtilityClass
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class FlowCollectors {
-
-    private static final FlowCollector TO_LIST = new ToCollection(ArrayList::new);
-    private static final FlowCollector TO_SET = new ToCollection(HashSet::new);
-
-    private static final FlowCollector TO_UNMODIFIABLE_LIST = new ToUnmodifiableCollection<List<?>>(
-            ArrayList::new,
-            Collections::emptyList,
-            Collections::unmodifiableList
-    );
-
-    private static final FlowCollector TO_UNMODIFIABLE_SET = new ToUnmodifiableCollection<Set<?>>(
-            HashSet::new,
-            Collections::emptySet,
-            Collections::unmodifiableSet
-    );
 
     public <T> @NotNull FlowCollector<T, ?, T @NotNull []> toFixedLengthArray(
             final @NonNull Supplier<T[]> factory,
@@ -74,7 +60,11 @@ public class FlowCollectors {
     }
 
     public <T> @NotNull FlowCollector<T, ?, @NotNull List<T>> toUnmodifiableList() {
-        return TO_UNMODIFIABLE_LIST;
+        return new ToUnmodifiableCollection<>(
+                ArrayList::new,
+                Collections::emptyList,
+                Collections::unmodifiableList
+        );
     }
 
     public @NotNull FlowCollector<@NotNull String, @NotNull StringBuilder, @NotNull String> joining() {
@@ -88,7 +78,11 @@ public class FlowCollectors {
     }
 
     public <T> @NotNull FlowCollector<T, ?, @NotNull Set<T>> toUnmodifiableSet() {
-        return TO_UNMODIFIABLE_SET;
+        return new ToUnmodifiableCollection<>(
+                HashSet::new,
+                Collections::emptySet,
+                Collections::unmodifiableSet
+        );
     }
 
     public <K, V, T extends Pair<K, V>> @NotNull FlowCollector<T, ?, @NotNull Map<K, V>> toUnmodifiableMap(
@@ -169,18 +163,28 @@ public class FlowCollectors {
         return new ToMap<>(keyMapper, valueMapper, HashMap::new);
     }
 
+    public <T> @NotNull FlowCollector<T, ?, @NotNull List<T>> toSortedList(
+            final @NotNull Comparator<@NotNull T> comparator
+    ) {
+        return new ToList<>(ArrayList::new, list -> list.sort(comparator));
+    }
+
+    public <T> @NotNull FlowCollector<T, ?, @NotNull List<T>> toShuffledList() {
+        return new ToList<>(ArrayList::new, Collections::shuffle);
+    }
+
     public <T> @NotNull FlowCollector<T, ?, @NotNull List<T>> toList() {
-        return (FlowCollector) TO_LIST;
+        return new ToCollection<>(ArrayList::new);
     }
 
     public <T> @NotNull FlowCollector<T, ?, @NotNull Set<T>> toSet() {
-        return (FlowCollector) TO_SET;
+        return new ToCollection<>(HashSet::new);
     }
 
     public <T, R extends Collection<T>> @NotNull FlowCollector<T, ?, R> toCollection(
             final @NonNull Supplier<R> factory
     ) {
-        return (FlowCollector<T, ?, R>) new ToCollection<>(factory);
+        return new ToCollection<>(factory);
     }
 
     @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -284,7 +288,7 @@ public class FlowCollectors {
 
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class ToUnmodifiableCollection<R extends Collection> implements FlowCollector<Object, R, R> {
+    private static final class ToUnmodifiableCollection<T, R extends Collection<T>> implements FlowCollector<T, R, R> {
 
         Supplier<R> factory;
         Supplier<R> empty;
@@ -302,7 +306,7 @@ public class FlowCollectors {
         }
 
         @Override
-        public void accumulate(final R collection, final Object value) {
+        public void accumulate(final R collection, final T value) {
             collection.add(value);
         }
 
@@ -315,7 +319,39 @@ public class FlowCollectors {
 
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class ToCollection<C extends Collection> implements FlowCollector<Object, C, C> {
+    private static final class ToList<T, C extends List<T>> implements FlowCollector<T, C, C> {
+
+        Supplier<C> factory;
+        Consumer<C> finishAction;
+
+        @Override
+        public C init() {
+            return factory.get();
+        }
+
+        @Override
+        public C empty() {
+            return factory.get();
+        }
+
+        @Override
+        public void accumulate(final C collection, final T value) {
+            collection.add(value);
+        }
+
+        @Override
+        public C finish(final C collection) {
+            finishAction.accept(collection);
+
+            return collection;
+        }
+
+    }
+
+
+    @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class ToCollection<T, C extends Collection<T>> implements FlowCollector<T, C, C> {
 
         Supplier<C> factory;
 
@@ -330,7 +366,7 @@ public class FlowCollectors {
         }
 
         @Override
-        public void accumulate(final C collection, final Object value) {
+        public void accumulate(final C collection, final T value) {
             collection.add(value);
         }
 
