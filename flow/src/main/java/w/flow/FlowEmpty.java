@@ -27,4 +27,14 @@ public final class FlowEmpty extends RuntimeException {
 
     public static final FlowEmpty INSTANCE = new FlowEmpty();
 
+    @Override
+    public Throwable initCause(final Throwable cause) {
+        return this;
+    }
+
+    @Override
+    public Throwable fillInStackTrace() {
+        return this;
+    }
+
 }
