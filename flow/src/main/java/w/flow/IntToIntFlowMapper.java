@@ -16,10 +16,16 @@
 
 package w.flow;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * @author whilein
  */
 public interface IntToIntFlowMapper {
+
+    static @NotNull IntToIntFlowMapper identity() {
+        return x -> x;
+    }
 
     int map(int value) throws Exception;
 
