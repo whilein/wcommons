@@ -18,6 +18,12 @@ package w.flow;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import w.flow.function.FlowCollector;
+import w.flow.function.FlowConsumer;
+import w.flow.function.FlowCountedLoop;
+import w.flow.function.FlowMapper;
+import w.flow.function.FlowPredicate;
+import w.flow.function.Object2IntFlowMapper;
 
 import java.util.concurrent.Executor;
 
@@ -38,7 +44,7 @@ public interface FlowItems<T> extends BaseFlowItems {
 
     @NotNull
     IntFlow mapFirstToInt(
-            @NotNull ToIntFlowMapper<T> function
+            @NotNull Object2IntFlowMapper<T> function
     );
 
     <A> @NotNull FlowItems<A> map(
@@ -85,11 +91,11 @@ public interface FlowItems<T> extends BaseFlowItems {
 
     @NotNull
     IntFlowItems mapToInt(
-            @NotNull ToIntFlowMapper<T> mapper
+            @NotNull Object2IntFlowMapper<T> mapper
     );
 
     @NotNull FlowItems<T> filter(
-            @NotNull FlowFilter<T> filter
+            @NotNull FlowPredicate<T> filter
     );
 
 }

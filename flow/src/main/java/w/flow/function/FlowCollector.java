@@ -14,21 +14,19 @@
  *    limitations under the License.
  */
 
-package w.flow;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.util.function.IntPredicate;
+package w.flow.function;
 
 /**
  * @author whilein
  */
-public interface IntFlowFilter {
+public interface FlowCollector<T, A, R> {
 
-    static @NotNull IntFlowFilter of(final @NotNull IntPredicate predicate) {
-        return predicate::test;
-    }
+    A init();
 
-    boolean test(int value) throws Exception;
+    R empty();
+
+    void accumulate(A container, T value) throws Exception;
+
+    R finish(A container);
 
 }

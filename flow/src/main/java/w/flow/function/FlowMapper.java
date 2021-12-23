@@ -14,13 +14,19 @@
  *    limitations under the License.
  */
 
-package w.flow;
+package w.flow.function;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author whilein
  */
-public interface FlowCountedLoop<T> {
+public interface FlowMapper<F, T> {
 
-    void accept(int counter, T value) throws Exception;
+    static <T> @NotNull FlowMapper<T, T> identity() {
+        return x -> x;
+    }
+
+    T map(F value) throws Exception;
 
 }

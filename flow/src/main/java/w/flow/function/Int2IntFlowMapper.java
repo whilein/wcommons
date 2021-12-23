@@ -14,13 +14,19 @@
  *    limitations under the License.
  */
 
-package w.flow;
+package w.flow.function;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author whilein
  */
-public interface IntFlowConsumer {
+public interface Int2IntFlowMapper {
 
-    void accept(int value) throws Exception;
+    static @NotNull Int2IntFlowMapper identity() {
+        return x -> x;
+    }
+
+    int applyAsInt(int value) throws Exception;
 
 }

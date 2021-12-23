@@ -17,6 +17,10 @@
 package w.flow;
 
 import org.jetbrains.annotations.NotNull;
+import w.flow.function.Int2IntFlowMapper;
+import w.flow.function.Int2ObjectFlowMapper;
+import w.flow.function.IntFlowCombiner;
+import w.flow.function.IntFlowPredicate;
 
 import java.util.OptionalInt;
 import java.util.concurrent.Executor;
@@ -38,11 +42,11 @@ public interface IntFlow extends BaseFlow {
     void callAsync(@NotNull IntConsumer result, @NotNull Executor executor);
 
     @NotNull IntFlow map(
-            @NotNull IntToIntFlowMapper mapper
+            @NotNull Int2IntFlowMapper mapper
     );
 
     <T> @NotNull Flow<T> mapToObj(
-            @NotNull IntFlowMapper<T> mapper
+            @NotNull Int2ObjectFlowMapper<T> mapper
     );
 
     @NotNull
@@ -55,11 +59,11 @@ public interface IntFlow extends BaseFlow {
     @NotNull IntFlow orElseCall(@NotNull Supplier<@NotNull IntFlow> value);
 
     @NotNull IntFlow filter(
-            @NotNull IntFlowFilter filter
+            @NotNull IntFlowPredicate filter
     );
 
     @NotNull IntFlow compose(
-            @NotNull IntFlowMapper<@NotNull IntFlow> function
+            @NotNull Int2ObjectFlowMapper<@NotNull IntFlow> function
     );
 
     @NotNull IntFlow then(
@@ -67,7 +71,7 @@ public interface IntFlow extends BaseFlow {
     );
 
     @NotNull IntFlow combine(
-            @NotNull IntFlowMapper<@NotNull IntFlow> another,
+            @NotNull Int2ObjectFlowMapper<@NotNull IntFlow> another,
             @NotNull IntFlowCombiner combiner
     );
 

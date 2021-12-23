@@ -14,13 +14,13 @@
  *    limitations under the License.
  */
 
-package w.flow;
+package w.flow.function;
 
 /**
  * @author whilein
  */
-public interface FlowCombiner<L, R, T> {
+public interface FlowCountedLoop<T> {
 
-    T combine(L left, R right) throws Exception;
+    void accept(int counter, T value) throws Exception;
 
 }

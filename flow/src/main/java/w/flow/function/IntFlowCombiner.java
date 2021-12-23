@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package w.flow;
+package w.flow.function;
 
 /**
  * @author whilein

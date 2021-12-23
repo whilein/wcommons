@@ -17,6 +17,12 @@
 package w.flow;
 
 import org.jetbrains.annotations.NotNull;
+import w.flow.function.Int2IntFlowMapper;
+import w.flow.function.Int2ObjectFlowMapper;
+import w.flow.function.IntFlowCollector;
+import w.flow.function.IntFlowConsumer;
+import w.flow.function.IntFlowCountedLoop;
+import w.flow.function.IntFlowPredicate;
 
 /**
  * @author whilein
@@ -28,11 +34,11 @@ public interface IntFlowItems extends BaseFlowItems {
     @NotNull IntFlow findFirst();
 
     @NotNull IntFlowItems map(
-            @NotNull IntToIntFlowMapper mapper
+            @NotNull Int2IntFlowMapper mapper
     );
 
     <A> @NotNull FlowItems<A> mapToObj(
-            @NotNull IntFlowMapper<A> mapper
+            @NotNull Int2ObjectFlowMapper<A> mapper
     );
 
     @NotNull IntFlowItems forEachCounted(@NotNull IntFlowCountedLoop loop);
@@ -40,7 +46,7 @@ public interface IntFlowItems extends BaseFlowItems {
     @NotNull IntFlowItems forEach(@NotNull IntFlowConsumer loop);
 
     @NotNull IntFlowItems filter(
-            @NotNull IntFlowFilter filter
+            @NotNull IntFlowPredicate filter
     );
 
 }

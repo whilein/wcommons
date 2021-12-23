@@ -17,75 +17,52 @@
 package w.flow;
 
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import w.flow.function.FlowCollector;
+import w.flow.function.FlowCollectors;
+import w.flow.function.FlowCombiner;
+import w.flow.function.FlowConsumer;
+import w.flow.function.FlowCountedLoop;
+import w.flow.function.FlowMapper;
+import w.flow.function.FlowPredicate;
+import w.flow.function.FlowSink;
+import w.flow.function.FlowSupplier;
+import w.flow.function.Object2IntFlowMapper;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
-import java.util.function.IntConsumer;
-import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 /**
  * @author whilein
  */
 @UtilityClass
-public final class Flows {
+public class Flows {
 
     public <T> @NotNull Flow<T> ofSupplier(
-            final @NonNull FlowSupplier<T> call
+            final @NotNull FlowSupplier<T> call
     ) {
         return new FlowImpl<>(null, call);
     }
 
     public <T> @NotNull Flow<T> ofSupplier(
-            final @NonNull String name,
-            final @NonNull FlowSupplier<T> call
+            final @NotNull String name,
+            final @NotNull FlowSupplier<T> call
     ) {
         return new FlowImpl<>(name, call);
     }
 
-    public @NotNull IntFlow ofIntSupplier(
-            final @NonNull IntFlowSupplier call
-    ) {
-        return new IntFlowImpl(null, call);
-    }
-
-    public @NotNull IntFlow ofIntSupplier(
-            final @NonNull String name,
-            final @NonNull IntFlowSupplier call
-    ) {
-        return new IntFlowImpl(name, call);
-    }
-
-    public @NotNull IntFlow emptyIntFlow() {
-        return new IntFlowImpl(null, () -> {
-            throw FlowEmpty.INSTANCE;
-        });
-    }
-
-    public @NotNull IntFlow emptyIntFlow(
-            final @NonNull String name
-    ) {
-        return new IntFlowImpl(name, () -> {
-            throw FlowEmpty.INSTANCE;
-        });
-    }
-
     public <T> @NotNull Flow<T> emptyFlow(
-            final @NonNull String name
+            final @NotNull String name
     ) {
         return new FlowImpl<>(name, () -> {
             throw FlowEmpty.INSTANCE;
@@ -98,22 +75,9 @@ public final class Flows {
         });
     }
 
-    public @NotNull IntFlowItems ofIntEmitter(
-            final @NonNull String name,
-            final @NonNull FlowConsumer<IntFlowSink> sink
-    ) {
-        return new IntFlowItemsImpl(name, sink);
-    }
-
-    public @NotNull IntFlowItems ofIntEmitter(
-            final @NonNull FlowConsumer<IntFlowSink> sink
-    ) {
-        return new IntFlowItemsImpl(null, sink);
-    }
-
     public <T> @NotNull FlowItems<T> ofEmitter(
-            final @NonNull String name,
-            final @NonNull FlowConsumer<FlowSink<T>> sink
+            final @NotNull String name,
+            final @NotNull FlowConsumer<FlowSink<T>> sink
     ) {
         return new FlowItemsImpl<>(name, sink);
     }
@@ -124,229 +88,16 @@ public final class Flows {
         return new FlowItemsImpl<>(null, sink);
     }
 
-    @Getter
-    @FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
-    @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-    private static abstract class AbstractFlow implements BaseFlow {
-        String name;
-
-        protected abstract void _callAsync(final Executor executor);
-
-        @Override
-        public final void callAsync() {
-            _callAsync(ForkJoinPool.commonPool());
-        }
-
-        @Override
-        public final void callAsyncUsing(final @NonNull Executor executor) {
-            _callAsync(executor);
-        }
-
-    }
-
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-    private static final class IntFlowImpl extends AbstractFlow implements IntFlow {
+    private static final class FlowImpl<T> extends AbstractFlow implements Flow<T> {
 
-        IntFlowSupplier call;
+        FlowSupplier<T> call;
 
-        public IntFlowImpl(final String name, final IntFlowSupplier call) {
+        private FlowImpl(final String name, final FlowSupplier<T> call) {
             super(name);
 
             this.call = call;
         }
-
-        @Override
-        public int run() throws Exception {
-            return call.get();
-        }
-
-        @Override
-        public int call() {
-            try {
-                return run();
-            } catch (final FlowEmpty e) {
-                return 0;
-            } catch (final Exception e) {
-                throw new RuntimeException("Error occurred whilst executing flow " + name, e);
-            }
-        }
-
-        protected void _callAsync(final Executor executor) {
-            executor.execute(this::call);
-        }
-
-        @Override
-        public @NotNull IntFlow orElse(final int value) {
-            return new IntFlowImpl(name, () -> {
-                try {
-                    return run();
-                } catch (final FlowEmpty e) {
-                    return value;
-                }
-            });
-        }
-
-        @Override
-        public @NotNull IntFlow orElseGet(final @NonNull IntSupplier value) {
-            return new IntFlowImpl(name, () -> {
-                try {
-                    return run();
-                } catch (final FlowEmpty e) {
-                    return value.getAsInt();
-                }
-            });
-        }
-
-        @Override
-        public @NotNull IntFlow orElseCall(final @NotNull Supplier<@NotNull IntFlow> value) {
-            return new IntFlowImpl(name, () -> {
-                try {
-                    return run();
-                } catch (final FlowEmpty e) {
-                    return value.get().run();
-                }
-            });
-        }
-
-        @Override
-        public void callAsync(
-                final @NonNull IntConsumer consumer
-        ) {
-            _callAsync(consumer, ForkJoinPool.commonPool());
-        }
-
-        @Override
-        public void callAsync(
-                final @NonNull IntConsumer consumer,
-                final @NonNull Executor executor) {
-            _callAsync(consumer, executor);
-        }
-
-        private void _callAsync(
-                final @NonNull IntConsumer consumer,
-                final @NonNull Executor executor
-        ) {
-            executor.execute(() -> consumer.accept(call()));
-        }
-
-        @Override
-        public @NotNull <A> Flow<A> mapToObj(
-                final @NonNull IntFlowMapper<@Nullable A> function
-        ) {
-            return new FlowImpl<>(name, () -> function.map(run()));
-        }
-
-        @Override
-        public @NotNull IntFlow map(
-                final @NonNull IntToIntFlowMapper function
-        ) {
-            return new IntFlowImpl(name, () -> function.map(run()));
-        }
-
-        @Override
-        public @NotNull IntFlow compose(
-                final @NonNull IntFlowMapper<@NotNull IntFlow> function
-        ) {
-            return new IntFlowImpl(name, () -> function.map(run()).run());
-        }
-
-        @Override
-        public @NotNull Flow<@NotNull OptionalInt> toOptional() {
-            return new FlowImpl<>(name, () -> {
-                try {
-                    return OptionalInt.of(run());
-                } catch (final FlowEmpty e) {
-                    return OptionalInt.empty();
-                }
-            });
-        }
-
-        @Override
-        public @NotNull IntFlow filter(final @NonNull IntFlowFilter filter) {
-            return new IntFlowImpl(name, () -> {
-                val value = run();
-
-                if (!filter.test(value)) {
-                    throw FlowEmpty.INSTANCE;
-                }
-
-                return value;
-            });
-        }
-
-        @Override
-        public @NotNull IntFlow then(
-                final @NonNull IntFlow another
-        ) {
-            return new IntFlowImpl(name, () -> {
-                try {
-                    run();
-                } catch (final FlowEmpty ignored) {
-                    // похуй на этот, нам нужен ответ следующего
-                }
-
-                return another.run();
-            });
-        }
-
-        @Override
-        public @NotNull IntFlow combine(
-                final @NonNull IntFlowMapper<@NotNull IntFlow> another,
-                final @NonNull IntFlowCombiner combiner
-        ) {
-            return new IntFlowImpl(name, () -> {
-                // может быть вызван только первый флов
-
-                val first = run();
-                val second = another.map(first).run();
-
-                return combiner.combine(first, second);
-            });
-        }
-
-        @Override
-        public @NotNull IntFlow combine(
-                final @NonNull IntFlow another,
-                final @NonNull IntFlowCombiner combiner
-        ) {
-            return new IntFlowImpl(name, () -> {
-                // оба флова должны быть вызваны
-
-                int first = 0;
-                int second = 0;
-
-                FlowEmpty empty = null;
-
-                try {
-                    first = run();
-                } catch (final FlowEmpty e) {
-                    empty = e;
-                }
-
-                try {
-                    second = another.run();
-                } catch (final FlowEmpty e) {
-                    empty = e;
-                }
-
-                if (empty != null) {
-                    throw empty;
-                }
-
-                return combiner.combine(first, second);
-            });
-        }
-
-    }
-
-    @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class FlowImpl<T> implements Flow<T> {
-
-        @Getter
-        String name;
-
-        FlowSupplier<T> call;
 
         @Override
         public @NotNull CompletableFuture<T> toFuture() {
@@ -374,18 +125,9 @@ public final class Flows {
             }
         }
 
-        private void _callAsync(final Executor executor) {
+        @Override
+        protected void _callAsync(final Executor executor) {
             executor.execute(this::call);
-        }
-
-        @Override
-        public void callAsync() {
-            _callAsync(ForkJoinPool.commonPool());
-        }
-
-        @Override
-        public void callAsyncUsing(final @NonNull Executor executor) {
-            _callAsync(executor);
         }
 
         @Override
@@ -466,9 +208,9 @@ public final class Flows {
 
         @Override
         public @NotNull IntFlow mapToInt(
-                final @NonNull ToIntFlowMapper<T> function
+                final @NonNull Object2IntFlowMapper<T> function
         ) {
-            return new IntFlowImpl(name, () -> function.map(run()));
+            return IntFlows.ofSupplier(name, () -> function.map(run()));
         }
 
         @Override
@@ -490,7 +232,7 @@ public final class Flows {
         }
 
         @Override
-        public @NotNull Flow<T> filter(final @NonNull FlowFilter<T> filter) {
+        public @NotNull Flow<T> filter(final @NonNull FlowPredicate<T> filter) {
             return new FlowImpl<>(name, () -> {
                 val result = run();
 
@@ -595,143 +337,6 @@ public final class Flows {
 
     }
 
-    @FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
-    private static abstract class AbstractFlowItems extends AbstractFlow implements BaseFlowItems {
-
-        public AbstractFlowItems(final String name) {
-            super(name);
-        }
-
-        @Override
-        public abstract void run() throws Exception;
-
-        protected final void _callAsync(final Executor executor) {
-            executor.execute(this::call);
-        }
-
-        @Override
-        public void call() {
-            try {
-                run();
-            } catch (final Exception e) {
-                throw new RuntimeException("Error occurred whilst executing flow " + name, e);
-            }
-        }
-
-    }
-
-    @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-    private static final class IntFlowItemsImpl extends AbstractFlowItems
-            implements IntFlowItems {
-
-        FlowConsumer<IntFlowSink> sink;
-
-        public IntFlowItemsImpl(
-                final String name,
-                final FlowConsumer<IntFlowSink> sink
-        ) {
-            super(name);
-
-            this.sink = sink;
-        }
-
-        @Override
-        public @NotNull <A, R> Flow<R> collect(final @NonNull IntFlowCollector<A, R> collector) {
-            return new FlowImpl<>(name, () -> {
-                final var ref = new Object() {
-                    A collection;
-                };
-
-                sink.accept(value -> {
-                    A collection = ref.collection;
-
-                    if (collection == null)
-                        ref.collection = collection = collector.init();
-
-                    collector.accumulate(collection, value);
-
-                    return true;
-                });
-
-                return ref.collection == null
-                        ? collector.empty()
-                        : collector.finish(ref.collection);
-            });
-        }
-
-        @Override
-        public @NotNull IntFlow findFirst() {
-            return new IntFlowImpl(name, () -> {
-                final var output = new Object() {
-                    int value;
-                    boolean hasValue;
-                };
-
-                sink.accept(value -> {
-                    output.value = value;
-                    output.hasValue = true;
-
-                    return false;
-                });
-
-                if (!output.hasValue) {
-                    throw FlowEmpty.INSTANCE;
-                }
-
-                return output.value;
-            });
-        }
-
-
-        @Override
-        public @NotNull IntFlowItems map(final @NonNull IntToIntFlowMapper mapper) {
-            return new IntFlowItemsImpl(name, newSink -> sink.accept(value -> newSink.next(mapper.map(value))));
-        }
-
-        @Override
-        public @NotNull <A> FlowItems<A> mapToObj(final @NotNull IntFlowMapper<A> mapper) {
-            return new FlowItemsImpl<>(name, newSink -> sink.accept(
-                    value -> newSink.next(mapper.map(value))));
-        }
-
-        @Override
-        public @NotNull IntFlowItems filter(final @NotNull IntFlowFilter filter) {
-            return new IntFlowItemsImpl(name, newSink -> sink.accept(value -> {
-                if (!filter.test(value))
-                    return true;
-
-                return newSink.next(value);
-            }));
-        }
-
-        @Override
-        public @NotNull IntFlowItems forEach(final @NonNull IntFlowConsumer loop) {
-            return new IntFlowItemsImpl(name, newSink -> sink.accept(value -> {
-                loop.accept(value);
-                return newSink.next(value);
-            }));
-        }
-
-        @Override
-        public @NotNull IntFlowItems forEachCounted(final @NonNull IntFlowCountedLoop loop) {
-            return new IntFlowItemsImpl(name, newSink -> {
-                final var counter = new Object() {
-                    int value;
-                };
-
-                sink.accept(value -> {
-                    loop.accept(counter.value++, value);
-                    return newSink.next(value);
-                });
-            });
-        }
-
-        @Override
-        public void run() throws Exception {
-            sink.accept(value -> true);
-        }
-    }
-
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
     private static final class FlowItemsImpl<T> extends AbstractFlowItems
             implements FlowItems<T> {
@@ -821,9 +426,9 @@ public final class Flows {
 
         @Override
         public @NotNull IntFlow mapFirstToInt(
-                final @NonNull ToIntFlowMapper<T> function
+                final @NonNull Object2IntFlowMapper<T> function
         ) {
-            return new IntFlowImpl(name, () -> {
+            return IntFlows.ofSupplier(name, () -> {
                 final var output = new Object() {
                     int value;
                     boolean hasValue;
@@ -974,7 +579,7 @@ public final class Flows {
         }
 
         @Override
-        public @NotNull FlowItems<T> filter(final @NotNull FlowFilter<T> filter) {
+        public @NotNull FlowItems<T> filter(final @NotNull FlowPredicate<T> filter) {
             return new FlowItemsImpl<>(name, newSink -> sink.accept(value -> {
                 if (!filter.test(value))
                     return true;
@@ -992,8 +597,8 @@ public final class Flows {
         }
 
         @Override
-        public @NotNull IntFlowItems mapToInt(final @NonNull ToIntFlowMapper<T> mapper) {
-            return new IntFlowItemsImpl(name, newSink -> sink.accept(
+        public @NotNull IntFlowItems mapToInt(final @NonNull Object2IntFlowMapper<T> mapper) {
+            return IntFlows.ofEmitter(name, newSink -> sink.accept(
                     value -> newSink.next(mapper.map(value))));
         }
 

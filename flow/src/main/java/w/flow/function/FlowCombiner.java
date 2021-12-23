@@ -14,19 +14,13 @@
  *    limitations under the License.
  */
 
-package w.flow;
-
-import org.jetbrains.annotations.NotNull;
+package w.flow.function;
 
 /**
  * @author whilein
  */
-public interface FlowMapper<F, T> {
+public interface FlowCombiner<L, R, T> {
 
-    static <T> @NotNull FlowMapper<T, T> identity() {
-        return x -> x;
-    }
-
-    T map(F value) throws Exception;
+    T combine(L left, R right) throws Exception;
 
 }

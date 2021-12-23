@@ -14,13 +14,13 @@
  *    limitations under the License.
  */
 
-package w.flow;
+package w.flow.function;
 
 /**
  * @author whilein
  */
-public interface IntFlowSink {
+public interface Object2IntFlowMapper<T> {
 
-    boolean next(int value) throws Exception;
+    int map(T value) throws Exception;
 
 }

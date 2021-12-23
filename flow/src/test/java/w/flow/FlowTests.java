@@ -18,6 +18,9 @@ package w.flow;
 
 import lombok.val;
 import org.junit.jupiter.api.Test;
+import w.flow.function.FlowCollectors;
+import w.flow.function.FlowConsumer;
+import w.flow.function.IntFlowSink;
 
 import java.util.List;
 import java.util.Objects;
@@ -71,7 +74,7 @@ class FlowTests {
 
     @Test
     void intFilter() {
-        val result = Flows.ofIntSupplier(() -> 5)
+        val result = IntFlows.ofSupplier(() -> 5)
                 .filter(x -> x == 1)
                 .toOptional()
                 .call();
@@ -81,7 +84,7 @@ class FlowTests {
 
     @Test
     void collectToList() {
-        final List<Number> numbers = Flows.ofIntEmitter(numEmitter(0, 100))
+        final List<Number> numbers = IntFlows.ofEmitter(numEmitter(0, 100))
                 .mapToObj(Integer::valueOf)
                 .collect(FlowCollectors.<Number>toUnmodifiableList())
                 .call();
@@ -101,7 +104,7 @@ class FlowTests {
 
     @Test
     void itemsFilter_withAnother() {
-        val result = Flows.ofIntEmitter(numEmitter(0, 10))
+        val result = IntFlows.ofEmitter(numEmitter(0, 10))
                 .mapToObj(String::valueOf)
                 .filter("5"::equals)
                 .findFirst()
@@ -114,7 +117,7 @@ class FlowTests {
 
     @Test
     void itemsFilter_expectEmpty() {
-        val result = Flows.ofIntEmitter(numEmitter(0, 10))
+        val result = IntFlows.ofEmitter(numEmitter(0, 10))
                 .mapToObj(String::valueOf)
                 .filter("10"::equals)
                 .findFirst()
@@ -125,7 +128,7 @@ class FlowTests {
 
     @Test
     void itemsFilter() {
-        val result = Flows.ofIntEmitter(numEmitter(0, 10))
+        val result = IntFlows.ofEmitter(numEmitter(0, 10))
                 .mapToObj(String::valueOf)
                 .filter("5"::equals)
                 .findFirst()

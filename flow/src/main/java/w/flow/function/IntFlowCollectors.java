@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package w.flow;
+package w.flow.function;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -42,7 +42,7 @@ import java.util.function.Supplier;
 public class IntFlowCollectors {
 
     public static <V, T> @NotNull FlowCollector<T, ?, @NotNull Int2ObjectMap<V>> toIntObjectMap(
-            final @NotNull ToIntFlowMapper<? super T> keyMapper,
+            final @NotNull Object2IntFlowMapper<? super T> keyMapper,
             final @NotNull FlowMapper<? super T, ? extends V> valueMapper
     ) {
         return new ToIntObjectMap<>(keyMapper, valueMapper);
@@ -50,7 +50,7 @@ public class IntFlowCollectors {
 
     public static <K, T> @NotNull FlowCollector<T, ?, @NotNull Object2IntMap<K>> toObjectIntMap(
             final @NotNull FlowMapper<? super T, K> keyMapper,
-            final @NotNull ToIntFlowMapper<? super T> valueMapper
+            final @NotNull Object2IntFlowMapper<? super T> valueMapper
     ) {
         return new ToObjectIntMap<>(keyMapper, valueMapper);
     }
@@ -99,7 +99,7 @@ public class IntFlowCollectors {
     private static final class ToObjectIntMap<K, T> implements FlowCollector<T, Object2IntMap<K>, Object2IntMap<K>> {
 
         FlowMapper<? super T, ? extends K> keyMapper;
-        ToIntFlowMapper<? super T> valueMapper;
+        Object2IntFlowMapper<? super T> valueMapper;
 
         @Override
         public Object2IntOpenHashMap<K> init() {
@@ -127,7 +127,7 @@ public class IntFlowCollectors {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class ToIntObjectMap<V, T> implements FlowCollector<T, Int2ObjectMap<V>, Int2ObjectMap<V>> {
 
-        ToIntFlowMapper<? super T> keyMapper;
+        Object2IntFlowMapper<? super T> keyMapper;
         FlowMapper<? super T, ? extends V> valueMapper;
 
         @Override

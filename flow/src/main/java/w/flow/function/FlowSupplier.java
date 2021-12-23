@@ -14,13 +14,13 @@
  *    limitations under the License.
  */
 
-package w.flow;
+package w.flow.function;
 
 /**
  * @author whilein
  */
-public interface IntFlowSupplier {
+public interface FlowSupplier<T> {
 
-    int get() throws Exception;
+    T get() throws Exception;
 
 }

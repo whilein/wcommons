@@ -14,13 +14,21 @@
  *    limitations under the License.
  */
 
-package w.flow;
+package w.flow.function;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.IntPredicate;
 
 /**
  * @author whilein
  */
-public interface IntFlowMapper<T> {
+public interface IntFlowPredicate {
 
-    T map(int value) throws Exception;
+    static @NotNull IntFlowPredicate of(final @NotNull IntPredicate predicate) {
+        return predicate::test;
+    }
+
+    boolean test(int value) throws Exception;
 
 }

@@ -14,19 +14,15 @@
  *    limitations under the License.
  */
 
-package w.flow;
+package w.flow.function;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author whilein
  */
-public interface FlowCollector<T, A, R> {
+public interface FlowSink<T> {
 
-    A init();
-
-    R empty();
-
-    void accumulate(A container, T value) throws Exception;
-
-    R finish(A container);
+    boolean next(@NotNull T value) throws Exception;
 
 }

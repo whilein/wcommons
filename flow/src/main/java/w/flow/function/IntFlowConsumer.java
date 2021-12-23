@@ -14,13 +14,13 @@
  *    limitations under the License.
  */
 
-package w.flow;
+package w.flow.function;
 
 /**
  * @author whilein
  */
-public interface IntFlowCountedLoop {
+public interface IntFlowConsumer {
 
-    void accept(int counter, int value) throws Exception;
+    void accept(int value) throws Exception;
 
 }

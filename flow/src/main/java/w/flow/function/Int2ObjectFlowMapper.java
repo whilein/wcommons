@@ -14,13 +14,13 @@
  *    limitations under the License.
  */
 
-package w.flow;
+package w.flow.function;
 
 /**
  * @author whilein
  */
-public interface FlowSupplier<T> {
+public interface Int2ObjectFlowMapper<T> {
 
-    T get() throws Exception;
+    T map(int value) throws Exception;
 
 }

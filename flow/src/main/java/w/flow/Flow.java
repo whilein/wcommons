@@ -19,6 +19,11 @@ package w.flow;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import w.flow.function.FlowCombiner;
+import w.flow.function.FlowConsumer;
+import w.flow.function.FlowMapper;
+import w.flow.function.FlowPredicate;
+import w.flow.function.Object2IntFlowMapper;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -53,7 +58,7 @@ public interface Flow<T> extends BaseFlow {
     );
 
     @NotNull IntFlow mapToInt(
-            @NotNull ToIntFlowMapper<T> mapper
+            @NotNull Object2IntFlowMapper<T> mapper
     );
 
     @NotNull Flow<@NotNull Optional<T>> toOptional();
@@ -87,7 +92,7 @@ public interface Flow<T> extends BaseFlow {
     @NotNull Flow<T> orElseCall(@NotNull Supplier<@NotNull Flow<T>> value);
 
     @NotNull Flow<T> filter(
-            @NotNull FlowFilter<T> filter
+            @NotNull FlowPredicate<T> filter
     );
 
     <A> @NotNull Flow<A> compose(

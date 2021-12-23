@@ -14,21 +14,13 @@
  *    limitations under the License.
  */
 
-package w.flow;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.util.function.Predicate;
+package w.flow.function;
 
 /**
  * @author whilein
  */
-public interface FlowFilter<T> {
+public interface FlowConsumer<T> {
 
-    static <T> @NotNull FlowFilter<T> of(final @NotNull Predicate<T> predicate) {
-        return predicate::test;
-    }
-
-    boolean test(T value) throws Exception;
+    void accept(T value) throws Exception;
 
 }

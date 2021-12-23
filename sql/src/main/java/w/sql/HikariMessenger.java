@@ -28,12 +28,13 @@ import lombok.experimental.FieldDefaults;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import w.flow.FlowConsumer;
 import w.flow.FlowItems;
-import w.flow.FlowSink;
 import w.flow.Flows;
 import w.flow.IntFlow;
-import w.flow.IntFlowSupplier;
+import w.flow.IntFlows;
+import w.flow.function.FlowConsumer;
+import w.flow.function.FlowSink;
+import w.flow.function.IntFlowSupplier;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -101,12 +102,12 @@ public final class HikariMessenger implements Messenger {
             final @NonNull String query,
             final @Nullable Object @NonNull ... parameters
     ) {
-        return Flows.ofIntSupplier(query, new Update(query, parameters));
+        return IntFlows.ofSupplier(query, new Update(query, parameters));
     }
 
     @Override
     public @NotNull IntFlow update(final @NonNull String query) {
-        return Flows.ofIntSupplier(query, new Update(query, null));
+        return IntFlows.ofSupplier(query, new Update(query, null));
     }
 
     @Override
@@ -114,12 +115,12 @@ public final class HikariMessenger implements Messenger {
             final @NonNull String query,
             final @Nullable Object @NonNull ... parameters
     ) {
-        return Flows.ofIntSupplier(query, new UpdateWithKeys(query, parameters));
+        return IntFlows.ofSupplier(query, new UpdateWithKeys(query, parameters));
     }
 
     @Override
     public @NotNull IntFlow updateWithKeys(final @NonNull String query) {
-        return Flows.ofIntSupplier(query, new UpdateWithKeys(query, null));
+        return IntFlows.ofSupplier(query, new UpdateWithKeys(query, null));
     }
 
     @Override

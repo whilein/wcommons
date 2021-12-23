@@ -14,19 +14,13 @@
  *    limitations under the License.
  */
 
-package w.flow;
-
-import org.jetbrains.annotations.NotNull;
+package w.flow.function;
 
 /**
  * @author whilein
  */
-public interface IntToIntFlowMapper {
+public interface IntFlowSupplier {
 
-    static @NotNull IntToIntFlowMapper identity() {
-        return x -> x;
-    }
-
-    int map(int value) throws Exception;
+    int get() throws Exception;
 
 }
