@@ -49,17 +49,28 @@ public class AnnotationIndex {
     }
 
     @SneakyThrows
-    private @NotNull List<@NotNull String> getAnnotatedTypeNames(final @NotNull Class<?> annotation) {
-        return _getAnnotated(annotation.getClassLoader(), annotation.getName())
+    private @NotNull List<@NotNull String> getAnnotatedTypeNames(final @NotNull ClassLoader cl, final @NotNull Class<?> annotation) {
+        return _getAnnotated(cl, annotation.getName())
                 .collect(Collectors.toUnmodifiableList());
     }
 
     @SneakyThrows
-    public @NotNull List<@NotNull Class<?>> getAnnotatedTypes(final @NotNull Class<?> annotation) {
-        return _getAnnotated(annotation.getClassLoader(), annotation.getName())
+    public @NotNull List<@NotNull Class<?>> getAnnotatedTypes(final @NotNull ClassLoader cl, final @NotNull Class<?> annotation) {
+        return _getAnnotated(cl, annotation.getName())
                 .map(ClassLoaderUtils::getClass)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toUnmodifiableList());
+    }
+
+
+    @SneakyThrows
+    private @NotNull List<@NotNull String> getAnnotatedTypeNames(final @NotNull Class<?> annotation) {
+        return getAnnotatedTypeNames(annotation.getClassLoader(), annotation);
+    }
+
+    @SneakyThrows
+    public @NotNull List<@NotNull Class<?>> getAnnotatedTypes(final @NotNull Class<?> annotation) {
+        return getAnnotatedTypes(annotation.getClassLoader(), annotation);
     }
 
 }
