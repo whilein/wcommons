@@ -64,7 +64,7 @@ public class ClassLoaderUtils {
         return _getResourceBytes(classLoader, resourceName);
     }
 
-    public Optional<Class<?>> _findClass(
+    private Optional<Class<?>> _findClass(
             final ClassLoader classLoader,
             final String className,
             final boolean loadIfNeeded

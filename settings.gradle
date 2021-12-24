@@ -17,3 +17,5 @@ include ':geo-cache-guava'
 include ':util'
 
 include ':impl'
+
+include ':annotation-index'
