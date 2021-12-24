@@ -60,13 +60,13 @@ public class IntFlows {
         return new IntFlowImpl(name, call);
     }
 
-    public @NotNull IntFlow emptyIntFlow() {
+    public @NotNull IntFlow emptyFlow() {
         return new IntFlowImpl(null, () -> {
             throw FlowEmpty.INSTANCE;
         });
     }
 
-    public @NotNull IntFlow emptyIntFlow(
+    public @NotNull IntFlow emptyFlow(
             final @NotNull String name
     ) {
         return new IntFlowImpl(name, () -> {
@@ -279,10 +279,25 @@ public class IntFlows {
         }
 
         private void _callAsync(
-                final @NonNull IntConsumer consumer,
-                final @NonNull Executor executor
+                final IntConsumer consumer,
+                final Executor executor
         ) {
-            executor.execute(() -> consumer.accept(call()));
+            executor.execute(() -> {
+                int result = 0;
+
+                try {
+                    result = run();
+                } catch (final FlowEmpty ignored) {
+                } catch (final Exception e) {
+                    throw new RuntimeException("Error occurred whilst asynchronously executing a flow " + name, e);
+                }
+
+                try {
+                    consumer.accept(result);
+                } catch (final Exception e) {
+                    throw new RuntimeException("Error occurred whilst asynchronously executing a flow " + name, e);
+                }
+            });
         }
 
         @Override

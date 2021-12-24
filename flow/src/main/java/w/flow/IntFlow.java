@@ -49,8 +49,7 @@ public interface IntFlow extends BaseFlow {
             @NotNull Int2ObjectFlowMapper<T> mapper
     );
 
-    @NotNull
-    Flow<@NotNull OptionalInt> toOptional();
+    @NotNull Flow<@NotNull OptionalInt> toOptional();
 
     @NotNull IntFlow orElse(int value);
 
@@ -75,7 +74,7 @@ public interface IntFlow extends BaseFlow {
             @NotNull IntFlowCombiner combiner
     );
 
-    <A, R> @NotNull IntFlow combine(
+    @NotNull IntFlow combine(
             @NotNull IntFlow another,
             @NotNull IntFlowCombiner combiner
     );

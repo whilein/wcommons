@@ -32,7 +32,6 @@ import java.util.concurrent.Executor;
  */
 public interface FlowItems<T> extends BaseFlowItems {
 
-
     <A, R> @NotNull Flow<R> collect(@NotNull FlowCollector<? super T, A, R> collector);
 
     @NotNull
