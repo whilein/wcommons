@@ -18,6 +18,7 @@ package w.geo.maxmind;
 
 import com.maxmind.db.NoCache;
 import com.maxmind.geoip2.DatabaseReader;
+import com.maxmind.geoip2.record.AbstractNamedRecord;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -73,15 +74,23 @@ public final class MaxmindGeoLocationManager implements GeoLocationManager {
         throw new IllegalStateException("Cannot unpack maxmind database: no .mmdb file found");
     }
 
+    private Optional<String> getName(final AbstractNamedRecord record) {
+        val names = record.getNames();
+
+        return Optional.ofNullable(names.get("ru"))
+                .or(() -> Optional.ofNullable(names.get("en")));
+    }
+
     @Override
     public @NotNull GeoLocation lookup(final @NotNull InetAddress address) {
         try {
             return database.tryCity(address)
                     .map(result -> ImmutableGeoLocation.create(
-                            Optional.ofNullable(result.getCountry().getNames().get("en"))
-                                    .map(name -> ImmutableCountry.create(name, result.getCountry().getIsoCode()))
+                            getName(result.getCountry())
+                                    .map(country -> ImmutableCountry.create(country, result.getCountry().getIsoCode()))
                                     .orElse(null),
-                            result.getCity().getNames().get("en")
+                            getName(result.getCity())
+                                    .orElse(null)
                     ))
                     .orElse(UnknownGeoLocation.INSTANCE);
         } catch (final Exception e) {
