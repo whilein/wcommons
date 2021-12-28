@@ -2,22 +2,24 @@ String getCommit() {
     def stdout = new ByteArrayOutputStream()
 
     exec {
-        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        commandLine "git", "rev-parse", "--short", "HEAD"
         standardOutput = stdout
     }
 
     return stdout.toString().trim()
 }
 
-def releaseVersion = findProperty('github.tag') ?: getCommit()
+def releaseVersion = findProperty("github.tag") ?: getCommit()
 println("Release version: ${releaseVersion}")
 
 subprojects {
-    apply plugin: 'java'
-    apply plugin: 'java-library'
-    apply plugin: 'maven-publish'
+    apply from: new File(rootDir, "libs.gradle")
+    
+    apply plugin: "java"
+    apply plugin: "java-library"
+    apply plugin: "maven-publish"
 
-    group 'io.github.whilein.wcommons'
+    group "io.github.whilein.wcommons"
     version releaseVersion
 
     repositories {
@@ -31,20 +33,20 @@ subprojects {
                     name = project.name
                     description = project.description
 
-                    url = 'https://github.com/LastCraftInc/wcommons'
+                    url = "https://github.com/LastCraftInc/wcommons"
 
                     licenses {
                         license {
-                            name = 'The Apache License, Version 2.0'
-                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            name = "The Apache License, Version 2.0"
+                            url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
                         }
                     }
 
                     developers {
                         developer {
-                            id = 'whilein'
-                            name = 'whilein'
-                            email = 'whilein.1@gmail.com'
+                            id = "whilein"
+                            name = "whilein"
+                            email = "whilein.1@gmail.com"
                         }
                     }
                 }
@@ -65,30 +67,29 @@ subprojects {
                 url = "https://maven.pkg.github.com/LastCraftInc/wcommons"
 
                 credentials {
-                    username = findProperty('gpr.user')
-                    password = findProperty('gpr.password')
+                    username = findProperty("gpr.user")
+                    password = findProperty("gpr.password")
                 }
             }
         }
     }
 
     dependencies {
-        compileOnly 'org.projectlombok:lombok:1.18.22'
-        annotationProcessor 'org.projectlombok:lombok:1.18.20'
+        compileOnly libs.lombok
+        annotationProcessor libs.lombok
 
-        compileOnly 'org.jetbrains:annotations:23.0.0'
+        testCompileOnly libs.lombok
+        testAnnotationProcessor libs.lombok
 
-        testCompileOnly 'org.projectlombok:lombok:1.18.20'
-        testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+        compileOnly libs.annotations
+        testCompileOnly libs.annotations
 
-        testCompileOnly 'org.jetbrains:annotations:22.0.0'
-
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
-        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+        testImplementation libs.junit.api
+        testRuntimeOnly libs.junit.engine
     }
 
     tasks.withType(JavaCompile) {
-        options.encoding = 'UTF-8'
+        options.encoding = "UTF-8"
         targetCompatibility = JavaVersion.VERSION_11
         sourceCompatibility = JavaVersion.VERSION_11
     }
