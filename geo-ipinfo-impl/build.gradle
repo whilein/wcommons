@@ -1,7 +1,7 @@
 dependencies {
     compileOnly project(':geo-api')
-    compileOnly 'com.google.code.gson:gson:2.8.9'
+    compileOnly libs.jackson.databind
 
-    testImplementation 'com.google.code.gson:gson:2.8.9'
+    testImplementation libs.jackson.databind
     testImplementation project(':geo-api')
 }

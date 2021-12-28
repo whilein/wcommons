@@ -16,7 +16,8 @@
 
 package w.geo.ipinfo;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -59,14 +60,16 @@ public final class IpInfoGeoLocationManager implements GeoLocationManager {
     );
 
     HttpClient client;
-    Gson gson;
-
+    ObjectMapper objectMapper;
 
     @SneakyThrows
     public static @NotNull GeoLocationManager create() {
+        val objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
         return new IpInfoGeoLocationManager(
                 HttpClient.newHttpClient(),
-                new Gson()
+                objectMapper
         );
     }
 
@@ -81,10 +84,14 @@ public final class IpInfoGeoLocationManager implements GeoLocationManager {
                     HttpResponse.BodyHandlers.ofString()
             );
 
-            val response = gson.fromJson(json.body(), Resp.class);
+            val response = objectMapper.readValue(json.body(), Resp.class);
 
             val city = response.city;
             val country = response.country;
+
+            if (city == null && country == null) {
+                return UnknownGeoLocation.INSTANCE;
+            }
 
             return ImmutableGeoLocation.create(
                     ImmutableCountry.create(

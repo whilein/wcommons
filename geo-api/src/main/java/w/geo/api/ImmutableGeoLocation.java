@@ -40,9 +40,7 @@ public final class ImmutableGeoLocation implements GeoLocation {
             final @Nullable Country country,
             final @Nullable String city
     ) {
-        return country == null && city == null
-                ? UnknownGeoLocation.INSTANCE
-                : new ImmutableGeoLocation(country, city);
+        return new ImmutableGeoLocation(country, city);
     }
 
 }

@@ -85,13 +85,21 @@ public final class MaxmindGeoLocationManager implements GeoLocationManager {
     public @NotNull GeoLocation lookup(final @NotNull InetAddress address) {
         try {
             return database.tryCity(address)
-                    .map(result -> ImmutableGeoLocation.create(
-                            getName(result.getCountry())
-                                    .map(country -> ImmutableCountry.create(country, result.getCountry().getIsoCode()))
-                                    .orElse(null),
-                            getName(result.getCity())
-                                    .orElse(null)
-                    ))
+                    .map(result -> {
+                        val country = getName(result.getCountry())
+                                .map(countryName -> ImmutableCountry.create(
+                                        countryName,
+                                        result.getCountry().getIsoCode()
+                                ))
+                                .orElse(null);
+
+                        val city = getName(result.getCity())
+                                .orElse(null);
+
+                        return country != null || city != null
+                                ? ImmutableGeoLocation.create(country, city)
+                                : UnknownGeoLocation.INSTANCE;
+                    })
                     .orElse(UnknownGeoLocation.INSTANCE);
         } catch (final Exception e) {
             return UnknownGeoLocation.INSTANCE;
