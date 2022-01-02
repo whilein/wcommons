@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Whilein
+ *    Copyright 2022 Whilein
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -30,6 +31,24 @@ import java.util.Optional;
  */
 @UtilityClass
 public class ClassLoaderUtils {
+
+    private static final class GeneratedClassLoader extends ClassLoader {
+        private GeneratedClassLoader(final ClassLoader parent) {
+            super(parent);
+        }
+
+        public Class<?> defineClass(final String name, final byte[] data) {
+            return defineClass(name, data, 0, data.length, null);
+        }
+    }
+
+    public @NotNull Class<?> defineClass(
+            final @NotNull ClassLoader parent,
+            final @NotNull String name,
+            final byte @NotNull [] data
+    ) {
+        return new GeneratedClassLoader(parent).defineClass(name, data);
+    }
 
     public byte @NotNull [] toByteArray(
             final @NonNull Class<?> type
@@ -89,6 +108,17 @@ public class ClassLoaderUtils {
             final boolean loadIfNeeded
     ) {
         return _findClass(ClassLoaderUtils.class.getClassLoader(), className, loadIfNeeded);
+    }
+
+    public @NotNull Class<?> loadAny(final @NotNull String @NotNull ... classNames) {
+        for (val className : classNames) {
+            try {
+                return Class.forName(className);
+            } catch (final ClassNotFoundException ignored) {
+            }
+        }
+
+        throw new IllegalStateException("Cannot load any of " + Arrays.toString(classNames));
     }
 
     public @NotNull Optional<@NotNull Class<?>> findClass(final @NonNull String className) {

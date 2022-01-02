@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Whilein
+ *    Copyright 2022 Whilein
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package w.util;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
-import w.util.lookup.FullAccessLookup;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
@@ -34,7 +33,7 @@ public class ObjectUtils {
 
     static {
         try {
-            CLONE = FullAccessLookup.getLookup().findVirtual(Object.class, "clone",
+            CLONE = Root.trustedLookupIn(Object.class).findVirtual(Object.class, "clone",
                     MethodType.methodType(Object.class));
         } catch (final Exception e) {
             throw new RuntimeException(e);

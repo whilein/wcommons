@@ -16,8 +16,7 @@
     - Message
     - RandomUtils & RandomStringGenerator
     - ClassLoaderUtils
-    - UnsafeInternals
-    - FullAccessLookup
+    - Root
 - [Конфигурация](config)
     - SimpleFileConfig
     - YamlConfigParser
