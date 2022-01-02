@@ -42,7 +42,7 @@ class EventBusTest implements SubscribeNamespace {
 
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    static final class NumberEvent implements Event, Cancellable {
+    private static final class NumberEvent implements Event, Cancellable {
         int value;
 
         @Getter
@@ -52,38 +52,31 @@ class EventBusTest implements SubscribeNamespace {
     }
 
     @Subscribe(ignoreCancelled = true)
-    void a(final NumberEvent event) {
-        System.out.println(event);
+    private void a(final NumberEvent event) {
     }
 
     @Subscribe
-    void b(final NumberEvent event) {
-        System.out.println(event);
+    private void b(final NumberEvent event) {
     }
 
     @Subscribe(ignoreCancelled = true)
-    void c(final NumberEvent event) {
-        System.out.println(event);
+    private void c(final NumberEvent event) {
     }
 
     @Subscribe
-    void d(final NumberEvent event) {
-        System.out.println(event);
+    private void d(final NumberEvent event) {
     }
 
     @Subscribe(ignoreCancelled = true)
-    void e(final NumberEvent event) {
-        System.out.println(event);
+    private void e(final NumberEvent event) {
     }
 
     @Subscribe
-    void f(final NumberEvent event) {
-        System.out.println(event);
+    private void f(final NumberEvent event) {
     }
 
     @Subscribe(ignoreCancelled = true)
-    void g(final NumberEvent event) {
-        throw new RuntimeException();
+    private void g(final NumberEvent event) {
     }
 
     @Test

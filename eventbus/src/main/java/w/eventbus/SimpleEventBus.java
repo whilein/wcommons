@@ -33,8 +33,6 @@ import org.slf4j.LoggerFactory;
 import w.asm.Asm;
 import w.util.ClassLoaderUtils;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -178,7 +176,7 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
         val cw = new ClassWriter(0);
 
         cw.visit(
-                Opcodes.V1_1, ACC_PUBLIC, name, null,
+                Opcodes.V1_1, ACC_PRIVATE | ACC_FINAL, name, null,
                 Type.getInternalName(Asm.MAGIC_ACCESSOR_BRIDGE),
                 new String[]{Type.getInternalName(EventDispatcher.class)}
         );
@@ -214,7 +212,7 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
 
             descriptor.append(")V");
 
-            val constructor = cw.visitMethod(ACC_PUBLIC, "<init>",
+            val constructor = cw.visitMethod(ACC_PRIVATE, "<init>",
                     descriptor.toString(), null, null);
             constructor.visitVarInsn(ALOAD, 0);
             constructor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object",
@@ -344,17 +342,17 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
 
         val result = cw.toByteArray();
 
-        Files.write(Paths.get(name.replace('/', '.') + ".class"), result);
-
         val generatedType = ClassLoaderUtils.defineClass(
                 EventBus.class.getClassLoader(),
                 name.replace('/', '.'),
                 result
         );
 
-        dispatchers.put(type, generatedType.asSubclass(EventDispatcher.class)
-                .getDeclaredConstructor(parameterTypes.toArray(new Class[0]))
-                .newInstance(parameters.toArray()));
+        val constructor = generatedType.asSubclass(EventDispatcher.class)
+                .getDeclaredConstructor(parameterTypes.toArray(new Class[0]));
+        constructor.setAccessible(true);
+
+        dispatchers.put(type, constructor.newInstance(parameters.toArray()));
     }
 
     @Override
