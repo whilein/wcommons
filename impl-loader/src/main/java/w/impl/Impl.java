@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Whilein
+ *    Copyright 2022 Whilein
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,8 +16,19 @@
 
 package w.impl;
 
-public enum ImplPriority {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-    LOWEST, LOW, NORMAL, HIGH, HIGHEST
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.SOURCE)
+public @interface Impl {
+
+    Class<?> type();
+
+    String factory() default "create";
+
+    ImplPriority priority() default ImplPriority.NORMAL;
 
 }

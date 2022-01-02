@@ -3,6 +3,8 @@ rootProject.name = 'wcommons'
 include ':asm'
 include ':asm-patcher'
 
+include ':eventbus'
+
 include ':config'
 
 include ':sql'
@@ -15,7 +17,6 @@ include ':geo-cache-caffeine'
 include ':geo-cache-guava'
 
 include ':util'
-
-include ':impl'
+include ':impl-loader'
 
 include ':annotation-index'

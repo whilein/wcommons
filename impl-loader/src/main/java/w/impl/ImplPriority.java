@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Whilein
+ *    Copyright 2022 Whilein
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,21 +16,8 @@
 
 package w.impl;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.experimental.FieldDefaults;
-import org.jetbrains.annotations.NotNull;
+public enum ImplPriority {
 
-@Data
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public final class ImplModel implements Comparable<ImplModel> {
+    LOWEST, LOW, NORMAL, HIGH, HIGHEST
 
-    String implType;
-    String factoryMethod;
-    ImplPriority priority;
-
-    @Override
-    public int compareTo(final @NotNull ImplModel o) {
-        return priority.compareTo(o.priority);
-    }
 }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Whilein
+ *    Copyright 2022 Whilein
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,19 +16,21 @@
 
 package w.impl;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.experimental.FieldDefaults;
+import org.jetbrains.annotations.NotNull;
 
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.SOURCE)
-public @interface Impl {
+@Data
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public final class ImplModel implements Comparable<ImplModel> {
 
-    Class<?> type();
+    String implType;
+    String factoryMethod;
+    ImplPriority priority;
 
-    String factory() default "create";
-
-    ImplPriority priority() default ImplPriority.NORMAL;
-
+    @Override
+    public int compareTo(final @NotNull ImplModel o) {
+        return priority.compareTo(o.priority);
+    }
 }
