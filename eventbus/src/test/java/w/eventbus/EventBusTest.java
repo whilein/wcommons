@@ -51,41 +51,11 @@ class EventBusTest implements SubscribeNamespace {
         boolean cancelled;
     }
 
-    @Subscribe(ignoreCancelled = true)
-    private void a(final NumberEvent event) {
-    }
-
-    @Subscribe
-    private void b(final NumberEvent event) {
-    }
-
-    @Subscribe(ignoreCancelled = true)
-    private void c(final NumberEvent event) {
-    }
-
-    @Subscribe
-    private void d(final NumberEvent event) {
-    }
-
-    @Subscribe(ignoreCancelled = true)
-    private void e(final NumberEvent event) {
-    }
-
-    @Subscribe
-    private void f(final NumberEvent event) {
-    }
-
-    @Subscribe(ignoreCancelled = true)
-    private void g(final NumberEvent event) {
-    }
-
     @Test
     void testDispatch() {
         val state = new Object() {
             int value;
         };
-
-        bus.register(this, this);
 
         val subscription = bus.register(this, NumberEvent.class,
                 receivedEvent -> state.value = receivedEvent.value);

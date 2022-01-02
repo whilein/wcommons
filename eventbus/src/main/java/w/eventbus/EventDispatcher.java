@@ -25,4 +25,6 @@ public interface EventDispatcher {
 
     void dispatch(@NotNull Event event);
 
+    void unsafeDispatch(@NotNull Event event);
+
 }

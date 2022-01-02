@@ -27,11 +27,19 @@ public interface EventBus<T extends SubscribeNamespace> extends EventBusRegister
     @NotNull Logger getLogger();
 
     /**
-     * Отправить событие на все слушатели.
+     * Отправить событие на все слушатели, которые подписаны на него.
      *
      * @param event Событие
      */
     void dispatch(@NotNull Event event);
+
+    /**
+     * Отправить событие на все слушатели, которые подписаны на него.
+     * Если произойдёт ошибка в одном из слушателей, то выполнение оборвётся на нём.
+     *
+     * @param event Событие
+     */
+    void unsafeDispatch(@NotNull Event event);
 
     /**
      * Применить все изменения с удалением/добавлением слушателей.
