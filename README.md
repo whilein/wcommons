@@ -6,7 +6,7 @@
 В данном проекте находится:
 
 - [База данных](sql)
-- [Загрузка реализаций](impl)
+- ["Шина событий"](eventbus)
 - [Индексирование аннотаций](annotation-index)
 - [Изменение байткода в рантайме](asm-patcher)
 - [Flow](flow)
@@ -14,19 +14,19 @@
 - [ASM](asm)
   - MagicAccessorImpl bridge
 - [Утилиты](util)
-    - Lazy (Simple, Concurrent & ThreadLocal)
-    - Pair, MutPair
-    - Message
-    - RandomUtils & RandomStringGenerator
-    - ClassLoaderUtils
-    - Root
+  - Lazy (Simple, Concurrent & ThreadLocal)
+  - Pair, MutPair
+  - Message
+  - RandomUtils & RandomStringGenerator
+  - ClassLoaderUtils
+  - Root
 - [Конфигурация](config)
-    - SimpleFileConfig
-    - YamlConfigParser
+  - SimpleFileConfig
+  - YamlConfigParser
     - JsonConfigParser
 - Геолокация
-    - [Апи](geo-api)
-    - [Реализация maxmind](geo-maxmind-impl)
-    - [Реализация ipinfo](geo-ipinfo-impl)
-    - [Кэширование на основе Google Guava](geo-cache-guava)
-    - [Кэширование на основе Caffeine](geo-cache-caffeine)
+  - [Апи](geo-api)
+  - [Реализация maxmind](geo-maxmind-impl)
+  - [Реализация ipinfo](geo-ipinfo-impl)
+  - [Кэширование на основе Google Guava](geo-cache-guava)
+  - [Кэширование на основе Caffeine](geo-cache-caffeine)

@@ -1,3 +1,4 @@
+//file:noinspection GrUnresolvedAccess
 String getCommit() {
     def stdout = new ByteArrayOutputStream()
 
