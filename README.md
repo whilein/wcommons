@@ -10,6 +10,9 @@
 - [Индексирование аннотаций](annotation-index)
 - [Изменение байткода в рантайме](asm-patcher)
 - [Flow](flow)
+- [Загрузка реализаций](impl-loader)
+- [ASM](asm)
+  - MagicAccessorImpl bridge
 - [Утилиты](util)
     - Lazy (Simple, Concurrent & ThreadLocal)
     - Pair, MutPair
