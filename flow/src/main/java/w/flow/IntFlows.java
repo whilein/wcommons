@@ -65,6 +65,18 @@ public class IntFlows {
         });
     }
 
+    public @NotNull IntFlowItems emptyFlowItems() {
+        return new IntFlowItemsImpl(null, sink -> {
+        });
+    }
+
+    public @NotNull IntFlowItems emptyFlowItems(
+            final @NotNull String name
+    ) {
+        return new IntFlowItemsImpl(name, sink -> {
+        });
+    }
+
     public @NotNull IntFlow emptyFlow(
             final @NotNull String name
     ) {

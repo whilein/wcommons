@@ -86,6 +86,18 @@ public class Flows {
         return new FlowItemsImpl<>(null, sink);
     }
 
+    public <T> @NotNull FlowItems<T> emptyFlowItems() {
+        return new FlowItemsImpl<>(null, sink -> {
+        });
+    }
+
+    public <T> @NotNull FlowItems<T> emptyFlowItems(
+            final @NotNull String name
+    ) {
+        return new FlowItemsImpl<>(name, sink -> {
+        });
+    }
+
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
     private static final class FlowImpl<T> extends AbstractFlow implements Flow<T> {
 
