@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Whilein
+ *    Copyright 2022 Whilein
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -27,6 +27,6 @@ public interface Int2IntFlowMapper {
         return x -> x;
     }
 
-    int applyAsInt(int value) throws Exception;
+    int map(int value) throws Exception;
 
 }

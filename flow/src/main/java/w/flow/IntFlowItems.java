@@ -32,6 +32,15 @@ public interface IntFlowItems extends BaseFlowItems {
 
     @NotNull IntFlow findFirst();
 
+    <A> @NotNull Flow<A> mapFirstToObj(
+            @NotNull Int2ObjectFlowMapper<A> function
+    );
+
+    @NotNull
+    IntFlow mapFirst(
+            @NotNull Int2IntFlowMapper function
+    );
+
     @NotNull IntFlowItems map(
             @NotNull Int2IntFlowMapper mapper
     );

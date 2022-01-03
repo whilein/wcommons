@@ -32,6 +32,7 @@ import w.flow.function.IntFlowCountedLoop;
 import w.flow.function.IntFlowPredicate;
 import w.flow.function.IntFlowSink;
 import w.flow.function.IntFlowSupplier;
+import w.util.mutable.Mutables;
 
 import java.util.OptionalInt;
 import java.util.concurrent.Executor;
@@ -103,54 +104,74 @@ public class IntFlows {
         @Override
         public @NotNull <A, R> Flow<R> collect(final @NonNull IntFlowCollector<A, R> collector) {
             return Flows.ofSupplier(name, () -> {
-                final var ref = new Object() {
-                    A collection;
-                };
+                val ref = Mutables.<A>newReference();
 
                 sink.accept(value -> {
-                    A collection = ref.collection;
+                    A collection = ref.get();
 
                     if (collection == null)
-                        ref.collection = collection = collector.init();
+                        ref.set(collection = collector.init());
 
                     collector.accumulate(collection, value);
 
                     return true;
                 });
 
-                return ref.collection == null
-                        ? collector.empty()
-                        : collector.finish(ref.collection);
+                return ref.isNotNull()
+                        ? collector.finish(ref.get())
+                        : collector.empty();
             });
         }
 
         @Override
         public @NotNull IntFlow findFirst() {
             return IntFlows.ofSupplier(name, () -> {
-                final var output = new Object() {
-                    int value;
-                    boolean hasValue;
-                };
+                val ref = Mutables.newOptionalInt();
 
                 sink.accept(value -> {
-                    output.value = value;
-                    output.hasValue = true;
-
+                    ref.set(value);
                     return false;
                 });
 
-                if (!output.hasValue) {
-                    throw FlowEmpty.INSTANCE;
-                }
-
-                return output.value;
+                return ref.orElseThrow(FlowEmpty.INSTANCE);
             });
         }
 
+        @Override
+        public @NotNull <A> Flow<A> mapFirstToObj(
+                final @NonNull Int2ObjectFlowMapper<A> function
+        ) {
+            return Flows.ofSupplier(name, () -> {
+                val ref = Mutables.<A>newOptionalReference();
+
+                sink.accept(value -> {
+                    ref.set(function.map(value));
+                    return false;
+                });
+
+                return ref.orElseThrow(FlowEmpty.INSTANCE);
+            });
+        }
+
+        @Override
+        public @NotNull IntFlow mapFirst(
+                final @NonNull Int2IntFlowMapper function
+        ) {
+            return IntFlows.ofSupplier(name, () -> {
+                val ref = Mutables.newOptionalInt();
+
+                sink.accept(value -> {
+                    ref.set(function.map(value));
+                    return false;
+                });
+
+                return ref.orElseThrow(FlowEmpty.INSTANCE);
+            });
+        }
 
         @Override
         public @NotNull IntFlowItems map(final @NonNull Int2IntFlowMapper mapper) {
-            return new IntFlowItemsImpl(name, newSink -> sink.accept(value -> newSink.next(mapper.applyAsInt(value))));
+            return new IntFlowItemsImpl(name, newSink -> sink.accept(value -> newSink.next(mapper.map(value))));
         }
 
         @Override
@@ -180,12 +201,11 @@ public class IntFlows {
         @Override
         public @NotNull IntFlowItems forEachCounted(final @NonNull IntFlowCountedLoop loop) {
             return new IntFlowItemsImpl(name, newSink -> {
-                final var counter = new Object() {
-                    int value;
-                };
+                val counter = Mutables.newInt();
 
                 sink.accept(value -> {
-                    loop.accept(counter.value++, value);
+                    loop.accept(counter.getAndIncrement(), value);
+
                     return newSink.next(value);
                 });
             });
@@ -322,7 +342,7 @@ public class IntFlows {
         public @NotNull IntFlow map(
                 final @NonNull Int2IntFlowMapper function
         ) {
-            return new IntFlowImpl(name, () -> function.applyAsInt(run()));
+            return new IntFlowImpl(name, () -> function.map(run()));
         }
 
         @Override
