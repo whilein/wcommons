@@ -30,8 +30,18 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Subscribe {
 
+    /**
+     * Получить порядок выполнения.
+     *
+     * @return Порядок выполнения
+     */
     @NotNull PostOrder order() default PostOrder.NORMAL;
 
+    /**
+     * Получить статус игнорирования отменённых событий.
+     *
+     * @return Статус игнорирования отменённых событий
+     */
     boolean ignoreCancelled() default false;
 
 }

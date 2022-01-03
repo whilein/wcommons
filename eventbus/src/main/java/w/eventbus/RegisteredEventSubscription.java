@@ -24,18 +24,53 @@ import org.jetbrains.annotations.Nullable;
  */
 public interface RegisteredEventSubscription<T extends Event> extends Comparable<RegisteredEventSubscription<?>> {
 
-    @Nullable Object getHolder();
+    /**
+     * Получить объект, которому принадлежит обработчик.
+     *
+     * @return Объект, если обработчик это статичный метод, то {@code null}
+     */
+    @Nullable Object getOwner();
 
-    @Nullable Class<?> getHolderType();
+    /**
+     * Получить класс, которому принадлежит обработчик.
+     *
+     * @return Класс
+     */
+    @NotNull Class<?> getOwnerType();
 
+    /**
+     * Получить порядок выполнения.
+     *
+     * @return Порядок выполнения
+     */
     @NotNull PostOrder getPostOrder();
 
+    /**
+     * Получить врайтер байткода.
+     *
+     * @return Врайтер байткода.
+     */
     @NotNull AsmDispatchWriter getDispatchWriter();
 
+    /**
+     * Получить неймспейс.
+     *
+     * @return Неймспейс
+     */
     @NotNull SubscribeNamespace getNamespace();
 
+    /**
+     * Получить статус игнорирования отменённых событий.
+     *
+     * @return Статус игнорирования отменённых событий
+     */
     boolean isIgnoreCancelled();
 
+    /**
+     * Получить тип события, на которого действует данная подписка.
+     *
+     * @return Тип события
+     */
     @NotNull Class<T> getEvent();
 
 }

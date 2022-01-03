@@ -21,6 +21,29 @@ package w.eventbus;
  */
 public enum PostOrder {
 
-    LOWEST, LOW, NORMAL, HIGH, HIGHEST
+    /**
+     * Выполняется раньше всех
+     */
+    LOWEST,
+
+    /**
+     * Выполняется после {@link #LOWEST}
+     */
+    LOW,
+
+    /**
+     * Выполняется после {@link #LOW}, используется по умолчанию
+     */
+    NORMAL,
+
+    /**
+     * Выполняется после {@link #NORMAL}
+     */
+    HIGH,
+
+    /**
+     * Выполняется позже всех
+     */
+    HIGHEST
 
 }

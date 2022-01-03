@@ -23,8 +23,21 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface EventDispatcher {
 
+    /**
+     * Отправляет событие на все слушатели, если в одном из них
+     * произойдёт ошибка, то она будет выведена в логгер и выполнение
+     * не приостановится.
+     *
+     * @param event Событие
+     */
     void dispatch(@NotNull Event event);
 
+    /**
+     * Отправляет событие на все слушатели, если в одном из них
+     * произойдёт ошибка, то выполнение будет прекращено.
+     *
+     * @param event Событие
+     */
     void unsafeDispatch(@NotNull Event event);
 
 }

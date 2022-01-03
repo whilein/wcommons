@@ -77,10 +77,23 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
     @NonFinal
     Map<Class<?>, EventDispatcher> dispatchers;
 
+    /**
+     * Создать новый {@link EventBus} с определённым логгером
+     *
+     * @param <T>    Тип неймспейса
+     * @param logger Логгер, в котором будет выводиться ошибки слушателей и отладка
+     * @return Новый {@link EventBus}
+     */
     public static <T extends SubscribeNamespace> @NotNull EventBus<T> create(final @NotNull Logger logger) {
         return new SimpleEventBus<>(logger, new Object[0], new ArrayList<>(), new HashMap<>(), new HashMap<>());
     }
 
+    /**
+     * Создать новый {@link EventBus}
+     *
+     * @param <T> Тип неймспейса
+     * @return Новый {@link EventBus}
+     */
     public static <T extends SubscribeNamespace> @NotNull EventBus<T> create() {
         return create(LoggerFactory.getLogger(EventBus.class));
     }
@@ -216,9 +229,9 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
             }
 
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitFieldInsn(GETFIELD, GEN_DISPATCHER_NAME, fieldName, writer.getType().getDescriptor());
+            mv.visitFieldInsn(GETFIELD, GEN_DISPATCHER_NAME, fieldName, writer.getOwnerType().getDescriptor());
 
-            writer.write(mv, GEN_DISPATCHER_NAME, fieldName);
+            writer.write(mv);
 
             if (safe) {
                 mv.visitJumpInsn(GOTO, next);
@@ -287,14 +300,11 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
             descriptor.append("(Lorg/slf4j/Logger;");
 
             for (i = 0; i < j; i++) {
-                val writer = subscriptions.get(i).getDispatchWriter();
+                val subscription = subscriptions.get(i);
 
-                val handle = writer.getHandle();
-                val handleType = writer.getType();
+                val writer = subscription.getDispatchWriter();
 
-                if (handle == null) {
-                    continue;
-                }
+                val handleType = writer.getOwnerType();
 
                 val size = handleType.getSize();
 
@@ -303,8 +313,12 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
 
                 descriptor.append(handleType.getDescriptor());
 
-                parameterTypes.add(writer.getHandleType());
-                parameters.add(handle);
+                val owner = subscription.getOwner();
+
+                if (owner != null) {
+                    parameterTypes.add(subscription.getOwnerType());
+                    parameters.add(owner);
+                }
             }
 
             descriptor.append(")V");
@@ -329,14 +343,10 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
             // endregion
 
             for (i = 0; i < j; i++) {
-                val writer = subscriptions.get(i).getDispatchWriter();
+                val subscription = subscriptions.get(i);
 
-                val handle = writer.getHandle();
-                val handleType = writer.getType();
-
-                if (handle == null) {
-                    continue;
-                }
+                val writer = subscription.getDispatchWriter();
+                val handleType = writer.getOwnerType();
 
                 val fieldName = "_" + i;
 
@@ -477,13 +487,13 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
     }
 
     @Override
-    public void unregisterAll(final @NotNull Object holder) {
-        unregisterAll(subscription -> subscription.getHolder() == holder);
+    public void unregisterAll(final @NotNull Object owner) {
+        unregisterAll(subscription -> subscription.getOwner() == owner);
     }
 
     @Override
-    public void unregisterAll(final @NotNull Class<?> holderType) {
-        unregisterAll(subscription -> subscription.getHolderType() == holderType);
+    public void unregisterAll(final @NotNull Class<?> ownerType) {
+        unregisterAll(subscription -> subscription.getOwnerType() == ownerType);
     }
 
     @Override
@@ -519,8 +529,8 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
     ) {
         val registeredSubscription = ImmutableRegisteredEventSubscription.create(
                 AsmDispatchWriters.fromConsumer(subscription),
-                null,
-                null,
+                subscription,
+                Consumer.class,
                 order,
                 false,
                 namespace,

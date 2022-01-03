@@ -17,7 +17,6 @@
 package w.eventbus;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
@@ -26,14 +25,25 @@ import org.objectweb.asm.Type;
  */
 public interface AsmDispatchWriter {
 
-    @Nullable Object getHandle();
+    /**
+     * Получить тип объекта, которому принадлежит метод.
+     *
+     * @return Тип объекта (asm)
+     */
+    @NotNull Type getOwnerType();
 
-    @NotNull Class<?> getHandleType();
-
-    @NotNull Type getType();
-
+    /**
+     * Получить имя метода.
+     *
+     * @return Имя метода
+     */
     @NotNull String getName();
 
-    void write(@NotNull MethodVisitor mv, @NotNull String name, @Nullable String field);
+    /**
+     * Записать выполнение метод в {@code mv}
+     *
+     * @param mv Метод визитор, в который будет записано выполнение метода
+     */
+    void write(@NotNull MethodVisitor mv);
 
 }

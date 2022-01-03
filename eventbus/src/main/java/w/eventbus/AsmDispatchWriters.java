@@ -40,19 +40,30 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 @UtilityClass
 public class AsmDispatchWriters {
 
+    /**
+     * Создать врайтер из консумера.
+     *
+     * @param consumer Консумер
+     * @return Врайтер
+     */
     public static @NotNull AsmDispatchWriter fromConsumer(final @NotNull Consumer<?> consumer) {
         return new ConsumerWriter(consumer);
     }
 
-    public static @NotNull AsmDispatchWriter fromMethod(final @Nullable Object handle, final @NotNull Method method) {
+    /**
+     * Создать врайтер из метода.
+     *
+     * @param owner  Владелец метода
+     * @param method Метод
+     * @return Врайтер
+     */
+    public static @NotNull AsmDispatchWriter fromMethod(final @Nullable Object owner, final @NotNull Method method) {
         return new MethodWriter(
-                handle,
-                method.getDeclaringClass(),
                 Type.getType(method.getDeclaringClass()),
                 Type.getInternalName(method.getParameterTypes()[0]),
                 method.getName(),
                 Type.getMethodDescriptor(method),
-                handle == null ? INVOKESTATIC : INVOKESPECIAL
+                owner == null ? INVOKESTATIC : INVOKESPECIAL
         );
     }
 
@@ -61,13 +72,7 @@ public class AsmDispatchWriters {
     private static final class MethodWriter implements AsmDispatchWriter {
 
         @Getter
-        Object handle;
-
-        @Getter
-        Class<?> handleType;
-
-        @Getter
-        Type type;
+        Type ownerType;
 
         String eventType;
 
@@ -78,14 +83,15 @@ public class AsmDispatchWriters {
 
         @Override
         public @NotNull String getName() {
-            return handleType.getName() + " " + methodName + "(" + eventType.replace('/', '.') + ")";
+            return ownerType.getClassName() + " " + methodName
+                    + "(" + eventType.replace('/', '.') + ")";
         }
 
         @Override
-        public void write(final @NotNull MethodVisitor mv, final @NotNull String name, final @Nullable String field) {
+        public void write(final @NotNull MethodVisitor mv) {
             mv.visitVarInsn(ALOAD, 1);
 
-            mv.visitMethodInsn(opcode, type.getInternalName(), methodName,
+            mv.visitMethodInsn(opcode, ownerType.getInternalName(), methodName,
                     methodDescriptor, false);
         }
     }
@@ -100,17 +106,7 @@ public class AsmDispatchWriters {
         Consumer<?> handle;
 
         @Override
-        public @Nullable Object getHandle() {
-            return handle;
-        }
-
-        @Override
-        public @NotNull Class<?> getHandleType() {
-            return Consumer.class;
-        }
-
-        @Override
-        public @NotNull Type getType() {
+        public @NotNull Type getOwnerType() {
             return TYPE;
         }
 
@@ -120,7 +116,7 @@ public class AsmDispatchWriters {
         }
 
         @Override
-        public void write(final @NotNull MethodVisitor mv, final @NotNull String name, final @Nullable String field) {
+        public void write(final @NotNull MethodVisitor mv) {
             mv.visitVarInsn(ALOAD, 1);
 
             mv.visitMethodInsn(INVOKEINTERFACE, TYPE.getInternalName(), "accept",

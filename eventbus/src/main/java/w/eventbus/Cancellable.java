@@ -21,8 +21,18 @@ package w.eventbus;
  */
 public interface Cancellable {
 
+    /**
+     * Получить, отменено ли событие.
+     *
+     * @return {@code true}, если событие отменено
+     */
     boolean isCancelled();
 
+    /**
+     * Изменить статус отмены события.
+     *
+     * @param cancelled Новое значение отмены события.
+     */
     void setCancelled(boolean cancelled);
 
 }

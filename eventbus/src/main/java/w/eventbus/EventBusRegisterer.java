@@ -29,11 +29,17 @@ public interface EventBusRegisterer<T extends SubscribeNamespace> {
      * Удалить все подписки на события, зарегистрированные
      * из определённого объекта.
      *
-     * @param holder Объект, в котором находятся слушатели событий.
+     * @param owner Объект, в котором находятся подписки на события
      */
-    void unregisterAll(@NotNull Object holder);
+    void unregisterAll(@NotNull Object owner);
 
-    void unregisterAll(@NotNull Class<?> holderType);
+    /**
+     * Удалить все подписки на события, зарегистрированные
+     * из определённого класса.
+     *
+     * @param ownerType Класс, в котором находятся подписки на события
+     */
+    void unregisterAll(@NotNull Class<?> ownerType);
 
     /**
      * Удалить все подписки на события, зарегистрированные в определённом
@@ -43,6 +49,11 @@ public interface EventBusRegisterer<T extends SubscribeNamespace> {
      */
     void unregisterAll(@NotNull T namespace);
 
+    /**
+     * Удалить подписку на события
+     *
+     * @param subscription Подписка
+     */
     void unregister(@NotNull RegisteredEventSubscription<?> subscription);
 
     /**
@@ -85,5 +96,12 @@ public interface EventBusRegisterer<T extends SubscribeNamespace> {
      */
     void register(@NotNull T namespace, @NotNull Object subscription);
 
+    /**
+     * Зарегистрировать слушатели из класса. Методы, которые слушают события,
+     * должны быть статичны.
+     *
+     * @param namespace        Неймспейс
+     * @param subscriptionType Класс со статичными слушателями
+     */
     void register(@NotNull T namespace, @NotNull Class<?> subscriptionType);
 }

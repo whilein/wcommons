@@ -35,9 +35,9 @@ import org.jetbrains.annotations.Nullable;
 public final class ImmutableRegisteredEventSubscription<T extends Event> implements RegisteredEventSubscription<T> {
     AsmDispatchWriter dispatchWriter;
 
-    Object holder;
+    Object owner;
 
-    Class<?> holderType;
+    Class<?> ownerType;
 
     PostOrder postOrder;
 
@@ -47,16 +47,29 @@ public final class ImmutableRegisteredEventSubscription<T extends Event> impleme
 
     Class<T> event;
 
+    /**
+     * Создать иммутабельную подписку на событие {@code event}
+     *
+     * @param dispatchWriter  Врайтер
+     * @param owner           Владелец
+     * @param ownerType       Класс владельца
+     * @param postOrder       Порядок выполнения
+     * @param ignoreCancelled Игнорировать отменённые события
+     * @param namespace       Неймспейс
+     * @param event           Класс события
+     * @param <T>             Тип события
+     * @return Новая иммутабельная побписка на событие
+     */
     public static @NotNull <T extends Event> RegisteredEventSubscription<T> create(
             final @NotNull AsmDispatchWriter dispatchWriter,
-            final @Nullable Object holder,
-            final @Nullable Class<?> holderType,
+            final @Nullable Object owner,
+            final @NotNull Class<?> ownerType,
             final @NotNull PostOrder postOrder,
             final boolean ignoreCancelled,
             final @NotNull SubscribeNamespace namespace,
             final @NotNull Class<T> event
     ) {
-        return new ImmutableRegisteredEventSubscription<>(dispatchWriter, holder, holderType,
+        return new ImmutableRegisteredEventSubscription<>(dispatchWriter, owner, ownerType,
                 postOrder, ignoreCancelled, namespace, event);
     }
 

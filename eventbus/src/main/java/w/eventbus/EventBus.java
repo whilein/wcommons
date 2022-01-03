@@ -24,6 +24,11 @@ import org.slf4j.Logger;
  */
 public interface EventBus<T extends SubscribeNamespace> extends EventBusRegisterer<T> {
 
+    /**
+     * Получить логгер, который будет использоваться для лога ошибок.
+     *
+     * @return Логгер
+     */
     @NotNull Logger getLogger();
 
     /**
