@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Whilein
+ *    Copyright 2022 Whilein
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import w.flow.function.FlowCollectors;
+import w.flow.FlowCollectors;
 import w.sql.dao.DefaultTableManager;
 import w.sql.dao.foreignkey.ForeignKey;
 import w.sql.dao.foreignkey.ForeignKeyOption;

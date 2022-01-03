@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Whilein
+ *    Copyright 2022 Whilein
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package w.flow;
 import org.jetbrains.annotations.NotNull;
 import w.flow.function.Int2IntFlowMapper;
 import w.flow.function.Int2ObjectFlowMapper;
-import w.flow.function.IntFlowCollector;
 import w.flow.function.IntFlowConsumer;
 import w.flow.function.IntFlowCountedLoop;
 import w.flow.function.IntFlowPredicate;

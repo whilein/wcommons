@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Whilein
+ *    Copyright 2022 Whilein
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package w.flow;
 
 import lombok.val;
 import org.junit.jupiter.api.Test;
-import w.flow.function.FlowCollectors;
 import w.flow.function.FlowConsumer;
 import w.flow.function.IntFlowSink;
 

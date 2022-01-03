@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Whilein
+ *    Copyright 2022 Whilein
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,19 +14,19 @@
  *    limitations under the License.
  */
 
-package w.flow.function;
+package w.flow;
 
 /**
  * @author whilein
  */
-public interface IntFlowCollector<A, R> {
+public interface FlowCollector<T, A, R> {
 
     A init();
 
     R empty();
 
-    void accumulate(A collection, int value) throws Exception;
+    void accumulate(A container, T value) throws Exception;
 
-    R finish(A collection);
+    R finish(A container);
 
 }
