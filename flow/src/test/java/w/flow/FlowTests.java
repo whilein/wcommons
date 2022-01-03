@@ -19,6 +19,7 @@ package w.flow;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import w.flow.function.FlowConsumer;
+import w.flow.function.FlowSink;
 import w.flow.function.IntFlowSink;
 
 import java.util.List;
@@ -35,10 +36,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class FlowTests {
 
+    private FlowConsumer<FlowSink<String>> objectEmitter(final int start, final int end) {
+        return emitter -> {
+            for (int i = start; i < end; i++) {
+                if (!emitter.next(String.valueOf(i))) break;
+            }
+        };
+    }
+
     private FlowConsumer<IntFlowSink> numEmitter(final int start, final int end) {
         return emitter -> {
             for (int i = start; i < end; i++) {
-                emitter.next(i);
+                if (!emitter.next(i)) break;
             }
         };
     }
@@ -69,6 +78,40 @@ class FlowTests {
 
             return value;
         });
+    }
+
+    @Test
+    void mapFirst() {
+        int result;
+
+        result = Flows.ofEmitter(objectEmitter(10, 15))
+                .mapFirstToInt(Integer::parseInt)
+                .call();
+
+        assertEquals(10, result);
+
+        result = Flows.<String>emptyFlowItems()
+                .mapFirstToInt(Integer::parseInt)
+                .call();
+
+        assertEquals(0, result);
+    }
+
+    @Test
+    void mapFirstInt() {
+        String result;
+
+        result = IntFlows.ofEmitter(numEmitter(0, 10))
+                .mapFirstToObj(String::valueOf)
+                .call();
+
+        assertEquals("0", result);
+
+        result = IntFlows.emptyFlowItems()
+                .mapFirstToObj(String::valueOf)
+                .call();
+
+        assertNull(result);
     }
 
     @Test
