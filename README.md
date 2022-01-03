@@ -1,7 +1,7 @@
 Здесь собран весь код вайла, который работает вне зависимости от самого кода ласта
 
 Актуальная версия:
-**0.1.29**
+**0.1.30**
 
 В данном проекте находится:
 
@@ -15,7 +15,8 @@
   - MagicAccessorImpl bridge
 - [Утилиты](util)
   - Lazy (Simple, Concurrent & ThreadLocal)
-  - Pair, MutPair
+  - Pair, MutablePair
+  - MutableInt, MutableLong, MutableReference, MutableOptionalInt, MutableOptionalLong, MutableOptionalReference
   - Message
   - RandomUtils & RandomStringGenerator
   - ClassLoaderUtils
