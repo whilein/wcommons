@@ -36,7 +36,16 @@ import static org.objectweb.asm.Opcodes.V1_8;
 @UtilityClass
 public class Asm {
 
+    /**
+     * Тип, наследующий {@code MagicAccessorImpl}, который можно использовать
+     * в качестве супер-класса.
+     */
     public final @NotNull Class<?> MAGIC_ACCESSOR_BRIDGE;
+
+    /**
+     * Имя типа, наследующего {@code MagicAccessorImpl}, который можно использовать
+     * в качестве супер-класса.
+     */
     public final @NotNull String MAGIC_ACCESSOR_BRIDGE_NAME = "w/asm/MagicAccessorImpl";
 
     static {
