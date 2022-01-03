@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Whilein
+ *    Copyright 2022 Whilein
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ public interface Pair<L, R> extends Cloneable {
         return Pairs.immutableOf(left, right);
     }
 
-    static <L, R> @NotNull Pair<L, R> of(final Map.Entry<L, R> entry) {
+    static <L, R> @NotNull Pair<L, R> of(final @NotNull Map.Entry<L, R> entry) {
         return Pairs.immutableOf(entry.getKey(), entry.getValue());
     }
 

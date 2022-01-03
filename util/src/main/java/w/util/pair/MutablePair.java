@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Whilein
+ *    Copyright 2022 Whilein
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,13 +23,13 @@ import java.util.Map;
 /**
  * @author whilein
  */
-public interface MutPair<L, R> extends Pair<L, R> {
+public interface MutablePair<L, R> extends Pair<L, R> {
 
-    static <L, R> @NotNull MutPair<L, R> of(final L left, final R right) {
+    static <L, R> @NotNull MutablePair<L, R> of(final L left, final R right) {
         return Pairs.mutableOf(left, right);
     }
 
-    static <L, R> @NotNull MutPair<L, R> of(final Map.Entry<L, R> entry) {
+    static <L, R> @NotNull MutablePair<L, R> of(final @NotNull Map.Entry<L, R> entry) {
         return Pairs.mutableOf(entry.getKey(), entry.getValue());
     }
 
@@ -37,12 +37,12 @@ public interface MutPair<L, R> extends Pair<L, R> {
 
     void setRight(R value);
 
-    <L1> @NotNull MutPair<L1, R> withLeft(L1 newValue);
+    <L1> @NotNull MutablePair<L1, R> withLeft(L1 newValue);
 
-    <R1> @NotNull MutPair<L, R1> withRight(R1 newValue);
+    <R1> @NotNull MutablePair<L, R1> withRight(R1 newValue);
 
-    @NotNull MutPair<L, R> clone();
+    @NotNull MutablePair<L, R> clone();
 
-    @NotNull MutPair<L, R> deepClone();
+    @NotNull MutablePair<L, R> deepClone();
 
 }
