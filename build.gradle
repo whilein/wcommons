@@ -10,12 +10,32 @@ String getCommit() {
     return stdout.toString().trim()
 }
 
+static boolean isNonStable(String version) {
+    def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { it -> version.toUpperCase().contains(it) }
+    def regex = /^[0-9,.v-]+(-r)?(-jre)?$/
+    return !stableKeyword && !(version ==~ regex)
+}
+
+plugins {
+    id "com.github.ben-manes.versions" version "0.40.0"
+}
+
 def releaseVersion = findProperty("github.tag") ?: getCommit()
 println("Release version: ${releaseVersion}")
 
+dependencyUpdates {
+    configure {
+        rejectVersionIf {
+            isNonStable(it.candidate.version)
+        }
+
+        checkForGradleUpdate = true
+    }
+}
+
 subprojects {
     apply from: new File(rootDir, "libs.gradle")
-    
+
     apply plugin: "java"
     apply plugin: "java-library"
     apply plugin: "maven-publish"

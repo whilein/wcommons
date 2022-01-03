@@ -1,7 +1,7 @@
 //file:noinspection GroovyAssignabilityCheck
 
 def JUNIT_VERSION = "5.8.2"
-def JACKSON_VERSION = "2.13.0"
+def JACKSON_VERSION = "2.13.1"
 def SLF4J_VERSION = "1.7.32"
 
 ext {
