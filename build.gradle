@@ -33,15 +33,17 @@ dependencyUpdates {
     }
 }
 
+allprojects {
+    group "io.github.whilein.wcommons"
+    version releaseVersion
+}
+
 subprojects {
     apply from: new File(rootDir, "libs.gradle")
 
     apply plugin: "java"
     apply plugin: "java-library"
     apply plugin: "maven-publish"
-
-    group "io.github.whilein.wcommons"
-    version releaseVersion
 
     repositories {
         mavenCentral()
