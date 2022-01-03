@@ -30,6 +30,7 @@ import w.flow.function.FlowPredicate;
 import w.flow.function.FlowSink;
 import w.flow.function.FlowSupplier;
 import w.flow.function.Object2IntFlowMapper;
+import w.util.mutable.Mutables;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -366,24 +367,22 @@ public class Flows {
         @Override
         public @NotNull <A, R> Flow<R> collect(final @NonNull FlowCollector<? super T, A, R> collector) {
             return new FlowImpl<>(name, () -> {
-                final var ref = new Object() {
-                    A container;
-                };
+                val ref = Mutables.<A>newReference();
 
                 sink.accept(value -> {
-                    A container = ref.container;
+                    A container = ref.get();
 
                     if (container == null)
-                        ref.container = container = collector.init();
+                        ref.set(container = collector.init());
 
                     collector.accumulate(container, value);
 
                     return true;
                 });
 
-                return ref.container == null
-                        ? collector.empty()
-                        : collector.finish(ref.container);
+                return ref.isNotNull()
+                        ? collector.finish(ref.get())
+                        : collector.empty();
             });
         }
 
@@ -391,22 +390,14 @@ public class Flows {
         @Override
         public @NotNull Flow<T> findFirst() {
             return new FlowImpl<>(name, () -> {
-                final var output = new Object() {
-                    T value;
-                    boolean hasValue;
-                };
+                val ref = Mutables.<T>newOptionalReference();
 
                 sink.accept(value -> {
-                    output.value = value;
-                    output.hasValue = true;
+                    ref.set(value);
                     return false;
                 });
 
-                if (!output.hasValue) {
-                    throw FlowEmpty.INSTANCE;
-                }
-
-                return output.value;
+                return ref.orElseThrow(FlowEmpty.INSTANCE);
             });
         }
 
@@ -415,22 +406,14 @@ public class Flows {
                 final @NonNull FlowMapper<T, A> function
         ) {
             return new FlowImpl<>(name, () -> {
-                final var output = new Object() {
-                    A value;
-                    boolean hasValue;
-                };
+                val ref = Mutables.<A>newOptionalReference();
 
                 sink.accept(value -> {
-                    output.value = function.map(value);
-                    output.hasValue = true;
+                    ref.set(function.map(value));
                     return false;
                 });
 
-                if (!output.hasValue) {
-                    throw FlowEmpty.INSTANCE;
-                }
-
-                return output.value;
+                return ref.orElseThrow(FlowEmpty.INSTANCE);
             });
         }
 
@@ -439,22 +422,14 @@ public class Flows {
                 final @NonNull Object2IntFlowMapper<T> function
         ) {
             return IntFlows.ofSupplier(name, () -> {
-                final var output = new Object() {
-                    int value;
-                    boolean hasValue;
-                };
+                val ref = Mutables.newOptionalInt();
 
                 sink.accept(value -> {
-                    output.value = function.map(value);
-                    output.hasValue = true;
+                    ref.set(function.map(value));
                     return false;
                 });
 
-                if (!output.hasValue) {
-                    throw FlowEmpty.INSTANCE;
-                }
-
-                return output.value;
+                return ref.orElseThrow(FlowEmpty.INSTANCE);
             });
         }
 

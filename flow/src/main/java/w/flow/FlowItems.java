@@ -17,7 +17,6 @@
 package w.flow;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import w.flow.function.FlowConsumer;
 import w.flow.function.FlowCountedLoop;
 import w.flow.function.FlowMapper;
@@ -37,7 +36,7 @@ public interface FlowItems<T> extends BaseFlowItems {
     Flow<T> findFirst();
 
     <A> @NotNull Flow<A> mapFirst(
-            @NotNull FlowMapper<T, @Nullable A> function
+            @NotNull FlowMapper<T, A> function
     );
 
     @NotNull
@@ -46,7 +45,7 @@ public interface FlowItems<T> extends BaseFlowItems {
     );
 
     <A> @NotNull FlowItems<A> map(
-            @NotNull FlowMapper<T, @Nullable A> function
+            @NotNull FlowMapper<T, A> function
     );
 
     <A> @NotNull FlowItems<A> flatMap(
