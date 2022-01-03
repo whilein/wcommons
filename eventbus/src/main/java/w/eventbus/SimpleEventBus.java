@@ -64,6 +64,8 @@ import static org.objectweb.asm.Opcodes.RETURN;
 public final class SimpleEventBus<T extends SubscribeNamespace>
         implements EventBus<T> {
 
+    private static final String GEN_DISPATCHER_NAME = "w/eventbus/GeneratedEventDispatcher";
+
     @Getter
     Logger logger;
 
@@ -153,7 +155,6 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
 
     private void makeDispatch(
             final Class<?> type,
-            final String name,
             final List<RegisteredEventSubscription<?>> subscriptions,
             final MethodVisitor mv,
             final boolean safe
@@ -215,9 +216,9 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
             }
 
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitFieldInsn(GETFIELD, name, fieldName, writer.getType().getDescriptor());
+            mv.visitFieldInsn(GETFIELD, GEN_DISPATCHER_NAME, fieldName, writer.getType().getDescriptor());
 
-            writer.write(mv, name, fieldName);
+            writer.write(mv, GEN_DISPATCHER_NAME, fieldName);
 
             if (safe) {
                 mv.visitJumpInsn(GOTO, next);
@@ -227,7 +228,7 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
                 // region error logging
                 mv.visitVarInsn(ASTORE, 3); // exception
                 mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETFIELD, name, "log", "Lorg/slf4j/Logger;");
+                mv.visitFieldInsn(GETFIELD, GEN_DISPATCHER_NAME, "log", "Lorg/slf4j/Logger;");
                 mv.visitLdcInsn("Error occurred whilst dispatching " + type.getName() + " to " + writer.getName());
                 mv.visitVarInsn(ALOAD, 3);
                 mv.visitMethodInsn(INVOKEINTERFACE, "org/slf4j/Logger", "error",
@@ -269,12 +270,10 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
 
         int i, j = subscriptions.size();
 
-        val name = "w/eventbus/GeneratedEventDispatcher";
-
         val cw = new ClassWriter(0);
 
         cw.visit(
-                Opcodes.V1_1, ACC_PRIVATE | ACC_FINAL, name, null,
+                Opcodes.V1_1, ACC_PRIVATE | ACC_FINAL, GEN_DISPATCHER_NAME, null,
                 Type.getInternalName(Asm.MAGIC_ACCESSOR_BRIDGE),
                 new String[]{Type.getInternalName(EventDispatcher.class)}
         );
@@ -325,7 +324,7 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
 
                 constructor.visitVarInsn(ALOAD, 0);
                 constructor.visitVarInsn(ALOAD, local++);
-                constructor.visitFieldInsn(PUTFIELD, name, "log", "Lorg/slf4j/Logger;");
+                constructor.visitFieldInsn(PUTFIELD, GEN_DISPATCHER_NAME, "log", "Lorg/slf4j/Logger;");
             }
             // endregion
 
@@ -346,7 +345,7 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
 
                 constructor.visitVarInsn(ALOAD, 0);
                 constructor.visitVarInsn(ALOAD, local);
-                constructor.visitFieldInsn(PUTFIELD, name, fieldName, handleType.getDescriptor());
+                constructor.visitFieldInsn(PUTFIELD, GEN_DISPATCHER_NAME, fieldName, handleType.getDescriptor());
 
                 local += handleType.getSize();
             }
@@ -360,24 +359,24 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
         {
             val mv = cw.visitMethod(ACC_PUBLIC, "dispatch", "(Lw/eventbus/Event;)V",
                     null, null);
-            makeDispatch(type, name, subscriptions, mv, true);
+            makeDispatch(type, subscriptions, mv, true);
         }
         // endregion
         // region unsafeDispatch
         {
             val mv = cw.visitMethod(ACC_PUBLIC, "unsafeDispatch", "(Lw/eventbus/Event;)V",
                     null, null);
-            makeDispatch(type, name, subscriptions, mv, false);
+            makeDispatch(type, subscriptions, mv, false);
         }
         // endregion
 
         val result = cw.toByteArray();
 
-        // Files.write(Paths.get(name.replace('/', '.') + ".class"), result);
+        // Files.write(Paths.get(GEN_DISPATCHER_NAME.replace('/', '.') + ".class"), result);
 
         val generatedType = ClassLoaderUtils.defineClass(
                 EventBus.class.getClassLoader(),
-                name.replace('/', '.'),
+                GEN_DISPATCHER_NAME.replace('/', '.'),
                 result
         );
 
