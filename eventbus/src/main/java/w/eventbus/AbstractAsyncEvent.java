@@ -52,7 +52,7 @@ public abstract class AbstractAsyncEvent implements AsyncEvent {
 
     @Override
     public void postDispatch() {
-        synchronized (this) {
+        synchronized (mutex) {
             if (latch == 0) {
                 doneFuture.complete(this);
             }
