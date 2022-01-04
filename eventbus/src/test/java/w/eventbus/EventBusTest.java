@@ -16,18 +16,17 @@
 
 package w.eventbus;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.FieldDefaults;
-import lombok.experimental.NonFinal;
+import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import w.util.mutable.Mutables;
+import w.util.ClassLoaderUtils;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author whilein
@@ -41,27 +40,33 @@ class EventBusTest implements SubscribeNamespace {
         bus = SimpleEventBus.create();
     }
 
-    @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class NumberEvent implements Event, Cancellable {
-        int value;
+    @Test
+    @SneakyThrows
+    void testDifferentClassLoaderDispatch() {
+        val event = new DummyEvent();
+        val cl = EventBusTest.class.getClassLoader();
 
-        @Getter
-        @Setter
-        @NonFinal
-        boolean cancelled;
+        val bytes = ClassLoaderUtils.getResourceBytes(cl, "bytecode/DummyListener.class");
 
+        val type = ClassLoaderUtils.defineClass(new URLClassLoader(new URL[0], cl),
+                "w.eventbus.DummyListener", bytes);
+
+        val instance = type.newInstance();
+
+        bus.register(this, instance);
+        bus.dispatch(event);
+        bus.unregisterAll(instance);
     }
 
     @Test
     void testDispatch() {
-        val state = Mutables.newInt();
+        val state = new AtomicBoolean();
 
-        val subscription = bus.register(this, NumberEvent.class,
-                receivedEvent -> state.set(receivedEvent.value));
+        val subscription = bus.register(this, DummyEvent.class,
+                receivedEvent -> state.set(true));
 
-        bus.dispatch(new NumberEvent(1));
-        assertEquals(1, state.get());
+        bus.dispatch(new DummyEvent());
+        assertTrue(state.get());
 
         bus.unregister(subscription);
     }

@@ -23,14 +23,68 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodType;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author whilein
  */
 @UtilityClass
 public class ClassLoaderUtils {
+
+    private static final class SharedClassLoader extends ClassLoader {
+
+        private static final MethodHandle LOAD_CLASS;
+
+        static {
+            try {
+                LOAD_CLASS = Root.trustedLookupIn(ClassLoader.class).findVirtual(ClassLoader.class,
+                        "loadClass", MethodType.methodType(Class.class, String.class, boolean.class));
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        private final Set<ClassLoader> shared;
+
+        private SharedClassLoader(final ClassLoader parent, final Set<ClassLoader> shared) {
+            super(parent);
+
+            this.shared = shared;
+        }
+
+        @Override
+        protected Class<?> loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
+            return loadClass0(name, resolve);
+        }
+
+        private Class<?> loadClass0(final String name, final boolean resolve)
+                throws ClassNotFoundException {
+            try {
+                return super.loadClass(name, resolve);
+            } catch (final ClassNotFoundException ignored) {
+            }
+
+            for (val loader : shared) {
+                if (loader != this) {
+                    try {
+                        return (Class<?>) LOAD_CLASS.invokeExact(loader, name, resolve);
+                    } catch (final Throwable ignored) {
+                    }
+                }
+            }
+
+            throw new ClassNotFoundException(name);
+        }
+
+        public Class<?> defineClass(final String name, final byte[] data) {
+            return defineClass(name, data, 0, data.length, null);
+        }
+
+    }
 
     private static final class GeneratedClassLoader extends ClassLoader {
         private GeneratedClassLoader(final ClassLoader parent) {
@@ -40,6 +94,25 @@ public class ClassLoaderUtils {
         public Class<?> defineClass(final String name, final byte[] data) {
             return defineClass(name, data, 0, data.length, null);
         }
+
+    }
+
+    /**
+     * Создать класс, который может брать классы нескольких загрузчиков классов.
+     *
+     * @param parent Основной загрузчик классов
+     * @param shared Сет загрузчиков классов
+     * @param name   Имя нового класса
+     * @param data   Байткод
+     * @return Новый класс
+     */
+    public @NotNull Class<?> defineSharedClass(
+            final @NotNull ClassLoader parent,
+            final @NotNull Set<@NotNull ClassLoader> shared,
+            final @NotNull String name,
+            final byte @NotNull [] data
+    ) {
+        return new SharedClassLoader(parent, shared).defineClass(name, data);
     }
 
     public @NotNull Class<?> defineClass(

@@ -34,9 +34,12 @@ import org.slf4j.LoggerFactory;
 import w.asm.Asm;
 import w.util.ClassLoaderUtils;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -181,10 +184,10 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
         Label endIgnoreCancelled = null;
 
         for (int i = 0, j = subscriptions.size(); i < j; i++) {
+            final int idx = i;
+
             val subscription = subscriptions.get(i);
             val writer = subscription.getDispatchWriter();
-
-            val fieldName = "_" + i;
 
             if (subscription.isIgnoreCancelled()) {
                 if (!hasCastToCancellable) {
@@ -210,8 +213,12 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
             }
 
             makeExecute(mv, () -> {
-                mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETFIELD, GEN_DISPATCHER_NAME, fieldName, writer.getOwnerType().getDescriptor());
+                if (subscription.getOwner() != null) {
+                    val fieldName = "_" + idx;
+
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitFieldInsn(GETFIELD, GEN_DISPATCHER_NAME, fieldName, writer.getOwnerType().getDescriptor());
+                }
 
                 writer.write(mv);
             }, "Error occurred whilst dispatching " + type.getName() + " to " + writer.getName(), safe);
@@ -276,8 +283,25 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
                 "()V", true);
     }
 
-    @SneakyThrows
     private void bake(
+            final Class<?> type,
+            final List<RegisteredEventSubscription<?>> subscriptions,
+            final Map<Class<?>, EventDispatcher> dispatchers
+    ) {
+        val startNanos = System.nanoTime();
+
+        try {
+            bake0(type, subscriptions, dispatchers);
+        } finally {
+            val endNanos = System.nanoTime();
+
+            logger.debug("Dispatcher for {} ({} subscriptions) baked in {}ms",
+                    type, subscriptions.size(), Math.round((endNanos - startNanos) / 1E4) / 1E2);
+        }
+    }
+
+    @SneakyThrows
+    private void bake0(
             final Class<?> type,
             final List<RegisteredEventSubscription<?>> subscriptions,
             final Map<Class<?>, EventDispatcher> dispatchers
@@ -288,6 +312,8 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
         }
 
         Collections.sort(subscriptions);
+
+        val classLoaders = new HashSet<ClassLoader>();
 
         val parameterTypes = new ArrayList<Class<?>>(subscriptions.size() + 1);
         parameterTypes.add(Logger.class);
@@ -316,6 +342,9 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
             for (i = 0; i < j; i++) {
                 val subscription = subscriptions.get(i);
 
+                classLoaders.add(subscription.getOwnerType().getClassLoader());
+                classLoaders.add(subscription.getEvent().getClassLoader());
+
                 val writer = subscription.getDispatchWriter();
 
                 val handleType = writer.getOwnerType();
@@ -325,11 +354,11 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
                 stackSize = Math.max(stackSize, size + 1);
                 localSize += size;
 
-                descriptor.append(handleType.getDescriptor());
-
                 val owner = subscription.getOwner();
 
                 if (owner != null) {
+                    descriptor.append(handleType.getDescriptor());
+
                     parameterTypes.add(subscription.getOwnerType());
                     parameters.add(owner);
                 }
@@ -362,16 +391,18 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
                 val writer = subscription.getDispatchWriter();
                 val handleType = writer.getOwnerType();
 
-                val fieldName = "_" + i;
+                if (subscription.getOwner() != null) {
+                    val fieldName = "_" + i;
 
-                cw.visitField(ACC_PRIVATE | ACC_FINAL, fieldName, handleType.getDescriptor(),
-                        null, null).visitEnd();
+                    cw.visitField(ACC_PRIVATE | ACC_FINAL, fieldName, handleType.getDescriptor(),
+                            null, null).visitEnd();
 
-                constructor.visitVarInsn(ALOAD, 0);
-                constructor.visitVarInsn(ALOAD, local);
-                constructor.visitFieldInsn(PUTFIELD, GEN_DISPATCHER_NAME, fieldName, handleType.getDescriptor());
+                    constructor.visitVarInsn(ALOAD, 0);
+                    constructor.visitVarInsn(ALOAD, local);
+                    constructor.visitFieldInsn(PUTFIELD, GEN_DISPATCHER_NAME, fieldName, handleType.getDescriptor());
 
-                local += handleType.getSize();
+                    local += handleType.getSize();
+                }
             }
 
             constructor.visitInsn(RETURN);
@@ -396,10 +427,11 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
 
         val result = cw.toByteArray();
 
-        // Files.write(Paths.get(GEN_DISPATCHER_NAME.replace('/', '.') + ".class"), result);
+        Files.write(Paths.get(GEN_DISPATCHER_NAME.replace('/', '.') + ".class"), result);
 
-        val generatedType = ClassLoaderUtils.defineClass(
+        val generatedType = ClassLoaderUtils.defineSharedClass(
                 EventBus.class.getClassLoader(),
+                classLoaders,
                 GEN_DISPATCHER_NAME.replace('/', '.'),
                 result
         );
