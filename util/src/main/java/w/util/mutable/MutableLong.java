@@ -25,6 +25,10 @@ public interface MutableLong {
 
     long getAndIncrement();
 
+    long decrementAndGet();
+
+    long getAndDecrement();
+
     long get();
 
     void set(long value);

@@ -25,6 +25,10 @@ public interface MutableInt {
 
     int getAndIncrement();
 
+    int decrementAndGet();
+
+    int getAndDecrement();
+
     int get();
 
     void set(int value);

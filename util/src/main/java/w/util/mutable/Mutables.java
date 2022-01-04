@@ -115,6 +115,20 @@ public class Mutables {
         }
 
         @Override
+        public long decrementAndGet() {
+            ensureNotEmpty();
+
+            return --value;
+        }
+
+        @Override
+        public long getAndDecrement() {
+            ensureNotEmpty();
+
+            return value--;
+        }
+
+        @Override
         public long get() {
             ensureNotEmpty();
 
@@ -198,6 +212,20 @@ public class Mutables {
             ensureNotEmpty();
 
             return value++;
+        }
+
+        @Override
+        public int decrementAndGet() {
+            ensureNotEmpty();
+
+            return --value;
+        }
+
+        @Override
+        public int getAndDecrement() {
+            ensureNotEmpty();
+
+            return value--;
         }
 
         @Override
@@ -385,6 +413,16 @@ public class Mutables {
         }
 
         @Override
+        public long decrementAndGet() {
+            return --value;
+        }
+
+        @Override
+        public long getAndDecrement() {
+            return value++;
+        }
+
+        @Override
         public long get() {
             return value;
         }
@@ -415,6 +453,16 @@ public class Mutables {
         @Override
         public int getAndIncrement() {
             return value++;
+        }
+
+        @Override
+        public int decrementAndGet() {
+            return --value;
+        }
+
+        @Override
+        public int getAndDecrement() {
+            return value--;
         }
 
         @Override
