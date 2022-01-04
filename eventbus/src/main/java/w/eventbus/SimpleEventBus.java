@@ -34,8 +34,6 @@ import org.slf4j.LoggerFactory;
 import w.asm.Asm;
 import w.util.ClassLoaderUtils;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -398,7 +396,7 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
 
         val result = cw.toByteArray();
 
-        Files.write(Paths.get(GEN_DISPATCHER_NAME.replace('/', '.') + ".class"), result);
+        // Files.write(Paths.get(GEN_DISPATCHER_NAME.replace('/', '.') + ".class"), result);
 
         val generatedType = ClassLoaderUtils.defineClass(
                 EventBus.class.getClassLoader(),
