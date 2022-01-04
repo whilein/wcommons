@@ -38,8 +38,14 @@ public class Root {
 
     private final MethodHandles.Lookup IMPL_LOOKUP;
 
+    /**
+     * Класс {@code Unsafe}
+     */
     public final Class<?> UNSAFE_TYPE;
 
+    /**
+     * Класс {@code MagicAccessorImpl}
+     */
     public final Class<?> MAGIC_ACCESSOR_IMPL_TYPE;
 
     private final MethodHandle UNSAFE__DEFINE_CLASS;
@@ -94,7 +100,7 @@ public class Root {
     @SneakyThrows
     public Class<?> defineClass(
             final @NotNull String name,
-            final byte[] data,
+            final byte @NotNull [] data,
             final int offset,
             final int length,
             final @Nullable ClassLoader classLoader,
