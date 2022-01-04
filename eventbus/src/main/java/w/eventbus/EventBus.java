@@ -19,6 +19,8 @@ package w.eventbus;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * @author whilein
  */
@@ -30,6 +32,10 @@ public interface EventBus<T extends SubscribeNamespace> extends EventBusRegister
      * @return Логгер
      */
     @NotNull Logger getLogger();
+
+    <E extends AsyncEvent> @NotNull CompletableFuture<E> dispatchAsync(@NotNull E event);
+
+    <E extends AsyncEvent> @NotNull CompletableFuture<E> unsafeDispatchAsync(@NotNull E event);
 
     /**
      * Отправить событие на все слушатели, которые подписаны на него.

@@ -25,6 +25,7 @@ import lombok.experimental.NonFinal;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import w.util.mutable.Mutables;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -49,19 +50,18 @@ class EventBusTest implements SubscribeNamespace {
         @Setter
         @NonFinal
         boolean cancelled;
+
     }
 
     @Test
     void testDispatch() {
-        val state = new Object() {
-            int value;
-        };
+        val state = Mutables.newInt();
 
         val subscription = bus.register(this, NumberEvent.class,
-                receivedEvent -> state.value = receivedEvent.value);
+                receivedEvent -> state.set(receivedEvent.value));
 
         bus.dispatch(new NumberEvent(1));
-        assertEquals(1, state.value);
+        assertEquals(1, state.get());
 
         bus.unregister(subscription);
     }

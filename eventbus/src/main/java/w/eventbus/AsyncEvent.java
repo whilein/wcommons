@@ -16,12 +16,19 @@
 
 package w.eventbus;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.concurrent.CompletableFuture;
+
 /**
  * @author whilein
  */
-public interface Event {
+public interface AsyncEvent extends Event {
 
-    default void postDispatch() {
-    }
+    @NotNull CompletableFuture<@NotNull AsyncEvent> getDoneFuture();
+
+    void registerIntent(@NotNull SubscribeNamespace namespace);
+
+    void completeIntent(@NotNull SubscribeNamespace namespace);
 
 }

@@ -34,11 +34,14 @@ import org.slf4j.LoggerFactory;
 import w.asm.Asm;
 import w.util.ClassLoaderUtils;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -130,8 +133,8 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
             val eventType = parameters[0];
 
             if (!Event.class.isAssignableFrom(eventType)) {
-                logger.error("Cannot subscribe to {}, because event is not assignable from it",
-                        eventType.getName());
+                logger.error("Cannot subscribe to {}, because {} is not assignable from it",
+                        eventType.getName(), Event.class);
 
                 continue;
             }
@@ -185,22 +188,6 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
 
             val fieldName = "_" + i;
 
-            final Label start;
-            final Label end;
-
-            final Label handler;
-
-            final Label next;
-
-            if (safe) {
-                start = new Label();
-                end = new Label();
-                handler = new Label();
-                next = new Label();
-            } else {
-                start = end = handler = next = null;
-            }
-
             if (subscription.isIgnoreCancelled()) {
                 if (!hasCastToCancellable) {
                     mv.visitVarInsn(ALOAD, 1);
@@ -224,42 +211,71 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
                 endIgnoreCancelled = null;
             }
 
-            if (safe) {
-                mv.visitLabel(start);
-            }
-
-            mv.visitVarInsn(ALOAD, 0);
-            mv.visitFieldInsn(GETFIELD, GEN_DISPATCHER_NAME, fieldName, writer.getOwnerType().getDescriptor());
-
-            writer.write(mv);
-
-            if (safe) {
-                mv.visitJumpInsn(GOTO, next);
-                mv.visitLabel(end);
-
-                mv.visitLabel(handler);
-                // region error logging
-                mv.visitVarInsn(ASTORE, 3); // exception
+            makeExecute(mv, () -> {
                 mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETFIELD, GEN_DISPATCHER_NAME, "log", "Lorg/slf4j/Logger;");
-                mv.visitLdcInsn("Error occurred whilst dispatching " + type.getName() + " to " + writer.getName());
-                mv.visitVarInsn(ALOAD, 3);
-                mv.visitMethodInsn(INVOKEINTERFACE, "org/slf4j/Logger", "error",
-                        "(Ljava/lang/String;Ljava/lang/Throwable;)V", true);
-                // endregion
-                mv.visitLabel(next);
+                mv.visitFieldInsn(GETFIELD, GEN_DISPATCHER_NAME, fieldName, writer.getOwnerType().getDescriptor());
 
-                mv.visitTryCatchBlock(start, end, handler, Type.getInternalName(Exception.class));
-            }
+                writer.write(mv);
+            }, "Error occurred whilst dispatching " + type.getName() + " to " + writer.getName(), safe);
         }
 
         if (endIgnoreCancelled != null) {
             mv.visitLabel(endIgnoreCancelled);
         }
 
+        makeExecute(
+                mv, () -> makePostDispatch(mv),
+                "Error occurred whilst executing Event#postDispatch",
+                safe
+        );
+
         mv.visitInsn(RETURN);
         mv.visitMaxs(2, safe ? 4 : 3);
         mv.visitEnd();
+    }
+
+    private void makeExecute(
+            final MethodVisitor mv,
+            final Runnable executeBlock,
+            final String errorMessage,
+            final boolean safe
+    ) {
+        if (safe) {
+            val start = new Label();
+            val end = new Label();
+            val handler = new Label();
+            val next = new Label();
+
+            mv.visitLabel(start);
+            executeBlock.run();
+            mv.visitJumpInsn(GOTO, next);
+            mv.visitLabel(end);
+            mv.visitLabel(handler);
+            makeCatchException(mv, errorMessage);
+            mv.visitLabel(next);
+            mv.visitTryCatchBlock(start, end, handler, "java/lang/Exception");
+        } else {
+            executeBlock.run();
+        }
+    }
+
+    private void makeCatchException(final MethodVisitor mv, final String message) {
+        // region error logging
+        mv.visitVarInsn(ASTORE, 3); // exception
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitFieldInsn(GETFIELD, GEN_DISPATCHER_NAME, "log", "Lorg/slf4j/Logger;");
+        mv.visitLdcInsn(message);
+        mv.visitVarInsn(ALOAD, 3);
+        mv.visitMethodInsn(INVOKEINTERFACE, "org/slf4j/Logger", "error",
+                "(Ljava/lang/String;Ljava/lang/Throwable;)V", true);
+        // endregion
+    }
+
+    private void makePostDispatch(final MethodVisitor mv) {
+        mv.visitVarInsn(ALOAD, 1);
+
+        mv.visitMethodInsn(INVOKEINTERFACE, "w/eventbus/Event", "postDispatch",
+                "()V", true);
     }
 
     @SneakyThrows
@@ -382,7 +398,7 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
 
         val result = cw.toByteArray();
 
-        // Files.write(Paths.get(GEN_DISPATCHER_NAME.replace('/', '.') + ".class"), result);
+        Files.write(Paths.get(GEN_DISPATCHER_NAME.replace('/', '.') + ".class"), result);
 
         val generatedType = ClassLoaderUtils.defineClass(
                 EventBus.class.getClassLoader(),
@@ -408,6 +424,22 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
 
             this.dispatchers = dispatchers;
         }
+    }
+
+    @Override
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public <E extends AsyncEvent> @NotNull CompletableFuture<E> dispatchAsync(final @NotNull E event) {
+        dispatch(event);
+
+        return (CompletableFuture) event.getDoneFuture();
+    }
+
+    @Override
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public <E extends AsyncEvent> @NotNull CompletableFuture<E> unsafeDispatchAsync(final @NotNull E event) {
+        unsafeDispatch(event);
+
+        return (CompletableFuture) event.getDoneFuture();
     }
 
     @Override
