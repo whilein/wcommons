@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Whilein
+ *    Copyright 2022 Whilein
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package w.asm.patcher;
+package w.agent;
 
 import com.sun.tools.attach.VirtualMachine;
 import lombok.SneakyThrows;
@@ -30,7 +30,7 @@ import java.lang.instrument.Instrumentation;
 final class AgentMain {
 
     @SuppressWarnings("unused")
-    private static volatile Instrumentation instrumentation;
+    private static Instrumentation instrumentation;
 
     @SneakyThrows
     public void main(final String[] args) {

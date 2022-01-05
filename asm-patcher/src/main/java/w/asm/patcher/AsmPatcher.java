@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Whilein
+ *    Copyright 2022 Whilein
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import w.agent.AgentInstrumentation;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -110,9 +111,7 @@ public class AsmPatcher {
 
             val internalType = Type.getInternalName(type);
 
-            val instrumentation = AgentInstaller.getInstrumentation();
-
-            instrumentation.addTransformer(new ClassFileTransformer() {
+            AgentInstrumentation.addTransformer(new ClassFileTransformer() {
                 @Override
                 public byte[] transform(
                         final ClassLoader loader,
@@ -178,7 +177,7 @@ public class AsmPatcher {
                         } catch (final Exception e) {
                             e.printStackTrace();
                         } finally {
-                            instrumentation.removeTransformer(this);
+                            AgentInstrumentation.removeTransformer(this);
                         }
                     }
 
@@ -187,7 +186,7 @@ public class AsmPatcher {
                 }
             }, true);
 
-            instrumentation.retransformClasses(type);
+            AgentInstrumentation.retransformClasses(type);
         }
     }
 
