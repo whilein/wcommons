@@ -15,7 +15,7 @@ ext {
             geoip2     : "com.maxmind.geoip2:geoip2:2.16.1",
             jtar       : "org.kamranzafar:jtar:2.3",
             hikaricp   : "com.zaxxer:HikariCP:5.0.0",
-            h2         : "com.h2database:h2:2.0.204"
+            h2: "com.h2database:h2:2.0.206"
     ]
 
     libs.slf4j = [

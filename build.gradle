@@ -17,7 +17,7 @@ static boolean isNonStable(String version) {
 }
 
 plugins {
-    id "com.github.ben-manes.versions" version "0.40.0"
+    id "com.github.ben-manes.versions" version "0.41.0"
 }
 
 def releaseVersion = findProperty("github.tag") ?: getCommit()
