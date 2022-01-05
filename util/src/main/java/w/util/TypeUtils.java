@@ -19,8 +19,12 @@ package w.util;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author whilein
@@ -56,6 +60,35 @@ public class TypeUtils {
         }
 
         return Optional.empty();
+    }
+
+    public @Unmodifiable @NotNull Set<@NotNull Class<?>> findTypes(final @NotNull Class<?> type) {
+        if (type == Object.class || type.isPrimitive()) {
+            return Set.of(type);
+        }
+
+        val result = new LinkedHashSet<Class<?>>();
+        result.add(type);
+
+        findTypes(type, result);
+
+        return Collections.unmodifiableSet(result);
+    }
+
+    private void findTypes(final Class<?> type, final Set<Class<?>> result) {
+        result.add(type);
+
+        if (!type.isInterface()) {
+            val superType = type.getSuperclass();
+
+            if (superType != Object.class) {
+                findTypes(superType, result);
+            }
+        }
+
+        for (val interfaceType : type.getInterfaces()) {
+            findTypes(interfaceType, result);
+        }
     }
 
     public boolean isWrapper(final @NotNull Class<?> wrapperType) {
