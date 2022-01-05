@@ -44,6 +44,6 @@ public @interface Subscribe {
      */
     boolean ignoreCancelled() default false;
 
-    boolean exactEvent() default true;
+    boolean exactEvent() default false;
 
 }
