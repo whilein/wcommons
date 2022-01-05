@@ -59,7 +59,7 @@ class EventBusTest implements SubscribeNamespace {
 
     public static class ParentListener extends ChildListener {
 
-        @Subscribe(exactEvent = false)
+        @Subscribe
         void catchDamageByEntity(final EntityDamageByEntityEvent event) {
             System.out.println("DAMAGE BY ENTITY CAUGHT: " + event);
         }

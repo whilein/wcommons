@@ -62,7 +62,6 @@ public class Mutables {
     @SuppressWarnings("unchecked")
     public <T> @NotNull MutableOptionalReference<T> newOptionalReference() {
         return new MutableOptionalReferenceImpl<>((T) EMPTY, (T) EMPTY);
-
     }
 
     @SuppressWarnings("unchecked")
