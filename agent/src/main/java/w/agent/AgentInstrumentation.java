@@ -18,7 +18,6 @@ package w.agent;
 
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import w.util.ClassLoaderUtils;
 
 import java.io.IOException;
 import java.lang.instrument.ClassDefinition;
@@ -92,10 +91,21 @@ public final class AgentInstrumentation {
         manifestAttributes.put(new Attributes.Name("Main-Class"), agentMainName);
 
         try (val jar = new JarOutputStream(Files.newOutputStream(temporary), manifest)) {
-            val mainClass = new ZipEntry(agentMainName.replace('.', '/') + ".class");
+            val mainClassName = agentMainName.replace('.', '/') + ".class";
+
+            val mainClass = new ZipEntry(mainClassName);
 
             jar.putNextEntry(mainClass);
-            jar.write(ClassLoaderUtils.getClassBytes(AgentInstrumentation.class.getClassLoader(), agentMainName));
+
+            try (val resource = AgentInstrumentation.class.getClassLoader()
+                    .getResourceAsStream(mainClassName)) {
+                if (resource == null) {
+                    throw new IllegalStateException("Cannot find " + mainClassName
+                            + " AgentInstrumentation class loader");
+                }
+
+                jar.write(resource.readAllBytes());
+            }
         }
 
         return temporary;
@@ -169,7 +179,8 @@ public final class AgentInstrumentation {
         return INSTRUMENTATION.isRedefineClassesSupported();
     }
 
-    public void redefineClasses(final ClassDefinition... definitions) throws ClassNotFoundException, UnmodifiableClassException {
+    public void redefineClasses(final ClassDefinition... definitions)
+            throws ClassNotFoundException, UnmodifiableClassException {
         INSTRUMENTATION.redefineClasses(definitions);
     }
 
