@@ -25,6 +25,8 @@ import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Set;
+
 /**
  * @author whilein
  */
@@ -32,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ImmutableRegisteredEventSubscription<T extends Event> implements RegisteredEventSubscription<T> {
+public final class ImmutableRegisteredEventSubscription implements RegisteredEventSubscription {
     AsmDispatchWriter dispatchWriter;
 
     Object owner;
@@ -45,10 +47,10 @@ public final class ImmutableRegisteredEventSubscription<T extends Event> impleme
 
     SubscribeNamespace namespace;
 
-    Class<T> event;
+    Set<Class<? extends Event>> events;
 
     /**
-     * Создать иммутабельную подписку на событие {@code event}
+     * Создать иммутабельную подписку на события {@code events}
      *
      * @param dispatchWriter  Врайтер
      * @param owner           Владелец
@@ -56,25 +58,24 @@ public final class ImmutableRegisteredEventSubscription<T extends Event> impleme
      * @param postOrder       Порядок выполнения
      * @param ignoreCancelled Игнорировать отменённые события
      * @param namespace       Неймспейс
-     * @param event           Класс события
-     * @param <T>             Тип события
-     * @return Новая иммутабельная побписка на событие
+     * @param events          Типы событий
+     * @return Новая иммутабельная побписка на события
      */
-    public static @NotNull <T extends Event> RegisteredEventSubscription<T> create(
+    public static @NotNull RegisteredEventSubscription create(
             final @NotNull AsmDispatchWriter dispatchWriter,
             final @Nullable Object owner,
             final @NotNull Class<?> ownerType,
             final @NotNull PostOrder postOrder,
             final boolean ignoreCancelled,
             final @NotNull SubscribeNamespace namespace,
-            final @NotNull Class<T> event
+            final @NotNull Set<Class<? extends Event>> events
     ) {
-        return new ImmutableRegisteredEventSubscription<>(dispatchWriter, owner, ownerType,
-                postOrder, ignoreCancelled, namespace, event);
+        return new ImmutableRegisteredEventSubscription(dispatchWriter, owner, ownerType,
+                postOrder, ignoreCancelled, namespace, events);
     }
 
     @Override
-    public int compareTo(final @NotNull RegisteredEventSubscription<?> o) {
+    public int compareTo(final @NotNull RegisteredEventSubscription o) {
         val compareOrder = postOrder.compareTo(o.getPostOrder());
 
         if (compareOrder != 0) {

@@ -19,6 +19,7 @@ package w.eventbus;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
@@ -33,15 +34,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import w.asm.Asm;
 import w.util.ClassLoaderUtils;
+import w.util.TypeUtils;
+import w.util.mutable.Mutables;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -75,8 +78,10 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
 
     Object mutex;
 
-    List<RegisteredEventSubscription<?>> subscriptions;
-    Map<Class<?>, List<RegisteredEventSubscription<?>>> byEventType;
+    List<RegisteredEventSubscription> subscriptions;
+    Map<Class<?>, List<RegisteredEventSubscription>> byEventType;
+
+    Map<Class<?>, Set<Class<?>>> typeCache;
 
     @NonFinal
     Map<Class<?>, EventDispatcher> dispatchers;
@@ -89,7 +94,8 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
      * @return Новый {@link EventBus}
      */
     public static <T extends SubscribeNamespace> @NotNull EventBus<T> create(final @NotNull Logger logger) {
-        return new SimpleEventBus<>(logger, new Object[0], new ArrayList<>(), new HashMap<>(), new HashMap<>());
+        return new SimpleEventBus<>(logger, new Object[0], new ArrayList<>(), new HashMap<>(),
+                new HashMap<>(), new WeakHashMap<>());
     }
 
     /**
@@ -102,7 +108,7 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
         return create(LoggerFactory.getLogger(EventBus.class));
     }
 
-    private void registerObject(
+    private void register(
             final SubscribeNamespace namespace,
             final Class<?> subscriptionType,
             final Object subscription
@@ -111,50 +117,65 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
             throw new IllegalStateException("Cannot register interface as subscription");
         }
 
-        val map = new HashMap<Class<?>, List<RegisteredEventSubscription<?>>>();
+        val map = new HashMap<Class<?>, List<RegisteredEventSubscription>>();
 
-        for (val method : subscriptionType.getDeclaredMethods()) {
-            if (method.isBridge() || method.isSynthetic()) {
-                continue;
+        for (val type : findTypes(subscriptionType)) {
+            for (val method : type.getDeclaredMethods()) {
+                if (method.isBridge() || method.isSynthetic()) {
+                    continue;
+                }
+
+                val subscribe = method.getDeclaredAnnotation(Subscribe.class);
+
+                if (subscribe == null) {
+                    continue;
+                }
+
+                val parameters = method.getParameterTypes();
+
+                if (parameters.length != 1) {
+                    logger.error("Illegal count of parameters for event subscription: " + parameters.length);
+                    continue;
+                }
+
+                val eventType = parameters[0];
+
+                if (!Event.class.isAssignableFrom(eventType)) {
+                    logger.error("Cannot subscribe to {}, because {} is not assignable from it",
+                            eventType.getName(), Event.class);
+
+                    continue;
+                }
+
+                final Set<Class<? extends Event>> eventTypes = new HashSet<>();
+
+                if (subscribe.exactEvent()) {
+                    eventTypes.add(eventType.asSubclass(Event.class));
+                } else {
+                    for (val childEventType : findTypes(eventType)) {
+                        eventTypes.add(childEventType.asSubclass(Event.class));
+                    }
+                }
+
+                map.putAll(register(
+                        ImmutableRegisteredEventSubscription.create(
+                                AsmDispatchWriters.fromMethod(subscription, method),
+                                subscription,
+                                type,
+                                subscribe.order(),
+                                subscribe.ignoreCancelled()
+                                        && Cancellable.class.isAssignableFrom(eventType),
+                                namespace,
+                                Collections.unmodifiableSet(eventTypes)
+                        )
+                ));
             }
-
-            val subscribe = method.getDeclaredAnnotation(Subscribe.class);
-
-            if (subscribe == null) {
-                continue;
-            }
-
-            val parameters = method.getParameterTypes();
-
-            if (parameters.length != 1) {
-                logger.error("Illegal count of parameters for event subscription: " + parameters.length);
-                continue;
-            }
-
-            val eventType = parameters[0];
-
-            if (!Event.class.isAssignableFrom(eventType)) {
-                logger.error("Cannot subscribe to {}, because {} is not assignable from it",
-                        eventType.getName(), Event.class);
-
-                continue;
-            }
-
-            map.put(eventType, register(ImmutableRegisteredEventSubscription.create(
-                    AsmDispatchWriters.fromMethod(subscription, method),
-                    subscription,
-                    subscriptionType,
-                    subscribe.order(),
-                    subscribe.ignoreCancelled() && Cancellable.class.isAssignableFrom(eventType),
-                    namespace,
-                    eventType.asSubclass(Event.class)
-            )));
         }
 
         bakeAll(map);
     }
 
-    private void bakeAll(final Map<Class<?>, List<RegisteredEventSubscription<?>>> modifiedDispatchers) {
+    private void bakeAll(final Map<Class<?>, List<RegisteredEventSubscription>> modifiedDispatchers) {
         val dispatchers = new HashMap<>(this.dispatchers);
 
         for (val entry : modifiedDispatchers.entrySet()) {
@@ -164,15 +185,10 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
         this.dispatchers = dispatchers;
     }
 
-    private void bake(final Class<?> type, final List<RegisteredEventSubscription<?>> subscriptions) {
-        val dispatchers = new HashMap<>(this.dispatchers);
-        bake(type, subscriptions, dispatchers);
-        this.dispatchers = dispatchers;
-    }
-
     private void makeDispatch(
+            final Map<Object, Field> fields,
             final Class<?> type,
-            final List<RegisteredEventSubscription<?>> subscriptions,
+            final List<RegisteredEventSubscription> subscriptions,
             final MethodVisitor mv,
             final boolean safe
     ) {
@@ -183,10 +199,7 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
         boolean hasCastToCancellable = false;
         Label endIgnoreCancelled = null;
 
-        for (int i = 0, j = subscriptions.size(); i < j; i++) {
-            final int idx = i;
-
-            val subscription = subscriptions.get(i);
+        for (val subscription : subscriptions) {
             val writer = subscription.getDispatchWriter();
 
             if (subscription.isIgnoreCancelled()) {
@@ -213,8 +226,10 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
             }
 
             makeExecute(mv, () -> {
-                if (subscription.getOwner() != null) {
-                    val fieldName = "_" + idx;
+                val owner = subscription.getOwner();
+
+                if (owner != null) {
+                    val fieldName = fields.get(owner).name;
 
                     mv.visitVarInsn(ALOAD, 0);
                     mv.visitFieldInsn(GETFIELD, GEN_DISPATCHER_NAME, fieldName, writer.getOwnerType().getDescriptor());
@@ -265,7 +280,6 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
     }
 
     private void makeCatchException(final MethodVisitor mv, final String message) {
-        // region error logging
         mv.visitVarInsn(ASTORE, 3); // exception
         mv.visitVarInsn(ALOAD, 0);
         mv.visitFieldInsn(GETFIELD, GEN_DISPATCHER_NAME, "log", "Lorg/slf4j/Logger;");
@@ -273,7 +287,6 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
         mv.visitVarInsn(ALOAD, 3);
         mv.visitMethodInsn(INVOKEINTERFACE, "org/slf4j/Logger", "error",
                 "(Ljava/lang/String;Ljava/lang/Throwable;)V", true);
-        // endregion
     }
 
     private void makePostDispatch(final MethodVisitor mv) {
@@ -285,7 +298,7 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
 
     private void bake(
             final Class<?> type,
-            final List<RegisteredEventSubscription<?>> subscriptions,
+            final List<RegisteredEventSubscription> subscriptions,
             final Map<Class<?>, EventDispatcher> dispatchers
     ) {
         val startNanos = System.nanoTime();
@@ -300,10 +313,17 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
         }
     }
 
+    @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class Field {
+        Type type;
+        String name;
+    }
+
     @SneakyThrows
     private void bake0(
             final Class<?> type,
-            final List<RegisteredEventSubscription<?>> subscriptions,
+            final List<RegisteredEventSubscription> subscriptions,
             final Map<Class<?>, EventDispatcher> dispatchers
     ) {
         if (subscriptions.isEmpty()) {
@@ -313,6 +333,7 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
 
         Collections.sort(subscriptions);
 
+        val fields = new HashMap<Object, Field>();
         val classLoaders = new HashSet<ClassLoader>();
 
         val parameterTypes = new ArrayList<Class<?>>(subscriptions.size() + 1);
@@ -339,11 +360,16 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
             val descriptor = new StringBuilder();
             descriptor.append("(Lorg/slf4j/Logger;");
 
+            val fieldCounter = Mutables.newInt();
+
             for (i = 0; i < j; i++) {
                 val subscription = subscriptions.get(i);
 
                 classLoaders.add(subscription.getOwnerType().getClassLoader());
-                classLoaders.add(subscription.getEvent().getClassLoader());
+
+                for (val event : subscription.getEvents()) {
+                    classLoaders.add(event.getClassLoader());
+                }
 
                 val writer = subscription.getDispatchWriter();
 
@@ -357,6 +383,11 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
                 val owner = subscription.getOwner();
 
                 if (owner != null) {
+                    fields.computeIfAbsent(owner, __ -> new Field(
+                            handleType,
+                            "_" + fieldCounter.getAndIncrement()
+                    ));
+
                     descriptor.append(handleType.getDescriptor());
 
                     parameterTypes.add(subscription.getOwnerType());
@@ -385,24 +416,19 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
             }
             // endregion
 
-            for (i = 0; i < j; i++) {
-                val subscription = subscriptions.get(i);
+            for (val field : fields.values()) {
+                val fieldName = field.name;
+                val fieldType = field.type;
+                val fieldDescriptor = fieldType.getDescriptor();
 
-                val writer = subscription.getDispatchWriter();
-                val handleType = writer.getOwnerType();
+                cw.visitField(ACC_PRIVATE | ACC_FINAL, fieldName, fieldDescriptor,
+                        null, null).visitEnd();
 
-                if (subscription.getOwner() != null) {
-                    val fieldName = "_" + i;
+                constructor.visitVarInsn(ALOAD, 0);
+                constructor.visitVarInsn(ALOAD, local);
+                constructor.visitFieldInsn(PUTFIELD, GEN_DISPATCHER_NAME, fieldName, fieldDescriptor);
 
-                    cw.visitField(ACC_PRIVATE | ACC_FINAL, fieldName, handleType.getDescriptor(),
-                            null, null).visitEnd();
-
-                    constructor.visitVarInsn(ALOAD, 0);
-                    constructor.visitVarInsn(ALOAD, local);
-                    constructor.visitFieldInsn(PUTFIELD, GEN_DISPATCHER_NAME, fieldName, handleType.getDescriptor());
-
-                    local += handleType.getSize();
-                }
+                local += fieldType.getSize();
             }
 
             constructor.visitInsn(RETURN);
@@ -414,20 +440,21 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
         {
             val mv = cw.visitMethod(ACC_PUBLIC, "dispatch", "(Lw/eventbus/Event;)V",
                     null, null);
-            makeDispatch(type, subscriptions, mv, true);
+            makeDispatch(fields, type, subscriptions, mv, true);
         }
         // endregion
         // region unsafeDispatch
         {
             val mv = cw.visitMethod(ACC_PUBLIC, "unsafeDispatch", "(Lw/eventbus/Event;)V",
                     null, null);
-            makeDispatch(type, subscriptions, mv, false);
+            makeDispatch(fields, type, subscriptions, mv, false);
         }
         // endregion
 
         val result = cw.toByteArray();
 
-        Files.write(Paths.get(GEN_DISPATCHER_NAME.replace('/', '.') + ".class"), result);
+        //Files.write(Paths.get(GEN_DISPATCHER_NAME.replace('/', '.') + "_" + type.getSimpleName()
+        //        + ".class"), result);
 
         val generatedType = ClassLoaderUtils.defineSharedClass(
                 EventBus.class.getClassLoader(),
@@ -494,28 +521,34 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
         }
     }
 
-    private List<RegisteredEventSubscription<?>> removeFromIndex(final RegisteredEventSubscription<?> subscription) {
-        val subscriptionType = subscription.getEvent();
+    private Map<Class<?>, List<RegisteredEventSubscription>> removeFromIndex(
+            final RegisteredEventSubscription subscription
+    ) {
+        val result = new HashMap<Class<?>, List<RegisteredEventSubscription>>();
 
-        val subscriptions = byEventType.get(subscription.getEvent());
-        subscriptions.remove(subscription);
+        for (val event : subscription.getEvents()) {
+            val subscriptions = byEventType.get(event);
+            subscriptions.remove(subscription);
 
-        if (subscriptions.isEmpty()) {
-            byEventType.remove(subscriptionType);
+            if (subscriptions.isEmpty()) {
+                byEventType.remove(event);
+            }
+
+            result.put(event, subscriptions);
         }
 
-        return subscriptions;
+        return result;
     }
 
-    private void unregisterAll(final Predicate<RegisteredEventSubscription<?>> predicate) {
-        final Map<Class<?>, List<RegisteredEventSubscription<?>>> modified = new HashMap<>();
+    private void unregisterAll(final Predicate<RegisteredEventSubscription> predicate) {
+        final Map<Class<?>, List<RegisteredEventSubscription>> modified = new HashMap<>();
 
         synchronized (mutex) {
             if (subscriptions.removeIf(subscription -> {
                 final boolean result;
 
                 if ((result = predicate.test(subscription))) {
-                    modified.put(subscription.getEvent(), removeFromIndex(subscription));
+                    modified.putAll(removeFromIndex(subscription));
                 }
 
                 return result;
@@ -526,25 +559,35 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
     }
 
     @Override
-    public void unregister(final @NotNull RegisteredEventSubscription<?> subscription) {
+    public void unregister(final @NotNull RegisteredEventSubscription subscription) {
         synchronized (mutex) {
             if (subscriptions.remove(subscription)) {
-                bake(subscription.getEvent(), removeFromIndex(subscription));
+                bakeAll(removeFromIndex(subscription));
             }
         }
     }
 
-    private List<RegisteredEventSubscription<?>> register(
-            final RegisteredEventSubscription<?> subscription
+    private Set<Class<?>> findTypes(final Class<?> type) {
+        return typeCache.computeIfAbsent(type, TypeUtils::findTypes);
+    }
+
+    private Map<Class<?>, List<RegisteredEventSubscription>> register(
+            final RegisteredEventSubscription subscription
     ) {
         synchronized (mutex) {
             subscriptions.add(subscription);
 
-            val subscriptions = byEventType.computeIfAbsent(subscription.getEvent(),
-                    __ -> new ArrayList<>());
-            subscriptions.add(subscription);
+            val result = new HashMap<Class<?>, List<RegisteredEventSubscription>>();
 
-            return subscriptions;
+            for (val eventType : subscription.getEvents()) {
+                val subscriptions = byEventType.computeIfAbsent(eventType,
+                        __ -> new ArrayList<>());
+                subscriptions.add(subscription);
+
+                result.put(eventType, subscriptions);
+            }
+
+            return result;
         }
     }
 
@@ -565,16 +608,16 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
 
     @Override
     public void register(final @NotNull T namespace, final @NotNull Object subscription) {
-        registerObject(namespace, subscription.getClass(), subscription);
+        register(namespace, subscription.getClass(), subscription);
     }
 
     @Override
     public void register(final @NotNull T namespace, final @NotNull Class<?> subscriptionType) {
-        registerObject(namespace, subscriptionType, null);
+        register(namespace, subscriptionType, null);
     }
 
     @Override
-    public @NotNull <E extends Event> RegisteredEventSubscription<E> register(
+    public @NotNull <E extends Event> RegisteredEventSubscription register(
             final @NotNull T namespace,
             final @NotNull Class<E> type,
             final @NotNull Consumer<@NotNull E> subscription
@@ -583,7 +626,7 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
     }
 
     @Override
-    public @NotNull <E extends Event> RegisteredEventSubscription<E> register(
+    public @NotNull <E extends Event> RegisteredEventSubscription register(
             final @NotNull T namespace,
             final @NotNull Class<E> type,
             final @NotNull PostOrder order,
@@ -596,10 +639,12 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
                 order,
                 false,
                 namespace,
-                type
+                Set.of(type)
         );
 
-        bake(type, register(registeredSubscription));
+        synchronized (mutex) {
+            bakeAll(register(registeredSubscription));
+        }
 
         return registeredSubscription;
     }

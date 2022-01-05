@@ -54,10 +54,10 @@ public interface EventBusRegisterer<T extends SubscribeNamespace> {
      *
      * @param subscription Подписка
      */
-    void unregister(@NotNull RegisteredEventSubscription<?> subscription);
+    void unregister(@NotNull RegisteredEventSubscription subscription);
 
     /**
-     * Зарегистрировать слушатель.
+     * Зарегистрировать подписку на событие.
      *
      * @param namespace    Неймспейс
      * @param type         Класс события
@@ -65,14 +65,14 @@ public interface EventBusRegisterer<T extends SubscribeNamespace> {
      * @param <E>          Тип события
      * @return Зарегистрированный слушатель
      */
-    <E extends Event> @NotNull RegisteredEventSubscription<E> register(
+    <E extends Event> @NotNull RegisteredEventSubscription register(
             @NotNull T namespace,
             @NotNull Class<E> type,
             @NotNull Consumer<@NotNull E> subscription
     );
 
     /**
-     * Зарегистрировать слушатель.
+     * Зарегистрировать подписку на событие.
      *
      * @param namespace    Неймспейс
      * @param type         Класс события
@@ -81,7 +81,7 @@ public interface EventBusRegisterer<T extends SubscribeNamespace> {
      * @param <E>          Тип события
      * @return Зарегистрированный слушатель
      */
-    <E extends Event> @NotNull RegisteredEventSubscription<E> register(
+    <E extends Event> @NotNull RegisteredEventSubscription register(
             @NotNull T namespace,
             @NotNull Class<E> type,
             @NotNull PostOrder order,

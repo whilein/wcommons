@@ -18,11 +18,14 @@ package w.eventbus;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
+
+import java.util.Set;
 
 /**
  * @author whilein
  */
-public interface RegisteredEventSubscription<T extends Event> extends Comparable<RegisteredEventSubscription<?>> {
+public interface RegisteredEventSubscription extends Comparable<RegisteredEventSubscription> {
 
     /**
      * Получить объект, которому принадлежит обработчик.
@@ -67,10 +70,10 @@ public interface RegisteredEventSubscription<T extends Event> extends Comparable
     boolean isIgnoreCancelled();
 
     /**
-     * Получить тип события, на которого действует данная подписка.
+     * Получить типы событий, на которые действует данная подписка.
      *
-     * @return Тип события
+     * @return Типы событий
      */
-    @NotNull Class<T> getEvent();
+    @Unmodifiable @NotNull Set<@NotNull Class<? extends Event>> getEvents();
 
 }

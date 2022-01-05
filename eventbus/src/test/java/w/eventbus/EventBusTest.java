@@ -40,6 +40,39 @@ class EventBusTest implements SubscribeNamespace {
         bus = SimpleEventBus.create();
     }
 
+    public static class EntityDamageEvent implements Event {
+
+    }
+
+    public static class EntityDamageByEntityEvent extends EntityDamageEvent {
+
+    }
+
+    public static class ChildListener {
+
+        @Subscribe
+        void catchDamage(final EntityDamageEvent event) {
+            System.out.println("DAMAGE CAUGHT: " + event);
+        }
+
+    }
+
+    public static class ParentListener extends ChildListener {
+
+        @Subscribe(exactEvent = false)
+        void catchDamageByEntity(final EntityDamageByEntityEvent event) {
+            System.out.println("DAMAGE BY ENTITY CAUGHT: " + event);
+        }
+
+    }
+
+    @Test
+    void testInheritance() {
+        bus.register(this, new ParentListener());
+        // bus.dispatch(new EntityDamageEvent());
+        bus.dispatch(new EntityDamageByEntityEvent());
+    }
+
     @Test
     @SneakyThrows
     void testDifferentClassLoaderDispatch() {
