@@ -20,7 +20,10 @@ package w.config;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -30,8 +33,8 @@ import java.io.IOException;
  */
 public final class JsonConfigParser extends AbstractJacksonConfigParser {
 
-    private JsonConfigParser(final ObjectMapper objectMapper) {
-        super(objectMapper);
+    private JsonConfigParser(final ObjectWriter objectWriter, final ObjectReader objectReader) {
+        super(objectWriter, objectReader);
     }
 
     private static final class ConfigPrettyPrinter extends DefaultPrettyPrinter {
@@ -46,10 +49,14 @@ public final class JsonConfigParser extends AbstractJacksonConfigParser {
         }
     }
 
+    public static final @NotNull ConfigParser INSTANCE = create();
+
     public static @NotNull ConfigParser create() {
-        return new JsonConfigParser(new ObjectMapper()
+        val mapper = new ObjectMapper()
                 .enable(SerializationFeature.INDENT_OUTPUT)
-                .setDefaultPrettyPrinter(new ConfigPrettyPrinter()));
+                .setDefaultPrettyPrinter(new ConfigPrettyPrinter());
+
+        return new JsonConfigParser(mapper.writerWithDefaultPrettyPrinter(), mapper.reader());
     }
 
 

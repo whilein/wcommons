@@ -16,7 +16,8 @@
 
 package w.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -24,6 +25,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface JacksonConfigParser extends ConfigParser {
 
-    @NotNull ObjectMapper getObjectMapper();
+    @NotNull ObjectWriter getObjectWriter();
+
+    @NotNull ObjectReader getObjectReader();
 
 }

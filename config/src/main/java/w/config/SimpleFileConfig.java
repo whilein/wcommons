@@ -43,8 +43,6 @@ public final class SimpleFileConfig implements FileConfig {
 
     private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 
-    private static final ConfigParser JSON = JsonConfigParser.create(), YAML = YamlConfigParser.create();
-
     private interface Src {
 
         boolean exists();
@@ -134,10 +132,10 @@ public final class SimpleFileConfig implements FileConfig {
         switch (extension) {
             case "yml":
             case "yaml":
-                parser = YAML;
+                parser = YamlConfigParser.INSTANCE;
                 break;
             case "json":
-                parser = JSON;
+                parser = JsonConfigParser.INSTANCE;
                 break;
             default:
                 throw new IllegalStateException("Cannot find config parser for " + fileName);

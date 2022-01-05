@@ -16,7 +16,8 @@
 
 package w.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +46,10 @@ import java.util.Map;
 public abstract class AbstractJacksonConfigParser implements JacksonConfigParser {
 
     @Getter
-    ObjectMapper objectMapper;
+    ObjectWriter objectWriter;
+
+    @Getter
+    ObjectReader objectReader;
 
     private ConfigObject loadObject(final Map<?, ?> map) {
         val object = new ConfigObjectImpl(new LinkedHashMap<>());
@@ -65,6 +69,46 @@ public abstract class AbstractJacksonConfigParser implements JacksonConfigParser
                 object.set(key, value);
             }
         }
+    }
+
+    @Override
+    @SneakyThrows
+    public <E> @NotNull E parse(final @NotNull File file, final @NotNull Class<E> type) {
+        try (val fis = new FileInputStream(file)) {
+            return _parse(fis, type);
+        }
+    }
+
+    @Override
+    @SneakyThrows
+    public <E> @NotNull E parse(final @NotNull Path path, final @NotNull Class<E> type) {
+        try (val is = Files.newInputStream(path)) {
+            return _parse(is, type);
+        }
+    }
+
+    @Override
+    @SneakyThrows
+    public <E> @NotNull E parse(final @NotNull Reader reader, final @NotNull Class<E> type) {
+        return objectReader.readValue(reader, type);
+    }
+
+    @Override
+    @SneakyThrows
+    public <E> @NotNull E parse(final @NotNull InputStream stream, final @NotNull Class<E> type) {
+        return objectReader.readValue(stream, type);
+    }
+
+    @Override
+    @SneakyThrows
+    public <E> @NotNull E parse(final @NotNull String input, final @NotNull Class<E> type) {
+        return objectReader.readValue(input, type);
+    }
+
+    @Override
+    @SneakyThrows
+    public <E> @NotNull E parse(final byte @NotNull [] input, final @NotNull Class<E> type) {
+        return objectReader.readValue(input, type);
     }
 
     @Override
@@ -91,19 +135,19 @@ public abstract class AbstractJacksonConfigParser implements JacksonConfigParser
     @Override
     @SneakyThrows
     public @NotNull ConfigObject parse(final @NotNull String input) {
-        return loadObject(objectMapper.readValue(input, Map.class));
+        return loadObject(objectReader.readValue(input, Map.class));
     }
 
     @Override
     @SneakyThrows
     public @NotNull ConfigObject parse(final byte @NotNull [] input) {
-        return loadObject(objectMapper.readValue(input, Map.class));
+        return loadObject(objectReader.readValue(input, Map.class));
     }
 
     @Override
     @SneakyThrows
     public @NotNull ConfigObject parse(final @NotNull Reader reader) {
-        return loadObject(objectMapper.readValue(reader, Map.class));
+        return loadObject(objectReader.readValue(reader, Map.class));
     }
 
     @Override
@@ -113,7 +157,11 @@ public abstract class AbstractJacksonConfigParser implements JacksonConfigParser
     }
 
     private ConfigObject _parse(final InputStream is) throws IOException {
-        return loadObject(objectMapper.readValue(is, Map.class));
+        return loadObject(objectReader.readValue(is, Map.class));
+    }
+
+    private <E> E _parse(final InputStream is, final Class<E> type) throws IOException {
+        return objectReader.readValue(is, type);
     }
 
     private final class ConfigObjectImpl extends AbstractMapConfigObject {
@@ -125,7 +173,7 @@ public abstract class AbstractJacksonConfigParser implements JacksonConfigParser
         @Override
         @SneakyThrows
         public String toString() {
-            return objectMapper.writeValueAsString(map);
+            return objectWriter.writeValueAsString(map);
         }
 
         @Override
@@ -136,13 +184,13 @@ public abstract class AbstractJacksonConfigParser implements JacksonConfigParser
         @Override
         @SneakyThrows
         public void writeTo(final @NotNull Writer writer) {
-            objectMapper.writeValue(writer, map);
+            objectWriter.writeValue(writer, map);
         }
 
         @Override
         @SneakyThrows
         public void writeTo(final @NotNull OutputStream os) {
-            objectMapper.writeValue(os, map);
+            objectWriter.writeValue(os, map);
         }
     }
 }

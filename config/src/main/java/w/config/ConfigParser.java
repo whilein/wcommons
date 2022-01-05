@@ -28,6 +28,18 @@ import java.nio.file.Path;
  */
 public interface ConfigParser {
 
+    <E> @NotNull E parse(@NotNull File file, @NotNull Class<E> type);
+
+    <E> @NotNull E parse(@NotNull Path path, @NotNull Class<E> type);
+
+    <E> @NotNull E parse(@NotNull Reader reader, @NotNull Class<E> type);
+
+    <E> @NotNull E parse(@NotNull InputStream stream, @NotNull Class<E> type);
+
+    <E> @NotNull E parse(@NotNull String input, @NotNull Class<E> type);
+
+    <E> @NotNull E parse(byte @NotNull [] input, @NotNull Class<E> type);
+
     @NotNull ConfigObject newObject();
 
     @NotNull ConfigObject parse(@NotNull File file);

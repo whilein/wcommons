@@ -18,9 +18,12 @@ package w.config;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -28,14 +31,18 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class YamlConfigParser extends AbstractJacksonConfigParser {
 
-    private YamlConfigParser(final ObjectMapper objectMapper) {
-        super(objectMapper);
+    private YamlConfigParser(final ObjectWriter objectWriter, final ObjectReader objectReader) {
+        super(objectWriter, objectReader);
     }
 
+    public static final @NotNull ConfigParser INSTANCE = create();
+
     public static @NotNull YamlConfigParser create() {
-        return new YamlConfigParser(new ObjectMapper(new YAMLFactory()
+        val mapper = new ObjectMapper(new YAMLFactory()
                 .configure(YAMLParser.Feature.EMPTY_STRING_AS_NULL, false)
-                .configure(YAMLGenerator.Feature.WRITE_DOC_START_MARKER, false)));
+                .configure(YAMLGenerator.Feature.WRITE_DOC_START_MARKER, false));
+
+        return new YamlConfigParser(mapper.writer(), mapper.reader());
     }
 
 }
