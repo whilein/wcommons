@@ -112,13 +112,13 @@ public final class SimpleFileConfig implements FileConfig {
 
     Src src;
 
-    ConfigParser parser;
+    ConfigProvider provider;
 
     @NonFinal
     @Delegate(types = ConfigObject.class)
     ConfigObject delegate;
 
-    private static ConfigParser _findParser(final String fileName) {
+    private static ConfigProvider _findProvider(final String fileName) {
         val extensionSeparator = fileName.lastIndexOf('.');
 
         if (extensionSeparator == -1) {
@@ -127,31 +127,31 @@ public final class SimpleFileConfig implements FileConfig {
 
         val extension = fileName.substring(extensionSeparator + 1);
 
-        final ConfigParser parser;
+        final ConfigProvider provider;
 
         switch (extension) {
             case "yml":
             case "yaml":
-                parser = YamlConfigParser.INSTANCE;
+                provider = YamlConfigProvider.INSTANCE;
                 break;
             case "json":
-                parser = JsonConfigParser.INSTANCE;
+                provider = JsonConfigProvider.INSTANCE;
                 break;
             default:
-                throw new IllegalStateException("Cannot find config parser for " + fileName);
+                throw new IllegalStateException("Cannot find config provider for " + fileName);
         }
 
-        return parser;
+        return provider;
     }
 
     @SneakyThrows
     private static FileConfig _create(
             final Path path,
-            final ConfigParser parser
+            final ConfigProvider provider
     ) {
         val absolutePath = path.toAbsolutePath();
 
-        val config = new SimpleFileConfig(new NioSrc(absolutePath, absolutePath.getParent()), parser);
+        val config = new SimpleFileConfig(new NioSrc(absolutePath, absolutePath.getParent()), provider);
         config.reload();
 
         return config;
@@ -160,11 +160,11 @@ public final class SimpleFileConfig implements FileConfig {
     @SneakyThrows
     private static FileConfig _create(
             final File file,
-            final ConfigParser parser
+            final ConfigProvider provider
     ) {
         val canonicalFile = file.getCanonicalFile();
 
-        val config = new SimpleFileConfig(new IoSrc(canonicalFile, canonicalFile.getParentFile()), parser);
+        val config = new SimpleFileConfig(new IoSrc(canonicalFile, canonicalFile.getParentFile()), provider);
         config.reload();
 
         return config;
@@ -173,20 +173,20 @@ public final class SimpleFileConfig implements FileConfig {
     private static FileConfig _create(
             final Path path
     ) {
-        return _create(path, _findParser(path.getFileName().toString()));
+        return _create(path, _findProvider(path.getFileName().toString()));
     }
 
     private static FileConfig _create(
             final File file
     ) {
-        return _create(file, _findParser(file.getName()));
+        return _create(file, _findProvider(file.getName()));
     }
 
     public static @NotNull FileConfig create(
             final @NotNull Path path,
-            final @NotNull ConfigParser parser
+            final @NotNull ConfigProvider provider
     ) {
-        return _create(path, parser);
+        return _create(path, provider);
     }
 
     public static @NotNull FileConfig create(final @NotNull Path path) {
@@ -195,24 +195,24 @@ public final class SimpleFileConfig implements FileConfig {
 
     public static @NotNull FileConfig create(
             final @NotNull File file,
-            final @NotNull ConfigParser parser
+            final @NotNull ConfigProvider provider
     ) {
-        return _create(file, parser);
+        return _create(file, provider);
     }
 
     public static @NotNull FileConfig create(
             final @NotNull String name,
-            final @NotNull ConfigParser parser
+            final @NotNull ConfigProvider provider
     ) {
-        return _create(new File(name), parser);
+        return _create(new File(name), provider);
     }
 
     public static @NotNull FileConfig create(
             final @NotNull File parent,
             final @NotNull String name,
-            final @NotNull ConfigParser parser
+            final @NotNull ConfigProvider provider
     ) {
-        return _create(new File(parent, name), parser);
+        return _create(new File(parent, name), provider);
     }
 
     public static @NotNull FileConfig create(final @NotNull File file) {
@@ -234,9 +234,9 @@ public final class SimpleFileConfig implements FileConfig {
     public static @NotNull FileConfig create(
             final @NotNull String parent,
             final @NotNull String name,
-            final @NotNull ConfigParser parser
+            final @NotNull ConfigProvider provider
     ) {
-        return _create(new File(parent, name), parser);
+        return _create(new File(parent, name), provider);
     }
 
     @Override
@@ -262,7 +262,7 @@ public final class SimpleFileConfig implements FileConfig {
                     throw new IllegalStateException("Cannot save defaults: no " + resource + " found");
                 }
 
-                delegate = parser.parse(resourceStream);
+                delegate = provider.parse(resourceStream);
 
                 try (val os = src.openOutput()) {
                     delegate.writeTo(os);
@@ -277,12 +277,12 @@ public final class SimpleFileConfig implements FileConfig {
     public void reload() {
         if (src.exists()) {
             try (val is = src.openInput()) {
-                delegate = parser.parse(is);
+                delegate = provider.parse(is);
             } catch (final Exception e) {
-                delegate = parser.newObject();
+                delegate = provider.newObject();
             }
         } else {
-            delegate = parser.newObject();
+            delegate = provider.newObject();
         }
     }
 }

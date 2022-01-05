@@ -29,20 +29,20 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author whilein
  */
-public final class YamlConfigParser extends AbstractJacksonConfigParser {
+public final class YamlConfigProvider extends AbstractJacksonConfigProvider {
 
-    private YamlConfigParser(final ObjectWriter objectWriter, final ObjectReader objectReader) {
+    private YamlConfigProvider(final ObjectWriter objectWriter, final ObjectReader objectReader) {
         super(objectWriter, objectReader);
     }
 
-    public static final @NotNull ConfigParser INSTANCE = create();
+    public static final @NotNull ConfigProvider INSTANCE = create();
 
-    public static @NotNull YamlConfigParser create() {
+    public static @NotNull YamlConfigProvider create() {
         val mapper = new ObjectMapper(new YAMLFactory()
                 .configure(YAMLParser.Feature.EMPTY_STRING_AS_NULL, false)
                 .configure(YAMLGenerator.Feature.WRITE_DOC_START_MARKER, false));
 
-        return new YamlConfigParser(mapper.writer(), mapper.reader());
+        return new YamlConfigProvider(mapper.writer(), mapper.reader());
     }
 
 }

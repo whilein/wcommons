@@ -9,6 +9,7 @@
 - ["Шина событий"](eventbus)
 - [Индексирование аннотаций](annotation-index)
 - [Изменение байткода в рантайме](asm-patcher)
+- [Java агент](agent)
 - [Flow](flow)
 - [Загрузка реализаций](impl-loader)
 - [ASM](asm)
@@ -23,8 +24,8 @@
   - Root
 - [Конфигурация](config)
   - SimpleFileConfig
-  - YamlConfigParser
-    - JsonConfigParser
+  - YamlConfigProvider
+  - JsonConfigProvider
 - Геолокация
   - [Апи](geo-api)
   - [Реализация maxmind](geo-maxmind-impl)

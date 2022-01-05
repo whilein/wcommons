@@ -16,6 +16,7 @@
 
 package w.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.jetbrains.annotations.NotNull;
@@ -23,10 +24,19 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author whilein
  */
-public interface JacksonConfigParser extends ConfigParser {
+public final class CustomJacksonConfigProvider extends AbstractJacksonConfigProvider {
 
-    @NotNull ObjectWriter getObjectWriter();
+    private CustomJacksonConfigProvider(final ObjectWriter objectWriter, final ObjectReader objectReader) {
+        super(objectWriter, objectReader);
+    }
 
-    @NotNull ObjectReader getObjectReader();
+    public static @NotNull CustomJacksonConfigProvider create(final @NotNull ObjectMapper objectMapper) {
+        return new CustomJacksonConfigProvider(objectMapper.writer(), objectMapper.reader());
+    }
+
+    public static @NotNull CustomJacksonConfigProvider create(final @NotNull ObjectWriter objectWriter,
+                                                              final @NotNull ObjectReader objectReader) {
+        return new CustomJacksonConfigProvider(objectWriter, objectReader);
+    }
 
 }

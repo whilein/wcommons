@@ -31,16 +31,16 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  */
 final class ConfigObjectTests {
 
-    static ConfigParser parser;
+    static ConfigProvider provider;
 
     @BeforeAll
     static void setup() {
-        parser = YamlConfigParser.create();
+        provider = YamlConfigProvider.create();
     }
 
     @Test
     void booleanKey() {
-        val object = parser.parse("keys:\n" +
+        val object = provider.parse("keys:\n" +
                 "  yes: 111\n");
 
         assertFalse(object.isEmpty());
@@ -55,7 +55,7 @@ final class ConfigObjectTests {
 
     @Test
     void integerKey() {
-        val object = parser.parse("keys:\n" +
+        val object = provider.parse("keys:\n" +
                 "  123: 111\n");
 
         assertFalse(object.isEmpty());
@@ -70,7 +70,7 @@ final class ConfigObjectTests {
 
     @Test
     void parseString() {
-        val object = parser.parse("message: 'Hello world!'\n");
+        val object = provider.parse("message: 'Hello world!'\n");
 
         assertFalse(object.isEmpty());
         assertEquals(1, object.size());
@@ -79,7 +79,7 @@ final class ConfigObjectTests {
 
     @Test
     void parseInteger() {
-        val object = parser.parse("counter: 1234567890\n");
+        val object = provider.parse("counter: 1234567890\n");
 
         assertFalse(object.isEmpty());
         assertEquals(1, object.size());
@@ -88,7 +88,7 @@ final class ConfigObjectTests {
 
     @Test
     void objectList() {
-        val object = parser.parse(
+        val object = provider.parse(
                 "items:\n" +
                         "  - id: 'a'\n" +
                         "    counter: 0\n" +

@@ -31,9 +31,9 @@ import java.io.IOException;
 /**
  * @author whilein
  */
-public final class JsonConfigParser extends AbstractJacksonConfigParser {
+public final class JsonConfigProvider extends AbstractJacksonConfigProvider {
 
-    private JsonConfigParser(final ObjectWriter objectWriter, final ObjectReader objectReader) {
+    private JsonConfigProvider(final ObjectWriter objectWriter, final ObjectReader objectReader) {
         super(objectWriter, objectReader);
     }
 
@@ -49,14 +49,14 @@ public final class JsonConfigParser extends AbstractJacksonConfigParser {
         }
     }
 
-    public static final @NotNull ConfigParser INSTANCE = create();
+    public static final @NotNull ConfigProvider INSTANCE = create();
 
-    public static @NotNull ConfigParser create() {
+    public static @NotNull ConfigProvider create() {
         val mapper = new ObjectMapper()
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .setDefaultPrettyPrinter(new ConfigPrettyPrinter());
 
-        return new JsonConfigParser(mapper.writerWithDefaultPrettyPrinter(), mapper.reader());
+        return new JsonConfigProvider(mapper.writerWithDefaultPrettyPrinter(), mapper.reader());
     }
 
 

@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -43,7 +44,7 @@ import java.util.Map;
  */
 @FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class AbstractJacksonConfigParser implements JacksonConfigParser {
+public abstract class AbstractJacksonConfigProvider implements JacksonConfigProvider {
 
     @Getter
     ObjectWriter objectWriter;
@@ -73,41 +74,81 @@ public abstract class AbstractJacksonConfigParser implements JacksonConfigParser
 
     @Override
     @SneakyThrows
-    public <E> @NotNull E parse(final @NotNull File file, final @NotNull Class<E> type) {
+    public void save(final @NotNull File file, final @NotNull Object object) {
+        try (val fos = new FileOutputStream(file)) {
+            objectWriter.writeValue(fos, object);
+        }
+    }
+
+    @Override
+    @SneakyThrows
+    public void save(final @NotNull Path path, final @NotNull Object object) {
+        try (val os = Files.newOutputStream(path)) {
+            objectWriter.writeValue(os, object);
+        }
+    }
+
+    @Override
+    @SneakyThrows
+    public void save(final @NotNull Writer writer, final @NotNull Object object) {
+        objectWriter.writeValue(writer, object);
+    }
+
+    @Override
+    @SneakyThrows
+    public void save(final @NotNull OutputStream stream, final @NotNull Object object) {
+        objectWriter.writeValue(stream, object);
+    }
+
+    @Override
+    @SneakyThrows
+    public @NotNull String saveAsString(final @NotNull Object object) {
+        return objectWriter.writeValueAsString(object);
+    }
+
+    @Override
+    @SneakyThrows
+    public byte @NotNull [] saveAsBytes(final @NotNull Object object) {
+        return objectWriter.writeValueAsBytes(object);
+    }
+
+    @Override
+    @SneakyThrows
+    public <E> @NotNull E load(final @NotNull File file, final @NotNull Class<E> type) {
         try (val fis = new FileInputStream(file)) {
-            return _parse(fis, type);
+            return objectReader.readValue(fis, type);
         }
     }
 
     @Override
     @SneakyThrows
-    public <E> @NotNull E parse(final @NotNull Path path, final @NotNull Class<E> type) {
+    public <E> @NotNull E load(final @NotNull Path path, final @NotNull Class<E> type) {
         try (val is = Files.newInputStream(path)) {
-            return _parse(is, type);
+            return objectReader.readValue(is, type);
         }
     }
 
     @Override
     @SneakyThrows
-    public <E> @NotNull E parse(final @NotNull Reader reader, final @NotNull Class<E> type) {
+    public <E> @NotNull E load(final @NotNull Reader reader, final @NotNull Class<E> type) {
         return objectReader.readValue(reader, type);
     }
 
     @Override
     @SneakyThrows
-    public <E> @NotNull E parse(final @NotNull InputStream stream, final @NotNull Class<E> type) {
+    public <E> @NotNull E load(final @NotNull InputStream stream, final @NotNull Class<E> type) {
         return objectReader.readValue(stream, type);
     }
 
     @Override
     @SneakyThrows
-    public <E> @NotNull E parse(final @NotNull String input, final @NotNull Class<E> type) {
+    public <E> @NotNull E load(final @NotNull String input, final @NotNull Class<E> type) {
         return objectReader.readValue(input, type);
     }
 
     @Override
     @SneakyThrows
-    public <E> @NotNull E parse(final byte @NotNull [] input, final @NotNull Class<E> type) {
+    public <E> @NotNull E load(final byte @NotNull [] input, final @NotNull Class<E> type) {
         return objectReader.readValue(input, type);
     }
 
@@ -158,10 +199,6 @@ public abstract class AbstractJacksonConfigParser implements JacksonConfigParser
 
     private ConfigObject _parse(final InputStream is) throws IOException {
         return loadObject(objectReader.readValue(is, Map.class));
-    }
-
-    private <E> E _parse(final InputStream is, final Class<E> type) throws IOException {
-        return objectReader.readValue(is, type);
     }
 
     private final class ConfigObjectImpl extends AbstractMapConfigObject {
