@@ -243,12 +243,6 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
             mv.visitLabel(endIgnoreCancelled);
         }
 
-        makeExecute(
-                mv, () -> makePostDispatch(mv),
-                "Error occurred whilst executing Event#postDispatch",
-                safe
-        );
-
         mv.visitInsn(RETURN);
         mv.visitMaxs(2, safe ? 4 : 3);
         mv.visitEnd();
@@ -287,13 +281,6 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
         mv.visitVarInsn(ALOAD, 3);
         mv.visitMethodInsn(INVOKEINTERFACE, "org/slf4j/Logger", "error",
                 "(Ljava/lang/String;Ljava/lang/Throwable;)V", true);
-    }
-
-    private void makePostDispatch(final MethodVisitor mv) {
-        mv.visitVarInsn(ALOAD, 1);
-
-        mv.visitMethodInsn(INVOKEINTERFACE, "w/eventbus/Event", "postDispatch",
-                "()V", true);
     }
 
     private void bake(
@@ -506,6 +493,8 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
         if (dispatcher != null) {
             dispatcher.dispatch(event);
         }
+
+        postDispatch(event);
     }
 
     @Override
@@ -518,6 +507,16 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
             } catch (final Exception e) {
                 logger.error("Error occurred whilst dispatching " + event.getClass(), e);
             }
+        }
+
+        postDispatch(event);
+    }
+
+    private void postDispatch(final Event event) {
+        try {
+            event.postDispatch();
+        } catch (final Throwable t) {
+            logger.error("Error occurred whilst executing Event#postDispatch", t);
         }
     }
 
