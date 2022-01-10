@@ -20,7 +20,9 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import w.util.ObjectUtils;
 
 import java.util.function.Supplier;
 
@@ -37,8 +39,6 @@ import java.util.function.Supplier;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ConcurrentLazy<T> implements Lazy<T> {
 
-    private static final Object EMPTY = new Object[0];
-
     Supplier<T> supplier;
 
     T empty;
@@ -48,19 +48,19 @@ public final class ConcurrentLazy<T> implements Lazy<T> {
 
     Object mutex;
 
-    @SuppressWarnings("unchecked")
     public static <T> @NotNull Lazy<T> create(
             final @NotNull Supplier<T> supplier,
             final @NotNull Object mutex
     ) {
-        return new ConcurrentLazy<>(supplier, (T) EMPTY, (T) EMPTY, mutex);
+        val empty = ObjectUtils.<T>empty();
+        return new ConcurrentLazy<>(supplier, empty, empty, mutex);
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> @NotNull Lazy<T> create(
             final @NotNull Supplier<T> supplier
     ) {
-        return new ConcurrentLazy<>(supplier, (T) EMPTY, (T) EMPTY, new Object[0]);
+        val empty = ObjectUtils.<T>empty();
+        return new ConcurrentLazy<>(supplier, empty, empty, new Object[0]);
     }
 
     @Override

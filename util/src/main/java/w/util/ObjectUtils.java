@@ -31,6 +31,8 @@ public class ObjectUtils {
 
     private final MethodHandle CLONE;
 
+    private final Object EMPTY = new Object[0];
+
     static {
         try {
             CLONE = Root.trustedLookupIn(Object.class).findVirtual(Object.class, "clone",
@@ -38,6 +40,11 @@ public class ObjectUtils {
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> @NotNull T empty() {
+        return (T) EMPTY;
     }
 
     @SneakyThrows

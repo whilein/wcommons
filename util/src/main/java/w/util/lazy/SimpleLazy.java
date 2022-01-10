@@ -20,7 +20,9 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import w.util.ObjectUtils;
 
 import java.util.function.Supplier;
 
@@ -36,8 +38,6 @@ import java.util.function.Supplier;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SimpleLazy<T> implements Lazy<T> {
 
-    private static final Object EMPTY = new Object[0];
-
     Supplier<T> supplier;
 
     T empty;
@@ -45,9 +45,9 @@ public final class SimpleLazy<T> implements Lazy<T> {
     @NonFinal
     T value;
 
-    @SuppressWarnings("unchecked")
     public static <T> @NotNull Lazy<T> create(final @NotNull Supplier<T> supplier) {
-        return new SimpleLazy<>(supplier, (T) EMPTY, (T) EMPTY);
+        val empty = ObjectUtils.<T>empty();
+        return new SimpleLazy<>(supplier, empty, empty);
     }
 
     @Override

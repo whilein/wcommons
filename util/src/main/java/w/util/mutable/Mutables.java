@@ -21,7 +21,9 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.experimental.UtilityClass;
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import w.util.ObjectUtils;
 
 import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
@@ -32,8 +34,6 @@ import java.util.function.Supplier;
  */
 @UtilityClass
 public class Mutables {
-
-    private static final Object EMPTY = new Object[0];
 
     public @NotNull MutableLong newLong(final long value) {
         return new MutableLongImpl(value);
@@ -59,14 +59,14 @@ public class Mutables {
         return new MutableReferenceImpl<>(value);
     }
 
-    @SuppressWarnings("unchecked")
     public <T> @NotNull MutableOptionalReference<T> newOptionalReference() {
-        return new MutableOptionalReferenceImpl<>((T) EMPTY, (T) EMPTY);
+        val empty = ObjectUtils.<T>empty();
+        return new MutableOptionalReferenceImpl<>(empty, empty);
     }
 
-    @SuppressWarnings("unchecked")
     public <T> @NotNull MutableOptionalReference<T> newOptionalReference(final T value) {
-        return new MutableOptionalReferenceImpl<>(value, (T) EMPTY);
+        val empty = ObjectUtils.<T>empty();
+        return new MutableOptionalReferenceImpl<>(value, empty);
     }
 
     public @NotNull MutableOptionalLong newOptionalLong() {
