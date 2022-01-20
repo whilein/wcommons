@@ -25,6 +25,8 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
@@ -227,6 +229,51 @@ public class ClassLoaderUtils {
             final boolean loadIfNeeded
     ) {
         return _getClass(ClassLoaderUtils.class.getClassLoader(), className, loadIfNeeded);
+    }
+
+    public @Nullable Field getField(
+            final @NotNull ClassLoader cl,
+            final @NotNull String className,
+            final @NotNull String fieldName) {
+        try {
+            return cl.loadClass(className).getDeclaredField(fieldName);
+        } catch (final Exception e) {
+            return null;
+        }
+    }
+
+    public @Nullable Method getMethod(
+            final @NotNull ClassLoader cl,
+            final @NotNull String className,
+            final @NotNull String methodName,
+            final @NotNull String @NotNull [] parameters,
+            final @NotNull String returnType
+    ) {
+        try {
+            val type = cl.loadClass(className);
+
+            methodLoop:
+            for (val method : type.getDeclaredMethods()) {
+                if (method.getName().equals(methodName) && method.getReturnType().getName().equals(returnType)) {
+                    val parameterTypes = method.getParameterTypes();
+
+                    if (parameters.length != parameterTypes.length) {
+                        continue;
+                    }
+
+                    for (int i = 0, j = parameters.length; i < j; i++) {
+                        if (!parameters[i].equals(parameterTypes[i].getName())) {
+                            continue methodLoop;
+                        }
+                    }
+
+                    return method;
+                }
+            }
+        } catch (final Exception ignored) {
+        }
+
+        return null;
     }
 
     public @Nullable Class<?> getClass(final @NonNull String className) {
