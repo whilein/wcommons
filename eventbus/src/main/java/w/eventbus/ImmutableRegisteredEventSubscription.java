@@ -34,7 +34,7 @@ import java.util.Set;
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ImmutableRegisteredEventSubscription implements RegisteredEventSubscription {
+public final class ImmutableRegisteredEventSubscription implements RegisteredSubscription {
     AsmDispatchWriter dispatchWriter;
 
     Object owner;
@@ -61,7 +61,7 @@ public final class ImmutableRegisteredEventSubscription implements RegisteredEve
      * @param events          Типы событий
      * @return Новая иммутабельная побписка на события
      */
-    public static @NotNull RegisteredEventSubscription create(
+    public static @NotNull RegisteredSubscription create(
             final @NotNull AsmDispatchWriter dispatchWriter,
             final @Nullable Object owner,
             final @NotNull Class<?> ownerType,
@@ -75,7 +75,7 @@ public final class ImmutableRegisteredEventSubscription implements RegisteredEve
     }
 
     @Override
-    public int compareTo(final @NotNull RegisteredEventSubscription o) {
+    public int compareTo(final @NotNull RegisteredSubscription o) {
         val compareOrder = postOrder.compareTo(o.getPostOrder());
 
         if (compareOrder != 0) {

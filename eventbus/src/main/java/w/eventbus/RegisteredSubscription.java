@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  * @author whilein
  */
-public interface RegisteredEventSubscription extends Comparable<RegisteredEventSubscription> {
+public interface RegisteredSubscription extends Comparable<RegisteredSubscription> {
 
     /**
      * Получить объект, которому принадлежит обработчик.

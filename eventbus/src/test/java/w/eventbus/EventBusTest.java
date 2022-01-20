@@ -20,6 +20,7 @@ import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import w.eventbus.debug.LoggingEventBusDebugger;
 import w.util.ClassLoaderUtils;
 
 import java.net.URL;
@@ -38,6 +39,7 @@ class EventBusTest implements SubscribeNamespace {
     @BeforeEach
     void setup() {
         bus = SimpleEventBus.create();
+        bus.addDebugger(LoggingEventBusDebugger.INSTANCE);
     }
 
     public static class EntityDamageEvent implements Event {

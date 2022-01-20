@@ -33,6 +33,7 @@ import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static w.asm.Asm.methodDescriptor;
 
 /**
  * @author whilein
@@ -120,7 +121,7 @@ public class AsmDispatchWriters {
             mv.visitVarInsn(ALOAD, 1);
 
             mv.visitMethodInsn(INVOKEINTERFACE, TYPE.getInternalName(), "accept",
-                    "(Ljava/lang/Object;)V", true);
+                    methodDescriptor(void.class, Object.class), true);
         }
     }
 
