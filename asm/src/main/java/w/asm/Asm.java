@@ -60,7 +60,8 @@ public class Asm {
             DOUBLE = "D";
 
     public final @NotNull String
-            OBJECT_TYPE = "java/lang/Object";
+            OBJECT_TYPE = "java/lang/Object",
+            EXCEPTION_TYPE = "java/lang/Exception";
 
     public @NotNull String methodDescriptor(
             final @NotNull Class<?> returnType,
