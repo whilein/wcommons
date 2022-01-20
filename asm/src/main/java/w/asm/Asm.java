@@ -48,6 +48,48 @@ public class Asm {
      */
     public final @NotNull String MAGIC_ACCESSOR_BRIDGE_NAME = "w/asm/MagicAccessorImpl";
 
+    public final @NotNull String
+            OBJECT = "Ljava/lang/Object;",
+            VOID = "V",
+            BOOLEAN = "Z",
+            BYTE = "B",
+            SHORT = "S",
+            INT = "I",
+            LONG = "J",
+            FLOAT = "F",
+            DOUBLE = "D";
+
+    public final @NotNull String
+            OBJECT_TYPE = "java/lang/Object";
+
+    public @NotNull String methodDescriptor(
+            final @NotNull Class<?> returnType,
+            final @NotNull Class<?> @NotNull ... parameters
+    ) {
+        val result = new StringBuilder();
+        result.append('(');
+
+        for (val parameter : parameters) {
+            result.append(Type.getDescriptor(parameter));
+        }
+
+        return result.append(')').append(Type.getDescriptor(returnType)).toString();
+    }
+
+    public @NotNull String methodDescriptor(
+            final @NotNull String returnType,
+            final @NotNull String @NotNull ... parameters
+    ) {
+        val result = new StringBuilder();
+        result.append('(');
+
+        for (val parameter : parameters) {
+            result.append(parameter);
+        }
+
+        return result.append(')').append(returnType).toString();
+    }
+
     static {
         val magicAccessorImpl = Root.MAGIC_ACCESSOR_IMPL_TYPE;
 
