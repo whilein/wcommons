@@ -124,21 +124,11 @@ public interface EventBus<T extends SubscribeNamespace> {
 
     <E extends AsyncEvent> @NotNull CompletableFuture<E> dispatchAsync(@NotNull E event);
 
-    <E extends AsyncEvent> @NotNull CompletableFuture<E> unsafeDispatchAsync(@NotNull E event);
-
     /**
      * Отправить событие на все слушатели, которые подписаны на него.
      *
      * @param event Событие
      */
     void dispatch(@NotNull Event event);
-
-    /**
-     * Отправить событие на все слушатели, которые подписаны на него.
-     * Если произойдёт ошибка в одном из слушателей, то выполнение оборвётся на нём.
-     *
-     * @param event Событие
-     */
-    void unsafeDispatch(@NotNull Event event);
 
 }

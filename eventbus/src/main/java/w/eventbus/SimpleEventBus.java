@@ -28,7 +28,6 @@ import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
@@ -46,7 +45,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -64,7 +62,6 @@ import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static w.asm.Asm.BOOLEAN;
 import static w.asm.Asm.OBJECT_TYPE;
 import static w.asm.Asm.methodDescriptor;
 
@@ -105,7 +102,7 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
      */
     public static <T extends SubscribeNamespace> @NotNull EventBus<T> create(final @NotNull Logger logger) {
         return new SimpleEventBus<>(logger, null, new Object[0],
-                new ArrayList<>(), new HashMap<>(), new HashMap<>(), new WeakHashMap<>());
+                new ArrayList<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
     }
 
     /**
@@ -193,104 +190,6 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
         }
 
         this.dispatchers = dispatchers;
-    }
-
-    private void makeDispatch(
-            final Map<Object, Field> fields,
-            final Class<?> type,
-            final List<RegisteredSubscription> subscriptions,
-            final MethodVisitor mv,
-            final boolean safe
-    ) {
-        mv.visitVarInsn(ALOAD, 1);
-        mv.visitTypeInsn(CHECKCAST, Type.getInternalName(type));
-        mv.visitVarInsn(ASTORE, 1);
-
-        boolean hasCastToCancellable = false;
-        Label endIgnoreCancelled = null;
-
-        for (val subscription : subscriptions) {
-            val writer = subscription.getDispatchWriter();
-
-            if (subscription.isIgnoreCancelled()) {
-                if (!hasCastToCancellable) {
-                    mv.visitVarInsn(ALOAD, 1);
-                    mv.visitTypeInsn(CHECKCAST, Type.getInternalName(Cancellable.class));
-                    mv.visitVarInsn(ASTORE, 2);
-                    hasCastToCancellable = true;
-                }
-
-                if (endIgnoreCancelled == null) {
-                    endIgnoreCancelled = new Label();
-
-                    mv.visitVarInsn(ALOAD, 2);
-
-                    mv.visitMethodInsn(INVOKEINTERFACE, Type.getInternalName(Cancellable.class), "isCancelled",
-                            methodDescriptor(BOOLEAN), true);
-
-                    mv.visitJumpInsn(IFNE, endIgnoreCancelled);
-                }
-            } else if (endIgnoreCancelled != null) {
-                mv.visitLabel(endIgnoreCancelled);
-                endIgnoreCancelled = null;
-            }
-
-            makeExecute(mv, () -> {
-                val owner = subscription.getOwner();
-
-                if (owner != null) {
-                    val fieldName = fields.get(owner).name;
-
-                    mv.visitVarInsn(ALOAD, 0);
-                    mv.visitFieldInsn(GETFIELD, GEN_DISPATCHER_NAME, fieldName, writer.getOwnerType().getDescriptor());
-                }
-
-                writer.write(mv);
-            }, "Error occurred whilst dispatching " + type.getName() + " to " + writer.getName(), safe);
-        }
-
-        if (endIgnoreCancelled != null) {
-            mv.visitLabel(endIgnoreCancelled);
-        }
-
-        mv.visitInsn(RETURN);
-        mv.visitMaxs(2, safe ? 4 : 3);
-        mv.visitEnd();
-    }
-
-    private void makeExecute(
-            final MethodVisitor mv,
-            final Runnable executeBlock,
-            final String errorMessage,
-            final boolean safe
-    ) {
-        if (safe) {
-            val start = new Label();
-            val end = new Label();
-            val handler = new Label();
-            val next = new Label();
-
-            mv.visitLabel(start);
-            executeBlock.run();
-            mv.visitJumpInsn(GOTO, next);
-            mv.visitLabel(end);
-            mv.visitLabel(handler);
-            makeCatchException(mv, errorMessage);
-            mv.visitLabel(next);
-            mv.visitTryCatchBlock(start, end, handler, "java/lang/Exception");
-        } else {
-            executeBlock.run();
-        }
-    }
-
-    private void makeCatchException(final MethodVisitor mv, final String message) {
-        mv.visitVarInsn(ASTORE, 3); // exception
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, GEN_DISPATCHER_NAME, "log", Type.getDescriptor(Logger.class));
-        mv.visitLdcInsn(message);
-        mv.visitVarInsn(ALOAD, 3);
-        mv.visitMethodInsn(INVOKEINTERFACE, Type.getInternalName(Logger.class), "error",
-                methodDescriptor(void.class, String.class, Throwable.class), true);
     }
 
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -420,16 +319,80 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
         // endregion
         // region dispatch
         {
-            val mv = cw.visitMethod(ACC_PUBLIC, "dispatch", "(Lw/eventbus/Event;)V",
-                    null, null);
-            makeDispatch(fields, type, subscriptions, mv, true);
-        }
-        // endregion
-        // region unsafeDispatch
-        {
-            val mv = cw.visitMethod(ACC_PUBLIC, "unsafeDispatch", "(Lw/eventbus/Event;)V",
-                    null, null);
-            makeDispatch(fields, type, subscriptions, mv, false);
+            val mv = cw.visitMethod(ACC_PUBLIC, "dispatch",
+                    methodDescriptor(void.class, Event.class), null, null);
+            mv.visitVarInsn(ALOAD, 1);
+            mv.visitTypeInsn(CHECKCAST, Type.getInternalName(type));
+            mv.visitVarInsn(ASTORE, 1);
+
+            boolean hasCastToCancellable = false;
+            Label endIgnoreCancelled = null;
+
+            for (val subscription : subscriptions) {
+                val writer = subscription.getDispatchWriter();
+
+                if (subscription.isIgnoreCancelled()) {
+                    if (!hasCastToCancellable) {
+                        mv.visitVarInsn(ALOAD, 1);
+                        mv.visitTypeInsn(CHECKCAST, Type.getInternalName(Cancellable.class));
+                        mv.visitVarInsn(ASTORE, 2);
+                        hasCastToCancellable = true;
+                    }
+
+                    if (endIgnoreCancelled == null) {
+                        endIgnoreCancelled = new Label();
+
+                        mv.visitVarInsn(ALOAD, 2);
+
+                        mv.visitMethodInsn(INVOKEINTERFACE, Type.getInternalName(Cancellable.class),
+                                "isCancelled", methodDescriptor(boolean.class), true);
+
+                        mv.visitJumpInsn(IFNE, endIgnoreCancelled);
+                    }
+                } else if (endIgnoreCancelled != null) {
+                    mv.visitLabel(endIgnoreCancelled);
+                    endIgnoreCancelled = null;
+                }
+
+                val start = new Label();
+                val end = new Label();
+                val handler = new Label();
+                val next = new Label();
+
+                mv.visitLabel(start);
+
+                val owner = subscription.getOwner();
+
+                if (owner != null) {
+                    val fieldName = fields.get(owner).name;
+
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitFieldInsn(GETFIELD, GEN_DISPATCHER_NAME, fieldName, writer.getOwnerType().getDescriptor());
+                }
+
+                writer.write(mv);
+                mv.visitJumpInsn(GOTO, next);
+                mv.visitLabel(end);
+                mv.visitLabel(handler);
+                mv.visitVarInsn(ASTORE, 3); // exception
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitFieldInsn(GETFIELD, GEN_DISPATCHER_NAME, "log", Type.getDescriptor(Logger.class));
+                mv.visitLdcInsn("Error occurred whilst dispatching " + type.getName()
+                        + " to " + writer.getName());
+                mv.visitVarInsn(ALOAD, 3);
+                mv.visitMethodInsn(INVOKEINTERFACE, Type.getInternalName(Logger.class), "error",
+                        methodDescriptor(void.class, String.class, Throwable.class), true);
+                mv.visitLabel(next);
+                mv.visitTryCatchBlock(start, end, handler, Asm.EXCEPTION_TYPE);
+            }
+
+            if (endIgnoreCancelled != null) {
+                mv.visitLabel(endIgnoreCancelled);
+            }
+
+            mv.visitInsn(RETURN);
+            mv.visitMaxs(2, 4);
+            mv.visitEnd();
         }
         // endregion
 
@@ -466,34 +429,11 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
     }
 
     @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public <E extends AsyncEvent> @NotNull CompletableFuture<E> unsafeDispatchAsync(final @NotNull E event) {
-        unsafeDispatch(event);
-
-        return (CompletableFuture) event.getDoneFuture();
-    }
-
-    @Override
     public void dispatch(final @NotNull Event event) {
         val dispatcher = dispatchers.get(event.getClass());
 
         if (dispatcher != null) {
             dispatcher.dispatch(event);
-        }
-
-        postDispatch(event);
-    }
-
-    @Override
-    public void unsafeDispatch(final @NotNull Event event) {
-        val dispatcher = dispatchers.get(event.getClass());
-
-        if (dispatcher != null) {
-            try {
-                dispatcher.unsafeDispatch(event);
-            } catch (final Exception e) {
-                logger.error("Error occurred whilst dispatching " + event.getClass(), e);
-            }
         }
 
         postDispatch(event);

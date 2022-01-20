@@ -32,9 +32,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author whilein
  */
-class EventBusTest implements SubscribeNamespace {
+class EventBusTests implements SubscribeNamespace {
 
-    EventBus<EventBusTest> bus;
+    EventBus<EventBusTests> bus;
 
     @BeforeEach
     void setup() {
@@ -79,7 +79,7 @@ class EventBusTest implements SubscribeNamespace {
     @SneakyThrows
     void testDifferentClassLoaderDispatch() {
         val event = new DummyEvent();
-        val cl = EventBusTest.class.getClassLoader();
+        val cl = EventBusTests.class.getClassLoader();
 
         val bytes = ClassLoaderUtils.getResourceBytes(cl, "bytecode/DummyListener.class");
 

@@ -32,12 +32,4 @@ public interface EventDispatcher {
      */
     void dispatch(@NotNull Event event);
 
-    /**
-     * Отправляет событие на все слушатели, если в одном из них
-     * произойдёт ошибка, то выполнение будет прекращено.
-     *
-     * @param event Событие
-     */
-    void unsafeDispatch(@NotNull Event event);
-
 }
