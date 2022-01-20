@@ -17,5 +17,14 @@ processApResources {
 }
 
 dependencies {
+    apCompileOnly libs.lombok
+    apAnnotationProcessor libs.lombok
+
+    apCompileOnly libs.annotations
+    apImplementation libs.jackson.databind
+    implementation libs.jackson.databind
+
+    testAnnotationProcessor project(':annotation-index')
+
     implementation project(':util')
 }

@@ -16,6 +16,7 @@
 
 package w.annotation.index;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -26,10 +27,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author whilein
@@ -37,16 +40,62 @@ import java.util.stream.Stream;
 @UtilityClass
 public class AnnotationIndex {
 
-    private Stream<String> _getAnnotated(final ClassLoader cl, final String name) throws IOException {
-        val is = cl.getResourceAsStream("META-INF/services/" + name);
+    private final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    private final AnnotationIndexModel EMPTY = new AnnotationIndexModel(
+            Collections.emptySet(),
+            Collections.emptySet(),
+            Collections.emptySet()
+    );
+
+    private AnnotationIndexModel _getModel(final ClassLoader cl, final String name) throws IOException {
+        val is = cl.getResourceAsStream("META-INF/services/" + name + ".json");
 
         if (is == null) {
-            return Stream.empty();
+            return EMPTY;
         }
 
         try (val br = new BufferedReader(new InputStreamReader(is))) {
-            return br.lines();
+            return OBJECT_MAPPER.readValue(br, AnnotationIndexModel.class);
         }
+    }
+
+    public @NotNull List<@NotNull Field> getAnnotatedFields(
+            final @NotNull Class<? extends Annotation> annotation
+    ) {
+        return getAnnotatedFields(annotation.getClassLoader(), annotation);
+    }
+
+    public @NotNull List<@NotNull Method> getAnnotatedMethods(
+            final @NotNull Class<? extends Annotation> annotation
+    ) {
+        return getAnnotatedMethods(annotation.getClassLoader(), annotation);
+    }
+
+
+    @SneakyThrows
+    public @NotNull List<@NotNull Method> getAnnotatedMethods(
+            final @NotNull ClassLoader cl,
+            final @NotNull Class<? extends Annotation> annotation
+    ) {
+        return _getModel(cl, annotation.getName()).getMethods().stream()
+                .map(method -> ClassLoaderUtils.getMethod(cl, method.getType(),
+                        method.getName(),
+                        method.getParameters(),
+                        method.getReturnType()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    @SneakyThrows
+    public @NotNull List<@NotNull Field> getAnnotatedFields(
+            final @NotNull ClassLoader cl,
+            final @NotNull Class<? extends Annotation> annotation
+    ) {
+        return _getModel(cl, annotation.getName()).getFields().stream()
+                .map(field -> ClassLoaderUtils.getField(cl, field.getType(), field.getName()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -61,7 +110,7 @@ public class AnnotationIndex {
             final @NotNull ClassLoader cl,
             final @NotNull Class<? extends Annotation> annotation
     ) {
-        return _getAnnotated(cl, annotation.getName())
+        return _getModel(cl, annotation.getName()).getTypes().stream()
                 .collect(Collectors.toUnmodifiableList());
     }
 
@@ -77,7 +126,7 @@ public class AnnotationIndex {
             final @NotNull ClassLoader cl,
             final @NotNull Class<? extends Annotation> annotation
     ) {
-        return _getAnnotated(cl, annotation.getName())
+        return _getModel(cl, annotation.getName()).getTypes().stream()
                 .map(name -> ClassLoaderUtils.getClass(cl, name, false))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toUnmodifiableList());
