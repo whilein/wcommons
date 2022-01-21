@@ -33,8 +33,12 @@ import java.io.IOException;
  */
 public final class JsonConfigProvider extends AbstractJacksonConfigProvider {
 
-    private JsonConfigProvider(final ObjectWriter objectWriter, final ObjectReader objectReader) {
-        super(objectWriter, objectReader);
+    private JsonConfigProvider(
+            final ObjectWriter objectWriter,
+            final ObjectReader objectReader,
+            final ObjectConverter objectConverter
+    ) {
+        super(objectWriter, objectReader, objectConverter);
     }
 
     private static final class ConfigPrettyPrinter extends DefaultPrettyPrinter {
@@ -56,7 +60,7 @@ public final class JsonConfigProvider extends AbstractJacksonConfigProvider {
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .setDefaultPrettyPrinter(new ConfigPrettyPrinter());
 
-        return new JsonConfigProvider(mapper.writerWithDefaultPrettyPrinter(), mapper.reader());
+        return new JsonConfigProvider(mapper.writerWithDefaultPrettyPrinter(), mapper.reader(), mapper::convertValue);
     }
 
 

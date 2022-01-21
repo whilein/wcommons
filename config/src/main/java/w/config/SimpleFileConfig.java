@@ -264,6 +264,8 @@ public final class SimpleFileConfig implements FileConfig {
 
                 delegate = provider.parse(resourceStream);
 
+                src.makeParentDirectory();
+
                 try (val os = src.openOutput()) {
                     delegate.writeTo(os);
                 }

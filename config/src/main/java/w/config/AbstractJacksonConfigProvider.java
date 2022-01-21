@@ -52,6 +52,9 @@ public abstract class AbstractJacksonConfigProvider implements JacksonConfigProv
     @Getter
     ObjectReader objectReader;
 
+    @Getter
+    ObjectConverter objectConverter;
+
     private ConfigObject loadObject(final Map<?, ?> map) {
         val object = new ConfigObjectImpl(new LinkedHashMap<>());
         loadObject(map, object);
@@ -216,6 +219,11 @@ public abstract class AbstractJacksonConfigProvider implements JacksonConfigProv
         @Override
         protected ConfigObject createObject(final Map<String, Object> map) {
             return new ConfigObjectImpl(map);
+        }
+
+        @Override
+        public <T> T asType(final @NotNull Class<T> type) {
+            return objectConverter.convert(map, type);
         }
 
         @Override

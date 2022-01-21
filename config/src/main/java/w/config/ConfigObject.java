@@ -39,6 +39,8 @@ import java.util.Set;
  */
 public interface ConfigObject {
 
+    <T> T asType(@NotNull Class<T> type);
+
     /**
      * Представить объект как {@link Map}.
      *

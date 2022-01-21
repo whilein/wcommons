@@ -16,6 +16,9 @@
 
 package w.config;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.val;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -51,6 +54,21 @@ final class ConfigObjectTests {
                 .orElse(Collections.emptySet());
 
         assertEquals(Set.of("yes").toString(), keys.toString());
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    static class Dummy {
+        String message;
+    }
+
+    @Test
+    void asType() {
+        val object = provider.parse("message: 'foo bar baz'\n");
+
+        val dummy = object.asType(Dummy.class);
+        assertEquals(dummy.getMessage(), "foo bar baz");
     }
 
     @Test

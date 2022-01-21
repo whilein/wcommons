@@ -26,17 +26,23 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class CustomJacksonConfigProvider extends AbstractJacksonConfigProvider {
 
-    private CustomJacksonConfigProvider(final ObjectWriter objectWriter, final ObjectReader objectReader) {
-        super(objectWriter, objectReader);
+    private CustomJacksonConfigProvider(
+            final ObjectWriter objectWriter,
+            final ObjectReader objectReader,
+            final ObjectConverter objectConverter
+    ) {
+        super(objectWriter, objectReader, objectConverter);
     }
 
     public static @NotNull CustomJacksonConfigProvider create(final @NotNull ObjectMapper objectMapper) {
-        return new CustomJacksonConfigProvider(objectMapper.writer(), objectMapper.reader());
+        return new CustomJacksonConfigProvider(objectMapper.writer(), objectMapper.reader(),
+                objectMapper::convertValue);
     }
 
     public static @NotNull CustomJacksonConfigProvider create(final @NotNull ObjectWriter objectWriter,
-                                                              final @NotNull ObjectReader objectReader) {
-        return new CustomJacksonConfigProvider(objectWriter, objectReader);
+                                                              final @NotNull ObjectReader objectReader,
+                                                              final @NotNull ObjectConverter objectConverter) {
+        return new CustomJacksonConfigProvider(objectWriter, objectReader, objectConverter);
     }
 
 }

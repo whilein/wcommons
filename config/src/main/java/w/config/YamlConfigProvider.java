@@ -31,9 +31,14 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class YamlConfigProvider extends AbstractJacksonConfigProvider {
 
-    private YamlConfigProvider(final ObjectWriter objectWriter, final ObjectReader objectReader) {
-        super(objectWriter, objectReader);
+    private YamlConfigProvider(
+            final ObjectWriter objectWriter,
+            final ObjectReader objectReader,
+            final ObjectConverter objectConverter
+    ) {
+        super(objectWriter, objectReader, objectConverter);
     }
+
 
     public static final @NotNull ConfigProvider INSTANCE = create();
 
@@ -42,7 +47,7 @@ public final class YamlConfigProvider extends AbstractJacksonConfigProvider {
                 .configure(YAMLParser.Feature.EMPTY_STRING_AS_NULL, false)
                 .configure(YAMLGenerator.Feature.WRITE_DOC_START_MARKER, false));
 
-        return new YamlConfigProvider(mapper.writer(), mapper.reader());
+        return new YamlConfigProvider(mapper.writer(), mapper.reader(), mapper::convertValue);
     }
 
 }
