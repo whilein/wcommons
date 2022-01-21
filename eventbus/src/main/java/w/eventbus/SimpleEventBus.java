@@ -160,7 +160,9 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
                     eventTypes.add(eventType.asSubclass(Event.class));
                 } else {
                     for (val childEventType : findTypes(eventType)) {
-                        eventTypes.add(childEventType.asSubclass(Event.class));
+                        if (Event.class.isAssignableFrom(childEventType)) {
+                            eventTypes.add(childEventType.asSubclass(Event.class));
+                        }
                     }
                 }
 
