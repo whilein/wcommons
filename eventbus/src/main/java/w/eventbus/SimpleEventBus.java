@@ -199,6 +199,7 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
     private static final class Field {
         Type type;
         String name;
+        int local;
     }
 
     @SneakyThrows
@@ -238,7 +239,7 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
         // region <init>
         {
             int stackSize = 1;
-            int localSize = 3;
+            int localSize = 2;
 
             val descriptor = new StringBuilder();
             descriptor.append('(').append(Type.getDescriptor(Logger.class));
@@ -254,22 +255,24 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
                     classLoaders.add(event.getClassLoader());
                 }
 
-                val writer = subscription.getDispatchWriter();
-
-                val handleType = writer.getOwnerType();
-
-                val size = handleType.getSize();
-
-                stackSize = Math.max(stackSize, size + 1);
-                localSize += size;
-
                 val owner = subscription.getOwner();
 
                 if (owner != null) {
+                    val writer = subscription.getDispatchWriter();
+                    val handleType = writer.getOwnerType();
+
+                    val size = handleType.getSize();
+
+                    final int local = localSize;
+
                     fields.computeIfAbsent(owner, __ -> new Field(
                             handleType,
-                            "_" + fieldCounter.getAndIncrement()
+                            "_" + fieldCounter.getAndIncrement(),
+                            local
                     ));
+
+                    stackSize = Math.max(stackSize, size + 1);
+                    localSize += size;
 
                     descriptor.append(handleType.getDescriptor());
 
@@ -308,7 +311,7 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
                         null, null).visitEnd();
 
                 constructor.visitVarInsn(ALOAD, 0);
-                constructor.visitVarInsn(ALOAD, local);
+                constructor.visitVarInsn(ALOAD, field.local);
                 constructor.visitFieldInsn(PUTFIELD, GEN_DISPATCHER_NAME, fieldName, fieldDescriptor);
 
                 local += fieldType.getSize();

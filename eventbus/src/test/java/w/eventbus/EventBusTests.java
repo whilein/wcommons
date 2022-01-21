@@ -16,6 +16,8 @@
 
 package w.eventbus;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,8 +44,10 @@ class EventBusTests implements SubscribeNamespace {
         bus.addDebugger(LoggingEventBusDebugger.INSTANCE);
     }
 
-    public static class EntityDamageEvent implements Event {
-
+    @Getter
+    @Setter
+    public static class EntityDamageEvent extends AbstractAsyncEvent implements Cancellable {
+        boolean cancelled;
     }
 
     public static class EntityDamageByEntityEvent extends EntityDamageEvent {
