@@ -87,6 +87,16 @@ public interface ConfigObject {
     @Contract("_, !null -> !null")
     @Nullable String getString(@NotNull String key, @Nullable String defaultValue);
 
+    @Nullable Object getRaw(@NotNull String key);
+
+    @Contract("_, !null -> !null")
+    @Nullable Object getRaw(@NotNull String key, @Nullable Object defaultValue);
+
+    <T> @Nullable T getAs(@NotNull String key, @NotNull Class<T> type);
+
+    @Contract("_, _, !null -> !null")
+    <T> @Nullable T getAs(@NotNull String key, @NotNull Class<T> type, @Nullable T defaultValue);
+
     boolean getBoolean(@NotNull String key, boolean defaultValue);
 
     boolean getBoolean(@NotNull String key);
@@ -108,6 +118,10 @@ public interface ConfigObject {
     @Unmodifiable @NotNull List<@NotNull String> getStringList(@NotNull String key);
 
     @Unmodifiable @NotNull List<@NotNull ConfigObject> getObjectList(@NotNull String key);
+
+    <T> @NotNull Optional<T> findAs(@NotNull String key, @NotNull Class<T> type);
+
+    @NotNull Optional<Object> findRaw(@NotNull String key);
 
     @NotNull OptionalInt findInt(@NotNull String key);
 

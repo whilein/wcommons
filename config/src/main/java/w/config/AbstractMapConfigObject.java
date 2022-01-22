@@ -52,6 +52,26 @@ public abstract class AbstractMapConfigObject implements ConfigObject {
     protected abstract ConfigObject createObject(final Map<String, Object> map);
 
     @Override
+    public @Nullable Object getRaw(final @NotNull String key) {
+        return map.get(key);
+    }
+
+    @Override
+    public @Nullable Object getRaw(final @NotNull String key, final @Nullable Object defaultValue) {
+        return map.getOrDefault(key, defaultValue);
+    }
+
+    @Override
+    public <T> @Nullable T getAs(final @NotNull String key, final @NotNull Class<T> type) {
+        return getAs(key, type, null);
+    }
+
+    @Override
+    public @NotNull Optional<Object> findRaw(final @NotNull String key) {
+        return Optional.ofNullable(map.get(key));
+    }
+
+    @Override
     public @NotNull Map<@NotNull String, @NotNull Object> asMap() {
         return map;
     }

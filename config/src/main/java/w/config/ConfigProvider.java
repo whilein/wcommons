@@ -42,6 +42,8 @@ public interface ConfigProvider {
 
     <E> @NotNull E load(byte @NotNull [] input, @NotNull Class<E> type);
 
+    <E> @NotNull E load(@NotNull Object input, @NotNull Class<E> type);
+
     void save(@NotNull File file, @NotNull Object object);
 
     void save(@NotNull Path path, @NotNull Object object);

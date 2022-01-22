@@ -25,6 +25,7 @@ import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,6 +39,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author whilein
@@ -121,6 +123,11 @@ public abstract class AbstractJacksonConfigProvider implements JacksonConfigProv
         try (val fis = new FileInputStream(file)) {
             return objectReader.readValue(fis, type);
         }
+    }
+
+    @Override
+    public <E> @NotNull E load(final @NotNull Object input, final @NotNull Class<E> type) {
+        return objectConverter.convert(input, type);
     }
 
     @Override
@@ -236,6 +243,25 @@ public abstract class AbstractJacksonConfigProvider implements JacksonConfigProv
         @SneakyThrows
         public void writeTo(final @NotNull OutputStream os) {
             objectWriter.writeValue(os, map);
+        }
+
+        @Override
+        public <T> @Nullable T getAs(
+                final @NotNull String key,
+                final @NotNull Class<T> type,
+                final @Nullable T defaultValue
+        ) {
+            val value = map.get(key);
+
+            return value != null
+                    ? objectConverter.convert(value, type)
+                    : defaultValue;
+        }
+
+        @Override
+        public @NotNull <T> Optional<T> findAs(final @NotNull String key, final @NotNull Class<T> type) {
+            return Optional.ofNullable(map.get(key))
+                    .map(object -> objectConverter.convert(object, type));
         }
     }
 }
