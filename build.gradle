@@ -56,7 +56,7 @@ subprojects {
                     name = project.name
                     description = project.description
 
-                    url = "https://github.com/LastCraftInc/wcommons"
+                    url = "https://github.com/whilein/wcommons"
 
                     licenses {
                         license {
@@ -87,7 +87,7 @@ subprojects {
 
             // github packages
             maven {
-                url = "https://maven.pkg.github.com/LastCraftInc/wcommons"
+                url = "https://maven.pkg.github.com/whilein/wcommons"
 
                 credentials {
                     username = findProperty("gpr.user")
