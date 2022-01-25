@@ -54,6 +54,8 @@ public class Root {
 
     private final MethodHandle UNSAFE__DEFINE_CLASS;
 
+    private final MethodHandle UNSAFE__ALLOCATE_UNINITIALIZED_ARRAY;
+
     private final ModuleAccessor MODULE_ACCESSOR;
 
     static {
@@ -94,6 +96,13 @@ public class Root {
                             methodType(Class.class, String.class, byte[].class, int.class, int.class,
                                     ClassLoader.class, ProtectionDomain.class))
                     .bindTo(theUnsafe);
+
+            UNSAFE__ALLOCATE_UNINITIALIZED_ARRAY = IMPL_LOOKUP.findVirtual(
+                            UNSAFE_TYPE,
+                            "allocateUninitializedArray",
+                            methodType(Object.class, Class.class, int.class)
+                    )
+                    .bindTo(theUnsafe);
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
@@ -101,7 +110,7 @@ public class Root {
     }
 
     @SneakyThrows
-    public Class<?> defineClass(
+    public @NotNull Class<?> defineClass(
             final @NotNull String name,
             final byte @NotNull [] data,
             final int offset,
@@ -113,10 +122,14 @@ public class Root {
                 offset, length, classLoader, protectionDomain);
     }
 
+    @SneakyThrows
+    public @NotNull Object allocateUninitializedArray(final Class<?> componentType, final int length) {
+        return UNSAFE__ALLOCATE_UNINITIALIZED_ARRAY.invokeExact(componentType, length);
+    }
+
     public @NotNull MethodHandles.Lookup trustedLookup() {
         return IMPL_LOOKUP;
     }
-
 
     public @NotNull MethodHandles.Lookup trustedLookupIn(final @NotNull Class<?> type) {
         return IMPL_LOOKUP.in(type);
