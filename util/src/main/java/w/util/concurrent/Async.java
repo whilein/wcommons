@@ -21,10 +21,9 @@ import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
-import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import w.util.function.ComponentConsumer;
 
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -41,7 +40,7 @@ public interface Async<T> extends Supplier<T>, Consumer<T> {
 
     @SuppressWarnings("unchecked")
     static <T> @NotNull Async<T> uncompleted() {
-        return new Uncompleted<>(new Object[0], new AtomicReference<>(), (T) Uncompleted.EMPTY);
+        return new Uncompleted<>(new Object[0], ComponentConsumer.Atomic.create(), (T) Uncompleted.EMPTY);
     }
 
     void accept(@NotNull Consumer<T> listener);
@@ -58,7 +57,7 @@ public interface Async<T> extends Supplier<T>, Consumer<T> {
 
         Object mutex;
 
-        AtomicReference<Consumer<T>> listener;
+        ComponentConsumer<T> listener;
 
         @NonFinal
         volatile T value;
@@ -75,11 +74,7 @@ public interface Async<T> extends Supplier<T>, Consumer<T> {
                 mutex.notifyAll();
             }
 
-            val listener = this.listener.get();
-
-            if (listener != null) {
-                listener.accept(value);
-            }
+            this.listener.accept(value);
         }
 
         @Override
@@ -94,7 +89,7 @@ public interface Async<T> extends Supplier<T>, Consumer<T> {
 
         @Override
         public void accept(final @NotNull Consumer<T> listener) {
-            this.listener.updateAndGet(oldListener -> oldListener == null ? listener : oldListener.andThen(listener));
+            this.listener.add(listener);
         }
 
         @Override
