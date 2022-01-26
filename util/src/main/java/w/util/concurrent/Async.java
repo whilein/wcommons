@@ -21,9 +21,12 @@ import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import w.util.function.ComponentConsumer;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.ForkJoinPool;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -41,6 +44,18 @@ public interface Async<T> extends Supplier<T>, Consumer<T> {
     @SuppressWarnings("unchecked")
     static <T> @NotNull Async<T> uncompleted() {
         return new Uncompleted<>(new Object[0], ComponentConsumer.Atomic.create(), (T) Uncompleted.EMPTY);
+    }
+
+    static <T> @NotNull Async<T> supply(final @NotNull Supplier<T> supplier) {
+        return supply(supplier, ForkJoinPool.commonPool());
+    }
+
+    static <T> @NotNull Async<T> supply(final @NotNull Supplier<T> supplier, final @NotNull Executor executor) {
+        val async = Async.<T>uncompleted();
+
+        executor.execute(() -> async.accept(supplier.get()));
+
+        return async;
     }
 
     void accept(@NotNull Consumer<T> listener);
