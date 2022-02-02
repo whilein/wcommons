@@ -27,7 +27,20 @@ import w.util.buffering.Buffering;
 @UtilityClass
 public class Hex {
 
+    private final byte[] EMPTY = new byte[0];
+
     private final char[] HEX_CHAR_MAP = "0123456789abcdef".toCharArray();
+
+    private final int[] HEX_TENS = new int[8];
+
+    static {
+        int hex = 1;
+
+        for (int i = 0, j = HEX_TENS.length; i < j; i++) {
+            HEX_TENS[i] = hex;
+            hex *= 16;
+        }
+    }
 
     public char @NotNull [] toHexChars(final @NotNull ByteSlice byteSlice) {
         return toHexChars(byteSlice.getArray(), byteSlice.getOffset(), byteSlice.getLength());
@@ -55,6 +68,59 @@ public class Hex {
 
     public @NotNull String toHex(final byte @NotNull [] bytes) {
         return toHex(bytes, 0, bytes.length);
+    }
+
+    private int parseChar(final char value) {
+        if (value >= '0' && value <= '9') {
+            return (value - '0');
+        } else if (value >= 'A' && value <= 'Z') {
+            return (10 + value - 'A');
+        } else if (value >= 'a' && value <= 'z') {
+            return (10 + value - 'a');
+        } else {
+            throw new IllegalArgumentException("Illegal character: " + value);
+        }
+    }
+
+    public int parseHex(final @NotNull String input) {
+        int value = 0;
+
+        for (int i = 0, j = input.length(); i < j; i++) {
+            val ch = input.charAt(i);
+
+            int parsed = parseChar(ch);
+
+            if (parsed != 0) {
+                parsed *= HEX_TENS[j - i - 1];
+                value += parsed;
+            }
+        }
+
+        return value;
+    }
+
+    public byte @NotNull [] fromHex(final @NotNull String input) {
+        int length = input.length();
+
+        if (length == 0) {
+            return EMPTY;
+        }
+
+        if (length == 1) {
+            return new byte[]{(byte) parseChar(input.charAt(0))};
+        }
+
+        if ((length & 1) != 0) {
+            throw new IllegalArgumentException("Input length should be even");
+        }
+
+        val data = (byte[]) Root.allocateUninitializedArray(byte.class, length >> 1);
+
+        for (int i = 0; i < length; i += 2) {
+            data[((i + 1) >> 1)] = (byte) ((parseChar(input.charAt(i)) << 4) + parseChar(input.charAt(i + 1)));
+        }
+
+        return data;
     }
 
     public @NotNull String toHex(final byte @NotNull [] bytes, final int off, final int len) {
