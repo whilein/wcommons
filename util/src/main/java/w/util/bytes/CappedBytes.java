@@ -19,6 +19,7 @@ package w.util.bytes;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
+import w.util.Root;
 
 import java.util.Arrays;
 
@@ -35,7 +36,7 @@ public final class CappedBytes extends AbstractBytes {
     }
 
     public static @NotNull Bytes create(final int cap) {
-        return new CappedBytes(new byte[cap]);
+        return new CappedBytes((byte[]) Root.allocateUninitializedArray(byte.class, cap));
     }
 
     @Override
