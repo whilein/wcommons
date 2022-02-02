@@ -31,11 +31,11 @@ import java.util.Arrays;
 public interface ByteSlice {
 
     static @NotNull ByteSlice wrap(final byte[] array) {
-        return new Stub(array, 0, array.length);
+        return new Default(array, 0, array.length);
     }
 
     static @NotNull ByteSlice wrap(final byte[] array, final int off, final int len) {
-        return new Stub(array, off, len);
+        return new Default(array, off, len);
     }
 
     int getOffset();
@@ -55,7 +55,7 @@ public interface ByteSlice {
     @Getter
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    final class Stub implements ByteSlice {
+    final class Default implements ByteSlice {
 
         byte[] array;
         int offset;
