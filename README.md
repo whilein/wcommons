@@ -22,6 +22,7 @@
   - RandomUtils & RandomStringGenerator
   - ClassLoaderUtils
   - Async
+  - Buffering
   - Bytes
   - Root
 - [Конфигурация](config)
