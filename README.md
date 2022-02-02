@@ -21,6 +21,8 @@
   - Message
   - RandomUtils & RandomStringGenerator
   - ClassLoaderUtils
+  - Async
+  - Bytes
   - Root
 - [Конфигурация](config)
   - SimpleFileConfig
