@@ -16,10 +16,15 @@
 
 package w.util;
 
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import w.util.buffering.Buffering;
+
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodType;
+import java.math.BigInteger;
 
 /**
  * @author whilein
@@ -33,7 +38,17 @@ public class Hex {
 
     private final int[] HEX_TENS = new int[8];
 
+    private final MethodHandle BIG_INTEGER__TO_STRING;
+
     static {
+        try {
+            val lookup = Root.trustedLookupIn(BigInteger.class);
+            BIG_INTEGER__TO_STRING = lookup.findStatic(BigInteger.class, "toString",
+                    MethodType.methodType(void.class, BigInteger.class, StringBuilder.class, int.class, int.class));
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+
         int hex = 1;
 
         for (int i = 0, j = HEX_TENS.length; i < j; i++) {
@@ -64,6 +79,50 @@ public class Hex {
 
     public @NotNull String toHex(final @NotNull ByteSlice byteSlice) {
         return toHex(byteSlice.getArray(), byteSlice.getOffset(), byteSlice.getLength());
+    }
+
+    @SneakyThrows
+    public @NotNull String toHexZeroPadded(
+            final @NotNull BigInteger value,
+            final int size
+    ) {
+        if (value.signum() < 0) {
+            throw new UnsupportedOperationException("Value cannot be negative");
+        }
+
+        try (val buffered = Buffering.getStringBuilder()) {
+            val result = buffered.get();
+            result.append('_');
+
+            toString(value, result, size);
+
+            return result.substring(1);
+        }
+    }
+
+    @SneakyThrows
+    public @NotNull String toHexZeroPadded(
+            final @NotNull String prefix,
+            final @NotNull BigInteger value,
+            final int size
+    ) {
+        if (value.signum() < 0) {
+            throw new UnsupportedOperationException("Value cannot be negative");
+        }
+
+        try (val buffered = Buffering.getStringBuilder()) {
+            val result = buffered.get();
+            result.append(prefix);
+
+            toString(value, result, size);
+
+            return result.toString();
+        }
+    }
+
+    @SneakyThrows
+    private void toString(final BigInteger value, final StringBuilder output, final int size) {
+        BIG_INTEGER__TO_STRING.invokeExact(value, output, 16, size);
     }
 
     public @NotNull String toHex(final byte @NotNull [] bytes) {

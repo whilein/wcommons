@@ -19,11 +19,11 @@
   - Message
   - RandomUtils & RandomStringGenerator
   - ClassLoaderUtils
-  - Async
+  - Async (Упрощенный вариант Future)
   - Buffering
-  - Bytes
+  - Bytes, ByteSlice
+  - Hash, Hex
   - Root
-  - Hex
 - [Конфигурация](config)
   - SimpleFileConfig
   - YamlConfigProvider
