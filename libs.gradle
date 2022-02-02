@@ -6,16 +6,17 @@ def SLF4J_VERSION = "1.7.32"
 
 ext {
     libs = [
-            guava      : "com.google.guava:guava:31.0.1-jre",
-            caffeine   : "com.github.ben-manes.caffeine:caffeine:3.0.5",
-            lombok     : "org.projectlombok:lombok:1.18.22",
-            annotations: "org.jetbrains:annotations:23.0.0",
-            asm        : "org.ow2.asm:asm:9.2",
-            fastutil   : "it.unimi.dsi:fastutil-core:8.5.6",
-            geoip2     : "com.maxmind.geoip2:geoip2:2.16.1",
-            jtar       : "org.kamranzafar:jtar:2.3",
-            hikaricp   : "com.zaxxer:HikariCP:5.0.0",
-            h2: "com.h2database:h2:2.0.206"
+            guava       : "com.google.guava:guava:31.0.1-jre",
+            caffeine    : "com.github.ben-manes.caffeine:caffeine:3.0.5",
+            lombok      : "org.projectlombok:lombok:1.18.22",
+            annotations : "org.jetbrains:annotations:23.0.0",
+            asm         : "org.ow2.asm:asm:9.2",
+            fastutil    : "it.unimi.dsi:fastutil-core:8.5.6",
+            geoip2      : "com.maxmind.geoip2:geoip2:2.16.1",
+            jtar        : "org.kamranzafar:jtar:2.3",
+            hikaricp    : "com.zaxxer:HikariCP:5.0.0",
+            h2          : "com.h2database:h2:2.0.206",
+            bouncycastle: "org.bouncycastle:bcprov-jdk15on:1.70"
     ]
 
     libs.slf4j = [

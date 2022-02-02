@@ -1,3 +1,4 @@
 dependencies {
     compileOnly project(':agent')
+    compileOnly libs.bouncycastle
 }
