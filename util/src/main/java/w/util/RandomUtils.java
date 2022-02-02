@@ -112,12 +112,30 @@ public class RandomUtils {
         return last;
     }
 
-    public <T> T getElement(final T @NotNull [] array) {
+    public <T> T getRandomElement(final T @NotNull [] array) {
         return array[RANDOM.nextInt(array.length)];
     }
 
-    public <T> T getElement(final @NotNull List<T> list) {
+    public <T> T getRandomElement(final @NotNull List<T> list) {
         return list.get(RANDOM.nextInt(list.size()));
+    }
+
+    /**
+     * @see #getRandomElement(Object[])
+     * @deprecated
+     */
+    @Deprecated
+    public <T> T getElement(final T @NotNull [] array) {
+        return getRandomElement(array);
+    }
+
+    /**
+     * @see #getRandomElement(List)
+     * @deprecated
+     */
+    @Deprecated
+    public <T> T getElement(final @NotNull List<T> list) {
+        return getRandomElement(list);
     }
 
     public int getInt(final int min, final int max) {

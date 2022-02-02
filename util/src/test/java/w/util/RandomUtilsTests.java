@@ -61,7 +61,7 @@ final class RandomUtilsTests {
     }
 
     @Test
-    void testGetElement() {
-        assertTrue(randomUuids.contains(RandomUtils.getElement(randomUuids)));
+    void testGetRandomElement() {
+        assertTrue(randomUuids.contains(RandomUtils.getRandomElement(randomUuids)));
     }
 }
