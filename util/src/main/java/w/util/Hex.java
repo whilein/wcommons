@@ -92,6 +92,9 @@ public class Hex {
 
         try (val buffered = Buffering.getStringBuilder()) {
             val result = buffered.get();
+
+            // костыль, ибо в BigInteger#toString проверка на sb.length() > 0
+            // иначе оно не добавит нули
             result.append('_');
 
             toString(value, result, size);
