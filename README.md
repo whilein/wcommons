@@ -25,6 +25,7 @@
   - Buffering
   - Bytes
   - Root
+  - Hex
 - [Конфигурация](config)
   - SimpleFileConfig
   - YamlConfigProvider
