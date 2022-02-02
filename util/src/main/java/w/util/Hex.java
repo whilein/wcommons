@@ -29,6 +29,14 @@ public class Hex {
 
     private final char[] HEX_CHAR_MAP = "0123456789abcdef".toCharArray();
 
+    public char @NotNull [] toHexChars(final @NotNull ByteSlice byteSlice) {
+        return toHexChars(byteSlice.getArray(), byteSlice.getOffset(), byteSlice.getLength());
+    }
+
+    public char @NotNull [] toHexChars(final byte @NotNull [] bytes) {
+        return toHexChars(bytes, 0, bytes.length);
+    }
+
     public char @NotNull [] toHexChars(final byte @NotNull [] bytes, final int off, final int len) {
         val result = new char[len << 1];
 
@@ -39,6 +47,10 @@ public class Hex {
         }
 
         return result;
+    }
+
+    public @NotNull String toHex(final @NotNull ByteSlice byteSlice) {
+        return toHex(byteSlice.getArray(), byteSlice.getOffset(), byteSlice.getLength());
     }
 
     public @NotNull String toHex(final byte @NotNull [] bytes) {
