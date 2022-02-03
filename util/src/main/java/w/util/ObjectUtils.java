@@ -16,12 +16,8 @@
 
 package w.util;
 
-import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
-
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodType;
 
 /**
  * @author whilein
@@ -29,27 +25,12 @@ import java.lang.invoke.MethodType;
 @UtilityClass
 public class ObjectUtils {
 
-    private final MethodHandle CLONE;
-
     private final Object EMPTY = new Object[0];
 
-    static {
-        try {
-            CLONE = Root.trustedLookupIn(Object.class).findVirtual(Object.class, "clone",
-                    MethodType.methodType(Object.class));
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     @SuppressWarnings("unchecked")
     public <T> @NotNull T empty() {
         return (T) EMPTY;
-    }
-
-    @SneakyThrows
-    public Object clone(final @NotNull Object object) {
-        return CLONE.invokeExact(object);
     }
 
 }

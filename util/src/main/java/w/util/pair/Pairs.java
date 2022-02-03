@@ -26,7 +26,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
-import w.util.ObjectUtils;
+import w.util.ObjectCloner;
 
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -134,8 +134,10 @@ public class Pairs {
         @Override
         @SuppressWarnings("unchecked")
         public @NotNull MutablePair<L, R> deepClone() {
-            val newLeft = left instanceof Cloneable ? (L) ObjectUtils.clone(left) : left;
-            val newRight = right instanceof Cloneable ? (R) ObjectUtils.clone(right) : right;
+            val objectCloner = ObjectCloner.INSTANCE;
+
+            val newLeft = left instanceof Cloneable ? (L) objectCloner.clone(left) : left;
+            val newRight = right instanceof Cloneable ? (R) objectCloner.clone(right) : right;
 
             return new MutablePairImpl<>(newLeft, newRight);
         }
@@ -163,8 +165,10 @@ public class Pairs {
         @Override
         @SuppressWarnings("unchecked")
         public @NotNull Pair<L, R> deepClone() {
-            val newLeft = left instanceof Cloneable ? (L) ObjectUtils.clone(left) : left;
-            val newRight = right instanceof Cloneable ? (R) ObjectUtils.clone(right) : right;
+            val objectCloner = ObjectCloner.INSTANCE;
+
+            val newLeft = left instanceof Cloneable ? (L) objectCloner.clone(left) : left;
+            val newRight = right instanceof Cloneable ? (R) objectCloner.clone(right) : right;
 
             return new PairImpl<>(newLeft, newRight);
         }
