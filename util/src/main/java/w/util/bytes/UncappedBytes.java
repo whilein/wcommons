@@ -20,7 +20,6 @@ import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
-import w.util.Root;
 
 import java.util.Arrays;
 
@@ -37,7 +36,7 @@ public final class UncappedBytes extends AbstractBytes {
     }
 
     public static @NotNull Bytes create(final int initialCap) {
-        return new UncappedBytes((byte[]) Root.allocateUninitializedArray(byte.class, initialCap));
+        return new UncappedBytes(ByteAllocator.INSTANCE.allocate(initialCap));
     }
 
     public static @NotNull Bytes create() {
