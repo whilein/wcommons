@@ -38,17 +38,11 @@ public class Hex {
 
     private final int[] HEX_TENS = new int[8];
 
-    private final MethodHandle BIG_INTEGER__TO_STRING;
+    private final BigIntegerInternals BIG_INTEGER_INTERNALS = Root.isUnsafeSupported()
+            ? new UnsafeBigIntegerInternals()
+            : new StubBigIntegerInternals();
 
     static {
-        try {
-            val lookup = Root.trustedLookupIn(BigInteger.class);
-            BIG_INTEGER__TO_STRING = lookup.findStatic(BigInteger.class, "toString",
-                    MethodType.methodType(void.class, BigInteger.class, StringBuilder.class, int.class, int.class));
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
-
         int hex = 1;
 
         for (int i = 0, j = HEX_TENS.length; i < j; i++) {
@@ -97,7 +91,7 @@ public class Hex {
             // иначе оно не добавит нули
             result.append('_');
 
-            toString(value, result, size);
+            BIG_INTEGER_INTERNALS.toString(value, result, size);
 
             return result.substring(1);
         }
@@ -117,15 +111,10 @@ public class Hex {
             val result = buffered.get();
             result.append(prefix);
 
-            toString(value, result, size);
+            BIG_INTEGER_INTERNALS.toString(value, result, size);
 
             return result.toString();
         }
-    }
-
-    @SneakyThrows
-    private void toString(final BigInteger value, final StringBuilder output, final int size) {
-        BIG_INTEGER__TO_STRING.invokeExact(value, output, 16, size);
     }
 
     public @NotNull String toHex(final byte @NotNull [] bytes) {
@@ -197,6 +186,49 @@ public class Hex {
 
             return result.toString();
         }
+    }
+
+    private static final class StubBigIntegerInternals implements BigIntegerInternals {
+
+        @Override
+        public void toString(final BigInteger value, final StringBuilder out, final int digits) {
+            val result = value.toString(16);
+            val remaining = digits - result.length();
+
+            if (remaining > 0) {
+                out.append("0".repeat(remaining));
+            }
+
+            out.append(result);
+        }
+
+    }
+
+    private static final class UnsafeBigIntegerInternals implements BigIntegerInternals {
+        private static final MethodHandle BIG_INTEGER__TO_STRING;
+
+        static {
+            try {
+                val lookup = Root.trustedLookupIn(BigInteger.class);
+
+                BIG_INTEGER__TO_STRING = lookup.findStatic(BigInteger.class, "toString",
+                        MethodType.methodType(void.class, BigInteger.class, StringBuilder.class,
+                                int.class, int.class));
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        @SneakyThrows
+        public void toString(final BigInteger value, final StringBuilder out, final int digits) {
+            BIG_INTEGER__TO_STRING.invokeExact(value, out, 16, digits);
+        }
+
+    }
+
+    private interface BigIntegerInternals {
+        void toString(BigInteger integer, StringBuilder out, int digits);
     }
 
 }
