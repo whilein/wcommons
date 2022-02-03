@@ -58,7 +58,13 @@ public interface Async<T> extends Supplier<T>, Consumer<T> {
         return async;
     }
 
-    void accept(@NotNull Consumer<T> listener);
+    void addListener(@NotNull Consumer<T> listener);
+
+    void complete(T value);
+
+    default void accept(final T value) {
+        complete(value);
+    }
 
     T get(long millis, int nanos);
 
@@ -78,7 +84,7 @@ public interface Async<T> extends Supplier<T>, Consumer<T> {
         volatile T value;
 
         @Override
-        public void accept(final T value) {
+        public void complete(final T value) {
             if (this.value != EMPTY) {
                 throw new IllegalStateException("Async is already completed");
             }
@@ -103,7 +109,7 @@ public interface Async<T> extends Supplier<T>, Consumer<T> {
         }
 
         @Override
-        public void accept(final @NotNull Consumer<T> listener) {
+        public void addListener(final @NotNull Consumer<T> listener) {
             this.listener.add(listener);
         }
 
@@ -132,7 +138,7 @@ public interface Async<T> extends Supplier<T>, Consumer<T> {
         T value;
 
         @Override
-        public void accept(final T value) {
+        public void complete(final T value) {
             throw new IllegalStateException("Async is already completed");
         }
 
@@ -142,7 +148,7 @@ public interface Async<T> extends Supplier<T>, Consumer<T> {
         }
 
         @Override
-        public void accept(final @NotNull Consumer<T> listener) {
+        public void addListener(final @NotNull Consumer<T> listener) {
             listener.accept(value);
         }
 
