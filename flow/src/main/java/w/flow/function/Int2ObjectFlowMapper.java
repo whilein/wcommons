@@ -19,6 +19,7 @@ package w.flow.function;
 /**
  * @author whilein
  */
+@FunctionalInterface
 public interface Int2ObjectFlowMapper<T> {
 
     T map(int value) throws Exception;

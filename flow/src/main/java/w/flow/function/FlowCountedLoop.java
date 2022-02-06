@@ -19,6 +19,7 @@ package w.flow.function;
 /**
  * @author whilein
  */
+@FunctionalInterface
 public interface FlowCountedLoop<T> {
 
     void accept(int counter, T value) throws Exception;

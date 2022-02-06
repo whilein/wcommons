@@ -19,6 +19,7 @@ package w.flow.function;
 /**
  * @author whilein
  */
+@FunctionalInterface
 public interface IntFlowSink {
 
     boolean next(int value) throws Exception;

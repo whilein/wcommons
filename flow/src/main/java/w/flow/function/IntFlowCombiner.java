@@ -19,6 +19,7 @@ package w.flow.function;
 /**
  * @author whilein
  */
+@FunctionalInterface
 public interface IntFlowCombiner {
 
     int combine(int left, int right) throws Exception;

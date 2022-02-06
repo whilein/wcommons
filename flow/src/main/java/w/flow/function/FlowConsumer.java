@@ -19,6 +19,7 @@ package w.flow.function;
 /**
  * @author whilein
  */
+@FunctionalInterface
 public interface FlowConsumer<T> {
 
     void accept(T value) throws Exception;

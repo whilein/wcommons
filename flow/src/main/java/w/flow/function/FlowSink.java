@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author whilein
  */
+@FunctionalInterface
 public interface FlowSink<T> {
 
     boolean next(@NotNull T value) throws Exception;

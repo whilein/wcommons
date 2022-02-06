@@ -19,6 +19,7 @@ package w.flow.function;
 /**
  * @author whilein
  */
+@FunctionalInterface
 public interface IntFlowSupplier {
 
     int get() throws Exception;

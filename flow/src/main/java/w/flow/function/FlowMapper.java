@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author whilein
  */
+@FunctionalInterface
 public interface FlowMapper<F, T> {
 
     static <T> @NotNull FlowMapper<T, T> identity() {

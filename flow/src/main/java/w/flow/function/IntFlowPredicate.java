@@ -23,6 +23,7 @@ import java.util.function.IntPredicate;
 /**
  * @author whilein
  */
+@FunctionalInterface
 public interface IntFlowPredicate {
 
     static @NotNull IntFlowPredicate of(final @NotNull IntPredicate predicate) {
