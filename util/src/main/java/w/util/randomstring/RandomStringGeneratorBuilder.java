@@ -18,10 +18,45 @@ package w.util.randomstring;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Random;
+import java.util.function.Supplier;
+
 /**
  * @author whilein
  */
 public interface RandomStringGeneratorBuilder {
+
+    /**
+     * Установить рандом, по умолчанию используется {@link Random} из {@link w.util.RandomUtils#getRandom()}.
+     *
+     * @param randomFactory Фабрика {@link Random}
+     * @return {@code this}
+     */
+    @NotNull RandomStringGeneratorBuilder randomFactory(@NotNull Supplier<@NotNull Random> randomFactory);
+
+    /**
+     * Установить рандом, по умолчанию используется {@link Random} из {@link w.util.RandomUtils#getRandom()}.
+     *
+     * @param random {@link Random}
+     * @return {@code this}
+     */
+    @NotNull RandomStringGeneratorBuilder random(@NotNull Random random);
+
+    /**
+     * Установить {@link w.util.RandomUtils#getSecureRandom()} как рандом, по умолчанию
+     * используется {@link Random} из {@link w.util.RandomUtils#getRandom()}.
+     *
+     * @return {@code this}
+     */
+    @NotNull RandomStringGeneratorBuilder randomSecure();
+
+    /**
+     * Установить {@link java.util.concurrent.ThreadLocalRandom} как рандом, по умолчанию
+     * используется {@link Random} из {@link w.util.RandomUtils#getRandom()}.
+     *
+     * @return {@code this}
+     */
+    @NotNull RandomStringGeneratorBuilder randomThreadLocal();
 
     @NotNull RandomStringGeneratorBuilder addLetters();
 

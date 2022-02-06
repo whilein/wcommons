@@ -21,6 +21,7 @@ import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -35,6 +36,16 @@ public class RandomUtils {
 
     private final Random RANDOM = new Random();
 
+    private final SecureRandom SECURE_RANDOM = new SecureRandom();
+
+    public @NotNull SecureRandom getSecureRandom() {
+        return SECURE_RANDOM;
+    }
+
+    public @NotNull Random getRandom() {
+        return RANDOM;
+    }
+
     private <T> Collection<T> _getRandomElements(final List<T> in, final int count, final boolean distinct) {
         val list = new ArrayList<T>(count);
 
@@ -46,7 +57,7 @@ public class RandomUtils {
         return list;
     }
 
-    public <T> Collection<T> getRandomElements(
+    public <T> @NotNull Collection<T> getRandomElements(
             final T @NotNull [] array,
             final int count,
             final boolean distinct
@@ -54,7 +65,7 @@ public class RandomUtils {
         return _getRandomElements(wrapList(List.of(array), distinct), count, distinct);
     }
 
-    public <T> Collection<T> getRandomElements(
+    public <T> @NotNull Collection<T> getRandomElements(
             final @NotNull List<T> list,
             final int count,
             final boolean distinct
@@ -71,7 +82,7 @@ public class RandomUtils {
                 : list;
     }
 
-    public <T> Collection<T> getRandomElements(
+    public <T> @NotNull Collection<T> getRandomElements(
             final @NotNull Collection<T> collection,
             final int count,
             final boolean distinct

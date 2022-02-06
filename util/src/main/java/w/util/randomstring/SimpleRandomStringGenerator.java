@@ -19,11 +19,15 @@ package w.util.randomstring;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import w.util.RandomUtils;
+import w.util.buffering.Buffering;
 
-import java.security.SecureRandom;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Supplier;
 
 /**
  * @author whilein
@@ -32,8 +36,7 @@ import java.util.Random;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SimpleRandomStringGenerator implements RandomStringGenerator {
 
-    private static final Random RANDOM = new SecureRandom();
-
+    Supplier<Random> factory;
     char[] dictionary;
 
     public static @NotNull RandomStringGeneratorBuilder builder() {
@@ -42,13 +45,16 @@ public final class SimpleRandomStringGenerator implements RandomStringGenerator 
 
     @Override
     public @NotNull String nextString(final int length) {
-        val output = new StringBuilder(length);
+        try (val buffered = Buffering.getStringBuilder()) {
+            val result = buffered.get();
+            val random = factory.get();
 
-        for (int i = 0; i < length; i++) {
-            output.append(dictionary[RANDOM.nextInt(dictionary.length)]);
+            for (int i = 0; i < length; i++) {
+                result.append(dictionary[random.nextInt(dictionary.length)]);
+            }
+
+            return result.toString();
         }
-
-        return output.toString();
     }
 
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -57,9 +63,36 @@ public final class SimpleRandomStringGenerator implements RandomStringGenerator 
 
         StringBuilder dictionary;
 
+        @NonFinal
+        Supplier<Random> factory;
+
         private RandomStringGeneratorBuilder add(final String text) {
             dictionary.append(text);
             return this;
+        }
+
+        @Override
+        public @NotNull RandomStringGeneratorBuilder randomFactory(
+                final @NotNull Supplier<@NotNull Random> randomFactory
+        ) {
+            this.factory = randomFactory;
+
+            return this;
+        }
+
+        @Override
+        public @NotNull RandomStringGeneratorBuilder random(final @NotNull Random random) {
+            return randomFactory(() -> random);
+        }
+
+        @Override
+        public @NotNull RandomStringGeneratorBuilder randomSecure() {
+            return random(RandomUtils.getSecureRandom());
+        }
+
+        @Override
+        public @NotNull RandomStringGeneratorBuilder randomThreadLocal() {
+            return randomFactory(ThreadLocalRandom::current);
         }
 
         @Override
@@ -97,7 +130,7 @@ public final class SimpleRandomStringGenerator implements RandomStringGenerator 
 
         @Override
         public @NotNull RandomStringGenerator build() {
-            return new SimpleRandomStringGenerator(dictionary.toString().toCharArray());
+            return new SimpleRandomStringGenerator(factory, dictionary.toString().toCharArray());
         }
     }
 }
