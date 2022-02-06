@@ -30,6 +30,7 @@ import w.flow.function.FlowPredicate;
 import w.flow.function.FlowSink;
 import w.flow.function.FlowSupplier;
 import w.flow.function.Object2IntFlowMapper;
+import w.flow.function.Object2LongFlowMapper;
 import w.util.mutable.Mutables;
 
 import java.util.ArrayList;
@@ -222,6 +223,13 @@ public class Flows {
                 final @NonNull Object2IntFlowMapper<T> function
         ) {
             return IntFlows.ofSupplier(name, () -> function.map(run()));
+        }
+
+        @Override
+        public @NotNull LongFlow mapToLong(
+                final @NonNull Object2LongFlowMapper<T> function
+        ) {
+            return LongFlows.ofSupplier(name, () -> function.map(run()));
         }
 
         @Override
@@ -434,6 +442,22 @@ public class Flows {
         }
 
         @Override
+        public @NotNull LongFlow mapFirstToLong(
+                final @NonNull Object2LongFlowMapper<T> function
+        ) {
+            return LongFlows.ofSupplier(name, () -> {
+                val ref = Mutables.newOptionalLong();
+
+                sink.accept(value -> {
+                    ref.set(function.map(value));
+                    return false;
+                });
+
+                return ref.orElseThrow(FlowEmpty.INSTANCE);
+            });
+        }
+
+        @Override
         public @NotNull <A> FlowItems<A> map(final @NonNull FlowMapper<T, A> mapper) {
             return new FlowItemsImpl<>(name, newSink -> sink.accept(
                     value -> newSink.next(mapper.map(value))));
@@ -584,6 +608,12 @@ public class Flows {
         @Override
         public @NotNull IntFlowItems mapToInt(final @NonNull Object2IntFlowMapper<T> mapper) {
             return IntFlows.ofEmitter(name, newSink -> sink.accept(
+                    value -> newSink.next(mapper.map(value))));
+        }
+
+        @Override
+        public @NotNull LongFlowItems mapToLong(final @NonNull Object2LongFlowMapper<T> mapper) {
+            return LongFlows.ofEmitter(name, newSink -> sink.accept(
                     value -> newSink.next(mapper.map(value))));
         }
 

@@ -18,6 +18,7 @@ package w.util.function;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
@@ -62,7 +63,7 @@ public interface ComponentConsumer<T> extends Consumer<T> {
     }
 
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     final class Atomic<T> implements ComponentConsumer<T> {
 
         AtomicReference<Consumer<T>> consumer;

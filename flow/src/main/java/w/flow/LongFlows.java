@@ -22,80 +22,80 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import w.flow.function.FlowConsumer;
-import w.flow.function.Int2IntFlowMapper;
-import w.flow.function.Int2LongFlowMapper;
-import w.flow.function.Int2ObjectFlowMapper;
-import w.flow.function.IntFlowCombiner;
-import w.flow.function.IntFlowConsumer;
-import w.flow.function.IntFlowCountedLoop;
-import w.flow.function.IntFlowPredicate;
-import w.flow.function.IntFlowSink;
-import w.flow.function.IntFlowSupplier;
 import w.flow.function.Long2IntFlowMapper;
+import w.flow.function.Long2LongFlowMapper;
+import w.flow.function.Long2ObjectFlowMapper;
+import w.flow.function.LongFlowCombiner;
+import w.flow.function.LongFlowConsumer;
+import w.flow.function.LongFlowCountedLoop;
+import w.flow.function.LongFlowPredicate;
+import w.flow.function.LongFlowSink;
+import w.flow.function.LongFlowSupplier;
 import w.util.mutable.Mutables;
 
-import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
-import java.util.function.IntConsumer;
-import java.util.function.IntSupplier;
+import java.util.function.LongConsumer;
+import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
 /**
  * @author whilein
  */
 @UtilityClass
-public class IntFlows {
+public class LongFlows {
 
-    public @NotNull IntFlow ofSupplier(
-            final @NotNull IntFlowSupplier call
+    public @NotNull LongFlow ofSupplier(
+            final @NotNull LongFlowSupplier call
     ) {
-        return new IntFlowImpl(null, call);
+        return new LongFlowImpl(null, call);
     }
 
-    public @NotNull IntFlow ofSupplier(
+    public @NotNull LongFlow ofSupplier(
             final @NotNull String name,
-            final @NotNull IntFlowSupplier call
+            final @NotNull LongFlowSupplier call
     ) {
-        return new IntFlowImpl(name, call);
+        return new LongFlowImpl(name, call);
     }
 
-    public @NotNull IntFlow emptyFlow() {
-        return new IntFlowImpl(null, () -> {
+    public @NotNull LongFlow emptyFlow() {
+        return new LongFlowImpl(null, () -> {
             throw FlowEmpty.INSTANCE;
         });
     }
 
-    public @NotNull IntFlowItems emptyFlowItems() {
-        return new IntFlowItemsImpl(null, sink -> {
+    public @NotNull LongFlowItems emptyFlowItems() {
+        return new LongFlowItemsImpl(null, sink -> {
         });
     }
 
-    public @NotNull IntFlowItems emptyFlowItems(
+    public @NotNull LongFlowItems emptyFlowItems(
             final @NotNull String name
     ) {
-        return new IntFlowItemsImpl(name, sink -> {
+        return new LongFlowItemsImpl(name, sink -> {
         });
     }
 
-    public @NotNull IntFlow emptyFlow(
+    public @NotNull LongFlow emptyFlow(
             final @NotNull String name
     ) {
-        return new IntFlowImpl(name, () -> {
+        return new LongFlowImpl(name, () -> {
             throw FlowEmpty.INSTANCE;
         });
     }
 
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-    private static final class IntFlowItemsImpl extends AbstractFlowItems
-            implements IntFlowItems {
+    private static final class LongFlowItemsImpl extends AbstractFlowItems
+            implements LongFlowItems {
 
-        FlowConsumer<IntFlowSink> sink;
+        FlowConsumer<LongFlowSink> sink;
 
-        public IntFlowItemsImpl(
+        public LongFlowItemsImpl(
                 final String name,
-                final FlowConsumer<IntFlowSink> sink
+                final FlowConsumer<LongFlowSink> sink
         ) {
             super(name);
 
@@ -103,7 +103,7 @@ public class IntFlows {
         }
 
         @Override
-        public @NotNull <A, R> Flow<R> collect(final @NonNull IntFlowCollector<A, R> collector) {
+        public @NotNull <A, R> Flow<R> collect(final @NonNull LongFlowCollector<A, R> collector) {
             return Flows.ofSupplier(name, () -> {
                 val ref = Mutables.<A>newReference();
 
@@ -125,9 +125,9 @@ public class IntFlows {
         }
 
         @Override
-        public @NotNull IntFlow findFirst() {
-            return new IntFlowImpl(name, () -> {
-                val ref = Mutables.newOptionalInt();
+        public @NotNull LongFlow findFirst() {
+            return new LongFlowImpl(name, () -> {
+                val ref = Mutables.newOptionalLong();
 
                 sink.accept(value -> {
                     ref.set(value);
@@ -140,7 +140,7 @@ public class IntFlows {
 
         @Override
         public @NotNull <A> Flow<A> mapFirstToObj(
-                final @NonNull Int2ObjectFlowMapper<A> function
+                final @NonNull Long2ObjectFlowMapper<A> function
         ) {
             return Flows.ofSupplier(name, () -> {
                 val ref = Mutables.<A>newOptionalReference();
@@ -155,24 +155,8 @@ public class IntFlows {
         }
 
         @Override
-        public @NotNull LongFlow mapFirstToLong(final @NotNull Long2IntFlowMapper function) {
-            return LongFlows.ofSupplier(name, () -> {
-                val ref = Mutables.newOptionalLong();
-
-                sink.accept(value -> {
-                    ref.set(function.map(value));
-                    return false;
-                });
-
-                return ref.orElseThrow(FlowEmpty.INSTANCE);
-            });
-        }
-
-        @Override
-        public @NotNull IntFlow mapFirst(
-                final @NonNull Int2IntFlowMapper function
-        ) {
-            return new IntFlowImpl(name, () -> {
+        public @NotNull IntFlow mapFirstToInt(final @NotNull Long2IntFlowMapper function) {
+            return IntFlows.ofSupplier(name, () -> {
                 val ref = Mutables.newOptionalInt();
 
                 sink.accept(value -> {
@@ -185,25 +169,41 @@ public class IntFlows {
         }
 
         @Override
-        public @NotNull IntFlowItems map(final @NonNull Int2IntFlowMapper mapper) {
-            return new IntFlowItemsImpl(name, newSink -> sink.accept(value -> newSink.next(mapper.map(value))));
+        public @NotNull LongFlow mapFirst(
+                final @NonNull Long2LongFlowMapper function
+        ) {
+            return new LongFlowImpl(name, () -> {
+                val ref = Mutables.newOptionalLong();
+
+                sink.accept(value -> {
+                    ref.set(function.map(value));
+                    return false;
+                });
+
+                return ref.orElseThrow(FlowEmpty.INSTANCE);
+            });
         }
 
         @Override
-        public @NotNull <A> FlowItems<A> mapToObj(final @NotNull Int2ObjectFlowMapper<A> mapper) {
+        public @NotNull LongFlowItems map(final @NonNull Long2LongFlowMapper mapper) {
+            return new LongFlowItemsImpl(name, newSink -> sink.accept(value -> newSink.next(mapper.map(value))));
+        }
+
+        @Override
+        public @NotNull IntFlowItems mapToInt(final @NotNull Long2IntFlowMapper mapper) {
+            return IntFlows.ofEmitter(name, newSink -> sink.accept(
+                    value -> newSink.next(mapper.map(value))));
+        }
+
+        @Override
+        public @NotNull <A> FlowItems<A> mapToObj(final @NotNull Long2ObjectFlowMapper<A> mapper) {
             return Flows.ofEmitter(name, newSink -> sink.accept(
                     value -> newSink.next(mapper.map(value))));
         }
 
         @Override
-        public @NotNull LongFlowItems mapToLong(final @NotNull Int2LongFlowMapper mapper) {
-            return LongFlows.ofEmitter(name, newSink -> sink.accept(
-                    value -> newSink.next(mapper.map(value))));
-        }
-
-        @Override
-        public @NotNull IntFlowItems filter(final @NotNull IntFlowPredicate filter) {
-            return new IntFlowItemsImpl(name, newSink -> sink.accept(value -> {
+        public @NotNull LongFlowItems filter(final @NotNull LongFlowPredicate filter) {
+            return new LongFlowItemsImpl(name, newSink -> sink.accept(value -> {
                 if (!filter.test(value))
                     return true;
 
@@ -212,16 +212,16 @@ public class IntFlows {
         }
 
         @Override
-        public @NotNull IntFlowItems forEach(final @NonNull IntFlowConsumer loop) {
-            return new IntFlowItemsImpl(name, newSink -> sink.accept(value -> {
+        public @NotNull LongFlowItems forEach(final @NonNull LongFlowConsumer loop) {
+            return new LongFlowItemsImpl(name, newSink -> sink.accept(value -> {
                 loop.accept(value);
                 return newSink.next(value);
             }));
         }
 
         @Override
-        public @NotNull IntFlowItems forEachCounted(final @NonNull IntFlowCountedLoop loop) {
-            return new IntFlowItemsImpl(name, newSink -> {
+        public @NotNull LongFlowItems forEachCounted(final @NonNull LongFlowCountedLoop loop) {
+            return new LongFlowItemsImpl(name, newSink -> {
                 val counter = Mutables.newInt();
 
                 sink.accept(value -> {
@@ -238,38 +238,38 @@ public class IntFlows {
         }
     }
 
-    public @NotNull IntFlowItems ofEmitter(
+    public @NotNull LongFlowItems ofEmitter(
             final @NotNull String name,
-            final @NotNull FlowConsumer<IntFlowSink> sink
+            final @NotNull FlowConsumer<LongFlowSink> sink
     ) {
-        return new IntFlowItemsImpl(name, sink);
+        return new LongFlowItemsImpl(name, sink);
     }
 
-    public @NotNull IntFlowItems ofEmitter(
-            final @NotNull FlowConsumer<IntFlowSink> sink
+    public @NotNull LongFlowItems ofEmitter(
+            final @NotNull FlowConsumer<LongFlowSink> sink
     ) {
-        return new IntFlowItemsImpl(null, sink);
+        return new LongFlowItemsImpl(null, sink);
     }
 
 
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-    private static final class IntFlowImpl extends AbstractFlow implements IntFlow {
+    private static final class LongFlowImpl extends AbstractFlow implements LongFlow {
 
-        IntFlowSupplier call;
+        LongFlowSupplier call;
 
-        public IntFlowImpl(final String name, final IntFlowSupplier call) {
+        public LongFlowImpl(final String name, final LongFlowSupplier call) {
             super(name);
 
             this.call = call;
         }
 
         @Override
-        public int run() throws Exception {
+        public long run() throws Exception {
             return call.get();
         }
 
         @Override
-        public int call() {
+        public long call() {
             try {
                 return run();
             } catch (final FlowEmpty e) {
@@ -284,8 +284,8 @@ public class IntFlows {
         }
 
         @Override
-        public @NotNull IntFlow orElse(final int value) {
-            return new IntFlowImpl(name, () -> {
+        public @NotNull LongFlow orElse(final long value) {
+            return new LongFlowImpl(name, () -> {
                 try {
                     return run();
                 } catch (final FlowEmpty e) {
@@ -295,19 +295,19 @@ public class IntFlows {
         }
 
         @Override
-        public @NotNull IntFlow orElseGet(final @NonNull IntSupplier value) {
-            return new IntFlowImpl(name, () -> {
+        public @NotNull LongFlow orElseGet(final @NonNull LongSupplier value) {
+            return new LongFlowImpl(name, () -> {
                 try {
                     return run();
                 } catch (final FlowEmpty e) {
-                    return value.getAsInt();
+                    return value.getAsLong();
                 }
             });
         }
 
         @Override
-        public @NotNull IntFlow orElseCall(final @NotNull Supplier<@NotNull IntFlow> value) {
-            return new IntFlowImpl(name, () -> {
+        public @NotNull LongFlow orElseCall(final @NotNull Supplier<@NotNull LongFlow> value) {
+            return new LongFlowImpl(name, () -> {
                 try {
                     return run();
                 } catch (final FlowEmpty e) {
@@ -318,24 +318,24 @@ public class IntFlows {
 
         @Override
         public void callAsync(
-                final @NonNull IntConsumer consumer
+                final @NonNull LongConsumer consumer
         ) {
             _callAsync(consumer, ForkJoinPool.commonPool());
         }
 
         @Override
         public void callAsync(
-                final @NonNull IntConsumer consumer,
+                final @NonNull LongConsumer consumer,
                 final @NonNull Executor executor) {
             _callAsync(consumer, executor);
         }
 
         private void _callAsync(
-                final IntConsumer consumer,
+                final LongConsumer consumer,
                 final Executor executor
         ) {
             executor.execute(() -> {
-                int result = 0;
+                long result = 0;
 
                 try {
                     result = run();
@@ -354,46 +354,46 @@ public class IntFlows {
 
         @Override
         public @NotNull <A> Flow<A> mapToObj(
-                final @NonNull Int2ObjectFlowMapper<A> function
+                final @NonNull Long2ObjectFlowMapper<@Nullable A> function
         ) {
             return Flows.ofSupplier(name, () -> function.map(run()));
         }
 
         @Override
-        public @NotNull LongFlow mapToLong(
-                final @NonNull Int2LongFlowMapper function
+        public @NotNull LongFlow map(
+                final @NonNull Long2LongFlowMapper function
         ) {
-            return LongFlows.ofSupplier(name, () -> function.map(run()));
+            return new LongFlowImpl(name, () -> function.map(run()));
         }
 
         @Override
-        public @NotNull IntFlow map(
-                final @NonNull Int2IntFlowMapper function
+        public @NotNull IntFlow mapToInt(
+                final @NonNull Long2IntFlowMapper function
         ) {
-            return new IntFlowImpl(name, () -> function.map(run()));
+            return IntFlows.ofSupplier(name, () -> function.map(run()));
         }
 
         @Override
-        public @NotNull IntFlow compose(
-                final @NonNull Int2ObjectFlowMapper<@NotNull IntFlow> function
+        public @NotNull LongFlow compose(
+                final @NonNull Long2ObjectFlowMapper<@NotNull LongFlow> function
         ) {
-            return new IntFlowImpl(name, () -> function.map(run()).run());
+            return new LongFlowImpl(name, () -> function.map(run()).run());
         }
 
         @Override
-        public @NotNull Flow<@NotNull OptionalInt> toOptional() {
+        public @NotNull Flow<@NotNull OptionalLong> toOptional() {
             return Flows.ofSupplier(name, () -> {
                 try {
-                    return OptionalInt.of(run());
+                    return OptionalLong.of(run());
                 } catch (final FlowEmpty e) {
-                    return OptionalInt.empty();
+                    return OptionalLong.empty();
                 }
             });
         }
 
         @Override
-        public @NotNull IntFlow filter(final @NonNull IntFlowPredicate filter) {
-            return new IntFlowImpl(name, () -> {
+        public @NotNull LongFlow filter(final @NonNull LongFlowPredicate filter) {
+            return new LongFlowImpl(name, () -> {
                 val value = run();
 
                 if (!filter.test(value)) {
@@ -405,10 +405,10 @@ public class IntFlows {
         }
 
         @Override
-        public @NotNull IntFlow then(
-                final @NonNull IntFlow another
+        public @NotNull LongFlow then(
+                final @NonNull LongFlow another
         ) {
-            return new IntFlowImpl(name, () -> {
+            return new LongFlowImpl(name, () -> {
                 try {
                     run();
                 } catch (final FlowEmpty ignored) {
@@ -420,11 +420,11 @@ public class IntFlows {
         }
 
         @Override
-        public @NotNull IntFlow combine(
-                final @NonNull Int2ObjectFlowMapper<@NotNull IntFlow> another,
-                final @NonNull IntFlowCombiner combiner
+        public @NotNull LongFlow combine(
+                final @NonNull Long2ObjectFlowMapper<@NotNull LongFlow> another,
+                final @NonNull LongFlowCombiner combiner
         ) {
-            return new IntFlowImpl(name, () -> {
+            return new LongFlowImpl(name, () -> {
                 // может быть вызван только первый флов
 
                 val first = run();
@@ -435,15 +435,15 @@ public class IntFlows {
         }
 
         @Override
-        public @NotNull IntFlow combine(
-                final @NonNull IntFlow another,
-                final @NonNull IntFlowCombiner combiner
+        public @NotNull LongFlow combine(
+                final @NonNull LongFlow another,
+                final @NonNull LongFlowCombiner combiner
         ) {
-            return new IntFlowImpl(name, () -> {
+            return new LongFlowImpl(name, () -> {
                 // оба флова должны быть вызваны
 
-                int first = 0;
-                int second = 0;
+                long first = 0;
+                long second = 0;
 
                 FlowEmpty empty = null;
 

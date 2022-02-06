@@ -18,6 +18,7 @@ package w.flow;
 
 import org.jetbrains.annotations.NotNull;
 import w.flow.function.Int2IntFlowMapper;
+import w.flow.function.Int2LongFlowMapper;
 import w.flow.function.Int2ObjectFlowMapper;
 import w.flow.function.IntFlowCombiner;
 import w.flow.function.IntFlowPredicate;
@@ -47,6 +48,10 @@ public interface IntFlow extends BaseFlow {
 
     <T> @NotNull Flow<T> mapToObj(
             @NotNull Int2ObjectFlowMapper<T> mapper
+    );
+
+    @NotNull LongFlow mapToLong(
+            @NotNull Int2LongFlowMapper mapper
     );
 
     @NotNull Flow<@NotNull OptionalInt> toOptional();

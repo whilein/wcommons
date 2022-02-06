@@ -22,6 +22,7 @@ import w.flow.function.FlowCountedLoop;
 import w.flow.function.FlowMapper;
 import w.flow.function.FlowPredicate;
 import w.flow.function.Object2IntFlowMapper;
+import w.flow.function.Object2LongFlowMapper;
 
 import java.util.concurrent.Executor;
 
@@ -42,6 +43,11 @@ public interface FlowItems<T> extends BaseFlowItems {
     @NotNull
     IntFlow mapFirstToInt(
             @NotNull Object2IntFlowMapper<T> function
+    );
+
+    @NotNull
+    LongFlow mapFirstToLong(
+            @NotNull Object2LongFlowMapper<T> function
     );
 
     <A> @NotNull FlowItems<A> map(
@@ -89,6 +95,11 @@ public interface FlowItems<T> extends BaseFlowItems {
     @NotNull
     IntFlowItems mapToInt(
             @NotNull Object2IntFlowMapper<T> mapper
+    );
+
+    @NotNull
+    LongFlowItems mapToLong(
+            @NotNull Object2LongFlowMapper<T> mapper
     );
 
     @NotNull FlowItems<T> filter(

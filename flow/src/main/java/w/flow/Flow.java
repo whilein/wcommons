@@ -24,6 +24,7 @@ import w.flow.function.FlowConsumer;
 import w.flow.function.FlowMapper;
 import w.flow.function.FlowPredicate;
 import w.flow.function.Object2IntFlowMapper;
+import w.flow.function.Object2LongFlowMapper;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -59,6 +60,10 @@ public interface Flow<T> extends BaseFlow {
 
     @NotNull IntFlow mapToInt(
             @NotNull Object2IntFlowMapper<T> mapper
+    );
+
+    @NotNull LongFlow mapToLong(
+            @NotNull Object2LongFlowMapper<T> mapper
     );
 
     @NotNull Flow<@NotNull Optional<T>> toOptional();

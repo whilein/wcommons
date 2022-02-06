@@ -18,10 +18,12 @@ package w.flow;
 
 import org.jetbrains.annotations.NotNull;
 import w.flow.function.Int2IntFlowMapper;
+import w.flow.function.Int2LongFlowMapper;
 import w.flow.function.Int2ObjectFlowMapper;
 import w.flow.function.IntFlowConsumer;
 import w.flow.function.IntFlowCountedLoop;
 import w.flow.function.IntFlowPredicate;
+import w.flow.function.Long2IntFlowMapper;
 
 /**
  * @author whilein
@@ -37,6 +39,11 @@ public interface IntFlowItems extends BaseFlowItems {
     );
 
     @NotNull
+    LongFlow mapFirstToLong(
+            @NotNull Long2IntFlowMapper function
+    );
+
+    @NotNull
     IntFlow mapFirst(
             @NotNull Int2IntFlowMapper function
     );
@@ -47,6 +54,11 @@ public interface IntFlowItems extends BaseFlowItems {
 
     <A> @NotNull FlowItems<A> mapToObj(
             @NotNull Int2ObjectFlowMapper<A> mapper
+    );
+
+    @NotNull
+    LongFlowItems mapToLong(
+            @NotNull Int2LongFlowMapper mapper
     );
 
     @NotNull IntFlowItems forEachCounted(@NotNull IntFlowCountedLoop loop);

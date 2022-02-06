@@ -57,7 +57,6 @@ public class IntFlowCollectors {
         return new ToObjectIntMap<>(keyMapper, valueMapper);
     }
 
-
     public static @NotNull IntFlowCollector<@NotNull IntList, int @NotNull []> toIntArray() {
         return new ToIntArray();
     }
