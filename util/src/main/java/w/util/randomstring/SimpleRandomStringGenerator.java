@@ -128,9 +128,20 @@ public final class SimpleRandomStringGenerator implements RandomStringGenerator 
             return add(dictionary);
         }
 
+        private static final Supplier<Random> DEFAULT_RANDOM_FACTORY;
+
+        static {
+            val random = RandomUtils.getRandom();
+            DEFAULT_RANDOM_FACTORY = () -> random;
+        }
+
         @Override
         public @NotNull RandomStringGenerator build() {
-            return new SimpleRandomStringGenerator(factory, dictionary.toString().toCharArray());
+            val randomFactory = factory == null
+                    ? DEFAULT_RANDOM_FACTORY
+                    : factory;
+
+            return new SimpleRandomStringGenerator(randomFactory, dictionary.toString().toCharArray());
         }
     }
 }
