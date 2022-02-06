@@ -112,6 +112,34 @@ public class RandomUtils {
         return last;
     }
 
+    public boolean getRandomElement(final boolean @NotNull [] array) {
+        return array[RANDOM.nextInt(array.length)];
+    }
+
+    public byte getRandomElement(final byte @NotNull [] array) {
+        return array[RANDOM.nextInt(array.length)];
+    }
+
+    public short getRandomElement(final short @NotNull [] array) {
+        return array[RANDOM.nextInt(array.length)];
+    }
+
+    public int getRandomElement(final int @NotNull [] array) {
+        return array[RANDOM.nextInt(array.length)];
+    }
+
+    public long getRandomElement(final long @NotNull [] array) {
+        return array[RANDOM.nextInt(array.length)];
+    }
+
+    public float getRandomElement(final float @NotNull [] array) {
+        return array[RANDOM.nextInt(array.length)];
+    }
+
+    public double getRandomElement(final double @NotNull [] array) {
+        return array[RANDOM.nextInt(array.length)];
+    }
+
     public <T> T getRandomElement(final T @NotNull [] array) {
         return array[RANDOM.nextInt(array.length)];
     }
