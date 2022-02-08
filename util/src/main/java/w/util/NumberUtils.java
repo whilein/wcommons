@@ -20,17 +20,28 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
+import java.text.DecimalFormat;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
 /**
- * спиздил у джарвиса
- *
  * @author whilein
  */
 @UtilityClass
-public class ParseUtils {
+public class NumberUtils {
 
+    private final DecimalFormat LONG_FORMATTER = new DecimalFormat("###,###");
+    private final DecimalFormat DOUBLE_FORMATTER = new DecimalFormat("###,###.00");
+
+    public @NotNull String formatNumber(final double number) {
+        return DOUBLE_FORMATTER.format(number);
+    }
+
+    public @NotNull String formatNumber(final long number) {
+        return LONG_FORMATTER.format(number);
+    }
+
+    // спиздил у джарвиса
     public @NotNull OptionalLong parseLong(final @NotNull CharSequence input) {
         val length = input.length();
 
@@ -99,6 +110,7 @@ public class ParseUtils {
         return OptionalLong.of(negative ? negativeResult : -negativeResult);
     }
 
+    // и это тоже спиздил у него
     public @NotNull OptionalInt parseInt(final @NotNull CharSequence input) {
         val length = input.length();
 
