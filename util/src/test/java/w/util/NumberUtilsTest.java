@@ -27,6 +27,8 @@ final class NumberUtilsTest {
 
     @Test
     void formatNumber_long() {
+        assertEquals("-1", NumberUtils.formatNumber(-1));
+        assertEquals("0", NumberUtils.formatNumber(0));
         assertEquals("1", NumberUtils.formatNumber(1L));
         assertEquals("1,000", NumberUtils.formatNumber(1000L));
         assertEquals("1,000,000", NumberUtils.formatNumber(1000000L));
@@ -36,6 +38,8 @@ final class NumberUtilsTest {
 
     @Test
     void formatNumber_double() {
+        assertEquals("-0.12", NumberUtils.formatNumber(-0.123));
+        assertEquals("0.12", NumberUtils.formatNumber(0.123));
         assertEquals("1.12", NumberUtils.formatNumber(1.123));
         assertEquals("1,000.12", NumberUtils.formatNumber(1000.123));
         assertEquals("1,000,000.12", NumberUtils.formatNumber(1000000.123));

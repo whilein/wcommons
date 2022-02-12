@@ -31,7 +31,123 @@ import java.util.OptionalLong;
 public class NumberUtils {
 
     private final DecimalFormat LONG_FORMATTER = new DecimalFormat("###,###");
-    private final DecimalFormat DOUBLE_FORMATTER = new DecimalFormat("###,###.00");
+    private final DecimalFormat DOUBLE_FORMATTER = new DecimalFormat("###,##0.00");
+
+    public int getLongLength(final long value) {
+        if (value < 1000000000) {
+            if (value < 100000) {
+                if (value < 100) {
+                    if (value < 10) {
+                        return 1;
+                    } else {
+                        return 2;
+                    }
+                } else {
+                    if (value < 1000) {
+                        return 3;
+                    } else {
+                        if (value < 10000) {
+                            return 4;
+                        } else {
+                            return 5;
+                        }
+                    }
+                }
+            } else {
+                if (value < 10000000) {
+                    if (value < 1000000) {
+                        return 6;
+                    } else {
+                        return 7;
+                    }
+                } else {
+                    if (value < 100000000) {
+                        return 8;
+                    } else {
+                        return 9;
+                    }
+                }
+            }
+        } else {
+            if (value < 100000000000000L) {
+                if (value < 100000000000L) {
+                    if (value < 10000000000L) {
+                        return 10;
+                    } else {
+                        return 11;
+                    }
+                } else {
+                    if (value < 1000000000000L) {
+                        return 12;
+                    } else {
+                        if (value < 10000000000000L) {
+                            return 13;
+                        } else {
+                            return 14;
+                        }
+                    }
+                }
+            } else {
+                if (value < 10000000000000000L) {
+                    if (value < 1000000000000000L) {
+                        return 15;
+                    } else {
+                        return 16;
+                    }
+                } else {
+                    if (value < 100000000000000000L) {
+                        return 17;
+                    } else {
+                        if (value < 1000000000000000000L) {
+                            return 18;
+                        } else {
+                            return 19;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public int getIntLength(final int value) {
+        if (value < 100000) {
+            if (value < 100) {
+                if (value < 10) {
+                    return 1;
+                } else {
+                    return 2;
+                }
+            } else {
+                if (value < 1000) {
+                    return 3;
+                } else {
+                    if (value < 10000) {
+                        return 4;
+                    } else {
+                        return 5;
+                    }
+                }
+            }
+        } else {
+            if (value < 10000000) {
+                if (value < 1000000) {
+                    return 6;
+                } else {
+                    return 7;
+                }
+            } else {
+                if (value < 100000000) {
+                    return 8;
+                } else {
+                    if (value < 1000000000) {
+                        return 9;
+                    } else {
+                        return 10;
+                    }
+                }
+            }
+        }
+    }
 
     public @NotNull String formatNumber(final double number) {
         return DOUBLE_FORMATTER.format(number);
@@ -179,7 +295,7 @@ public class NumberUtils {
         return OptionalInt.of(negative ? negativeResult : -negativeResult);
     }
 
-    private int digit(final char value) {
+    public int digit(final char value) {
         return value >= '0' && value <= '9' ? value & 0xF : -1;
     }
 
