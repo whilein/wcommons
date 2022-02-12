@@ -44,6 +44,8 @@ public interface ByteSlice {
 
     byte get(int position);
 
+    @NotNull ByteSlice slice(int off, int len);
+
     byte @NotNull [] getSlice();
 
     byte @NotNull [] getArray();
@@ -67,8 +69,13 @@ public interface ByteSlice {
         }
 
         @Override
+        public @NotNull ByteSlice slice(final int off, final int len) {
+            return new Default(array, offset + off, len);
+        }
+
+        @Override
         public byte @NotNull [] getSlice() {
-            return Arrays.copyOfRange(array, offset, length);
+            return Arrays.copyOfRange(array, offset, offset + length);
         }
 
         @Override

@@ -24,8 +24,8 @@ import lombok.experimental.NonFinal;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
-import w.util.bytes.Bytes;
-import w.util.bytes.UncappedBytes;
+import w.util.io.ByteOutput;
+import w.util.io.UncappedByteOutput;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -42,7 +42,7 @@ public class Buffering {
         return BUFFERS.get().getStringBuilderBuffer().pop();
     }
 
-    public @NotNull Buffered<@NotNull Bytes> getBytes() {
+    public @NotNull Buffered<@NotNull ByteOutput> getBytes() {
         return BUFFERS.get().getBytesBuffer().pop();
     }
 
@@ -61,7 +61,7 @@ public class Buffering {
     @AllArgsConstructor
     private static final class BufferedImpl<T> implements Buffered<T> {
 
-        Buffer<T> buffer;
+        Buffering.Buffer<T> buffer;
 
         @NonFinal
         T value;
@@ -115,13 +115,13 @@ public class Buffering {
     @RequiredArgsConstructor
     private static final class Buffers {
 
-        Buffer<StringBuilder> stringBuilderBuffer;
-        Buffer<Bytes> bytesBuffer;
+        Buffering.Buffer<StringBuilder> stringBuilderBuffer;
+        Buffering.Buffer<ByteOutput> bytesBuffer;
 
         public static Buffers init() {
             return new Buffers(
-                    new Buffer<>(StringBuilder::new, builder -> builder.setLength(0)),
-                    new Buffer<>(UncappedBytes::create, bytes -> bytes.setLength(0)));
+                    new Buffering.Buffer<>(StringBuilder::new, builder -> builder.setLength(0)),
+                    new Buffering.Buffer<>(UncappedByteOutput::create, bytes -> bytes.setLength(0)));
         }
 
     }

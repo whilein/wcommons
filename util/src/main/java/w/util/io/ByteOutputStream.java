@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package w.util.bytes;
+package w.util.io;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -28,21 +28,21 @@ import java.io.OutputStream;
  */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class BytesOutputStream extends OutputStream {
+public final class ByteOutputStream extends OutputStream {
 
-    Bytes bytes;
+    ByteOutput byteOutput;
 
-    public static @NotNull OutputStream wrap(final @NotNull Bytes bytes) {
-        return new BytesOutputStream(bytes);
+    public static @NotNull OutputStream wrap(final @NotNull ByteOutput byteOutput) {
+        return new ByteOutputStream(byteOutput);
     }
 
     @Override
     public void write(final byte @NotNull [] b, final int off, final int len) {
-        bytes.write(b, off, len);
+        byteOutput.write(b, off, len);
     }
 
     @Override
     public void write(final int b) {
-        bytes.write(b);
+        byteOutput.write(b);
     }
 }

@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package w.util.bytes;
+package w.util.io;
 
 import lombok.val;
 import org.junit.jupiter.api.Test;
@@ -25,11 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author whilein
  */
-final class BytesTests {
+final class ByteOutputTests {
 
     @Test
     void uncapped_setLength() {
-        val uncapped = UncappedBytes.create();
+        val uncapped = UncappedByteOutput.create();
         assertEquals(0, uncapped.getLength());
         assertEquals(0, uncapped.getPosition());
         uncapped.write(1);

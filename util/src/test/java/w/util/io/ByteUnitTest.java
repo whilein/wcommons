@@ -14,36 +14,26 @@
  *    limitations under the License.
  */
 
-package w.util.bytes;
+package w.util.io;
 
-import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Test;
+import w.util.ByteUnit;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author whilein
  */
-public interface Bytes {
+final class ByteUnitTest {
 
-    @NotNull Bytes write(int i);
+    @Test
+    void convert() {
+        assertEquals(0L, ByteUnit.UNO.toKibi(1L));
+        assertEquals(0.5, ByteUnit.UNO.toKibi(512.0));
 
-    @NotNull Bytes write(@NotNull String text);
-
-    @NotNull Bytes write(byte @NotNull [] bytes);
-
-    @NotNull Bytes write(byte @NotNull [] bytes, int off, int len);
-
-    void setPosition(int position);
-
-    void setLength(int size);
-
-    int getPosition();
-
-    int getLength();
-
-    int getCapacity();
-
-    byte @NotNull [] toByteArray();
-
-    @NotNull String toString();
-
+        assertEquals(1024L, ByteUnit.KIBI.toUno(1L));
+        assertEquals(1024L, ByteUnit.MEBI.toKibi(1L));
+        assertEquals(1024L, ByteUnit.GIBI.toMebi(1L));
+    }
 
 }

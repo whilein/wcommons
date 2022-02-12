@@ -33,7 +33,7 @@ import java.util.List;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class LoggingEventBusDebugger implements EventBusDebugger {
 
-    public static @NotNull EventBusDebugger INSTANCE = new LoggingEventBusDebugger(null);
+    public static final @NotNull EventBusDebugger INSTANCE = new LoggingEventBusDebugger(null);
 
     Logger logger;
 

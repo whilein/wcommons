@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package w.util.bytes;
+package w.util;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;

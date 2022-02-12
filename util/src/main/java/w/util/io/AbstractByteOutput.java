@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package w.util.bytes;
+package w.util.io;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
  * @author whilein
  */
 @FieldDefaults(level = AccessLevel.PROTECTED)
-public abstract class AbstractBytes implements Bytes {
+public abstract class AbstractByteOutput implements ByteOutput {
 
     byte[] array;
 
@@ -35,14 +35,14 @@ public abstract class AbstractBytes implements Bytes {
     @Setter
     int position;
 
-    protected AbstractBytes(final byte[] array) {
+    protected AbstractByteOutput(final byte[] array) {
         this.array = array;
     }
 
     protected abstract void ensure(int count);
 
     @Override
-    public @NotNull Bytes write(final int i) {
+    public @NotNull ByteOutput write(final int i) {
         ensure(1);
         this.array[position++] = (byte) i;
 
@@ -50,7 +50,7 @@ public abstract class AbstractBytes implements Bytes {
     }
 
     @Override
-    public @NotNull Bytes write(final @NotNull String text) {
+    public @NotNull ByteOutput write(final @NotNull String text) {
         for (int i = 0, j = text.length(); i < j; i++) {
             val ch = text.charAt(i);
 
@@ -76,12 +76,12 @@ public abstract class AbstractBytes implements Bytes {
     }
 
     @Override
-    public @NotNull Bytes write(final byte @NotNull [] bytes) {
+    public @NotNull ByteOutput write(final byte @NotNull [] bytes) {
         return write(bytes, 0, bytes.length);
     }
 
     @Override
-    public @NotNull Bytes write(final byte @NotNull [] bytes, final int off, final int len) {
+    public @NotNull ByteOutput write(final byte @NotNull [] bytes, final int off, final int len) {
         ensure(len);
         System.arraycopy(bytes, off, array, position, len);
         position += len;

@@ -14,12 +14,11 @@
  *    limitations under the License.
  */
 
-package w.util.bytes;
+package w.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-import w.util.Root;
 
 /**
  * @author whilein

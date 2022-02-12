@@ -14,12 +14,12 @@
  *    limitations under the License.
  */
 
-package w.util.bytes;
+package w.util.io;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import w.util.ByteAllocator;
 
 import java.util.Arrays;
 
@@ -27,51 +27,49 @@ import java.util.Arrays;
  * @author whilein
  */
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public final class UncappedBytes extends AbstractBytes {
+public final class CappedByteOutput extends AbstractByteOutput {
 
-    int length;
+    int position;
 
-    private UncappedBytes(final byte[] array) {
+    private CappedByteOutput(final byte[] array) {
         super(array);
     }
 
-    public static @NotNull Bytes create(final int initialCap) {
-        return new UncappedBytes(ByteAllocator.INSTANCE.allocate(initialCap));
-    }
-
-    public static @NotNull Bytes create() {
-        return create(8192);
+    public static @NotNull ByteOutput create(final int cap) {
+        return new CappedByteOutput(ByteAllocator.INSTANCE.allocate(cap));
     }
 
     @Override
-    protected void ensure(final int count) {
-        val newPosition = position + count;
+    public @NotNull ByteOutput write(final int i) {
+        ensure(1);
 
-        if (newPosition > array.length) {
-            array = Arrays.copyOf(array, Math.max(newPosition, array.length * 2));
-        }
-
-        length = Math.max(length, newPosition);
+        this.array[position++] = (byte) i;
+        return this;
     }
 
     @Override
     public void setLength(final int length) {
-        this.length = length;
-        this.position = Math.min(length, position);
+        this.array = Arrays.copyOf(array, length);
     }
 
     @Override
     public int getLength() {
-        return length;
+        return array.length;
+    }
+
+    protected void ensure(final int count) {
+        if (position + count >= array.length) {
+            throw new IllegalStateException("buffer cannot fit " + count + " bytes");
+        }
     }
 
     @Override
     public @NotNull String toString() {
-        return new String(array, 0, length);
+        return new String(array);
     }
 
     @Override
     public byte @NotNull [] toByteArray() {
-        return Arrays.copyOf(array, length);
+        return Arrays.copyOf(array, array.length);
     }
 }
