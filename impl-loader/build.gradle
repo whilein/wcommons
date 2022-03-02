@@ -15,3 +15,10 @@ jar {
 processApResources {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
+
+dependencies {
+    apCompileOnly libs.lombok
+    apAnnotationProcessor libs.lombok
+
+    apCompileOnly libs.annotations
+}

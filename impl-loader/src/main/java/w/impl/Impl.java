@@ -16,6 +16,8 @@
 
 package w.impl;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -25,10 +27,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 public @interface Impl {
 
-    Class<?> type();
+    @NotNull Class<?> @NotNull [] types();
 
-    String factory() default "create";
+    @NotNull String factory() default "create";
 
-    ImplPriority priority() default ImplPriority.NORMAL;
+    @NotNull ImplPriority priority() default ImplPriority.NORMAL;
 
 }

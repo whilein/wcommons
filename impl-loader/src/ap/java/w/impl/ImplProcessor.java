@@ -1,29 +1,26 @@
 package w.impl;
 
+import lombok.val;
+
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypeException;
-import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-// WARNING
-// В данном сурс сете не работает ломбок
 public final class ImplProcessor extends AbstractProcessor {
 
     private final Map<String, List<ImplModel>> models = new HashMap<>();
 
     private static String getClassName(final TypeElement type) {
-        final Element enclosedIn = type.getEnclosingElement();
+        val enclosedIn = type.getEnclosingElement();
 
         // if class is inner
         if (enclosedIn instanceof TypeElement) {
@@ -45,36 +42,38 @@ public final class ImplProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
-        for (final Element element : roundEnv.getElementsAnnotatedWith(Impl.class)) {
-            final TypeElement type = (TypeElement) element;
-            final String name = getClassName(type);
+        for (val element : roundEnv.getElementsAnnotatedWith(Impl.class)) {
+            val type = (TypeElement) element;
+            val name = getClassName(type);
 
-            final Impl annotation = element.getAnnotation(Impl.class);
-            final ImplPriority priority = annotation.priority();
+            val annotation = element.getAnnotation(Impl.class);
+            val priority = annotation.priority();
 
-            String apiName;
+            for (val apiType : annotation.types()) {
+                String apiName;
 
-            try {
-                apiName = annotation.type().getName();
-            } catch (final MirroredTypeException e) {
-                apiName = getClassName(processingEnv.getElementUtils().getTypeElement(e.getTypeMirror().toString()));
+                try {
+                    apiName = apiType.getName();
+                } catch (final MirroredTypeException e) {
+                    apiName = getClassName(processingEnv.getElementUtils().getTypeElement(e.getTypeMirror().toString()));
+                }
+
+                models.computeIfAbsent(apiName, x -> new ArrayList<>())
+                        .add(new ImplModel(name, annotation.factory(), priority));
             }
-
-            models.computeIfAbsent(apiName, x -> new ArrayList<>())
-                    .add(new ImplModel(name, annotation.factory(), priority));
         }
 
         if (roundEnv.processingOver()) {
-            for (Map.Entry<String, List<ImplModel>> entry : models.entrySet()) {
-                final String apiName = entry.getKey();
-                final List<ImplModel> modelList = entry.getValue();
+            for (val entry : models.entrySet()) {
+                val apiName = entry.getKey();
+                val modelList = entry.getValue();
 
                 try {
-                    final FileObject object = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT,
+                    val object = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT,
                             "", "META-INF/impl/" + apiName);
 
-                    try (final Writer writer = object.openWriter()) {
-                        for (final ImplModel model : modelList) {
+                    try (val writer = object.openWriter()) {
+                        for (val model : modelList) {
                             writer.append(model.getImplType());
                             writer.append(':');
                             writer.append(model.getFactoryMethod());
