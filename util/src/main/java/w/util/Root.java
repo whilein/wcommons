@@ -25,6 +25,7 @@ import w.agent.AgentInstrumentation;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Field;
 import java.security.ProtectionDomain;
 import java.util.Collections;
 import java.util.HashSet;
@@ -97,6 +98,14 @@ public class Root {
         return UNSAFE.allocateUninitializedArray(componentType, length);
     }
 
+    public static void putField(final @NotNull Field field, final @NotNull Object object, final @NotNull Object value) {
+        UNSAFE.putField(field, object, value);
+    }
+
+    public static void putStaticField(final @NotNull Field field, final @NotNull Object value) {
+        UNSAFE.putStaticField(field, value);
+    }
+
     public @NotNull MethodHandles.Lookup trustedLookup() {
         return UNSAFE.trustedLookup();
     }
@@ -105,13 +114,19 @@ public class Root {
         return UNSAFE.trustedLookupIn(type);
     }
 
-    private static final class UnsafeImpl extends Unsafe {
+    private static final class UnsafeImpl implements Unsafe {
 
         private static final MethodHandles.Lookup IMPL_LOOKUP;
 
         private static final MethodHandle UNSAFE__DEFINE_CLASS;
 
         private static final MethodHandle UNSAFE__ALLOCATE_UNINITIALIZED_ARRAY;
+
+        private static final MethodHandle UNSAFE__PUT_REFERENCE;
+
+        private static final MethodHandle UNSAFE__STATIC_FIELD_OFFSET;
+
+        private static final MethodHandle UNSAFE__OBJECT_FIELD_OFFSET;
 
         static {
             // region IMPL_LOOKUP
@@ -141,6 +156,28 @@ public class Root {
                                 UNSAFE_TYPE,
                                 "allocateUninitializedArray",
                                 methodType(Object.class, Class.class, int.class)
+                        )
+                        .bindTo(theUnsafe);
+
+                UNSAFE__OBJECT_FIELD_OFFSET = IMPL_LOOKUP.findVirtual(
+                                UNSAFE_TYPE,
+                                "objectFieldOffset",
+                                methodType(long.class, Field.class)
+                        )
+                        .bindTo(theUnsafe);
+
+
+                UNSAFE__STATIC_FIELD_OFFSET = IMPL_LOOKUP.findVirtual(
+                                UNSAFE_TYPE,
+                                "staticFieldOffset",
+                                methodType(long.class, Field.class)
+                        )
+                        .bindTo(theUnsafe);
+
+                UNSAFE__PUT_REFERENCE = IMPL_LOOKUP.findVirtual(
+                                UNSAFE_TYPE,
+                                "putReference",
+                                methodType(void.class, Object.class, long.class, Object.class)
                         )
                         .bindTo(theUnsafe);
             } catch (final Exception e) {
@@ -183,9 +220,26 @@ public class Root {
         public boolean isSupported() {
             return true;
         }
+
+        @Override
+        @SneakyThrows
+        public void putField(final Field field, final Object object, final Object value) {
+            UNSAFE__PUT_REFERENCE.invokeExact(object, (long) UNSAFE__OBJECT_FIELD_OFFSET.invokeExact(field), value);
+        }
+
+        @Override
+        @SneakyThrows
+        public void putStaticField(final Field field, final Object value) {
+            UNSAFE__PUT_REFERENCE.invokeExact(
+                    (Object) field.getDeclaringClass(),
+                    (long) UNSAFE__STATIC_FIELD_OFFSET.invokeExact(field),
+                    value
+            );
+        }
+
     }
 
-    private static final class UnsafeStub extends Unsafe {
+    private static final class UnsafeStub implements Unsafe {
 
         private UnsupportedOperationException constructException() {
             return new UnsupportedOperationException(
@@ -225,17 +279,31 @@ public class Root {
             return false;
         }
 
+        @Override
+        public void putField(final Field field, final Object object, final Object value) {
+            throw constructException();
+        }
+
+        @Override
+        public void putStaticField(final Field field, final Object value) {
+            throw constructException();
+        }
+
     }
 
-    private static abstract class Unsafe {
+    private interface Unsafe {
 
-        public abstract boolean isSupported();
+        boolean isSupported();
 
-        public abstract MethodHandles.Lookup trustedLookupIn(Class<?> type);
+        void putField(Field field, Object object, Object value);
 
-        public abstract MethodHandles.Lookup trustedLookup();
+        void putStaticField(Field field, Object value);
 
-        public abstract Class<?> defineClass(
+        MethodHandles.Lookup trustedLookupIn(Class<?> type);
+
+        MethodHandles.Lookup trustedLookup();
+
+        Class<?> defineClass(
                 String name,
                 byte[] data,
                 int offset,
@@ -244,7 +312,7 @@ public class Root {
                 ProtectionDomain protectionDomain
         );
 
-        public abstract Object allocateUninitializedArray(Class<?> componentType, int length);
+        Object allocateUninitializedArray(Class<?> componentType, int length);
 
     }
 
