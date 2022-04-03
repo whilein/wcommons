@@ -5,7 +5,6 @@
 
 - [База данных](sql)
 - ["Шина событий"](eventbus)
-- [Индексирование аннотаций](annotation-index)
 - [Изменение байткода в рантайме](asm-patcher)
 - [Java агент](agent)
 - [Flow](flow)
