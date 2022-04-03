@@ -7,6 +7,7 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.TypeMirror;
 import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,6 +41,28 @@ public final class ImplProcessor extends AbstractProcessor {
         return SourceVersion.latestSupported();
     }
 
+    private String getClassName(final Class<?> cls) {
+        try {
+            return cls.getName();
+        } catch (final MirroredTypeException e) {
+            return getClassName(e.getTypeMirror());
+        }
+    }
+
+    private String getClassName(final TypeMirror type) {
+        return getClassName(processingEnv.getElementUtils().getTypeElement(type.toString()));
+    }
+
+    private void addModel(
+            final String apiName,
+            final String implName,
+            final String factory,
+            final ImplPriority priority
+    ) {
+        models.computeIfAbsent(apiName, x -> new ArrayList<>())
+                .add(new ImplModel(implName, factory, priority));
+    }
+
     @Override
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
         for (val element : roundEnv.getElementsAnnotatedWith(Impl.class)) {
@@ -49,17 +72,14 @@ public final class ImplProcessor extends AbstractProcessor {
             val annotation = element.getAnnotation(Impl.class);
             val priority = annotation.priority();
 
-            for (val apiType : annotation.types()) {
-                String apiName;
-
-                try {
-                    apiName = apiType.getName();
-                } catch (final MirroredTypeException e) {
-                    apiName = getClassName(processingEnv.getElementUtils().getTypeElement(e.getTypeMirror().toString()));
+            try {
+                for (val apiType : annotation.types()) {
+                    addModel(getClassName(apiType), name, annotation.factory(), priority);
                 }
-
-                models.computeIfAbsent(apiName, x -> new ArrayList<>())
-                        .add(new ImplModel(name, annotation.factory(), priority));
+            } catch (final MirroredTypeException e) {
+                for (val apiType : e.getTypeMirrors()) {
+                    addModel(getClassName(apiType), name, annotation.factory(), priority);
+                }
             }
         }
 
