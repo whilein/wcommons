@@ -7,6 +7,7 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.MirroredTypesException;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.StandardLocation;
 import java.io.IOException;
@@ -76,7 +77,7 @@ public final class ImplProcessor extends AbstractProcessor {
                 for (val apiType : annotation.types()) {
                     addModel(getClassName(apiType), name, annotation.factory(), priority);
                 }
-            } catch (final MirroredTypeException e) {
+            } catch (final MirroredTypesException e) {
                 for (val apiType : e.getTypeMirrors()) {
                     addModel(getClassName(apiType), name, annotation.factory(), priority);
                 }
