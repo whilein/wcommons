@@ -21,6 +21,7 @@ import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
+import java.io.File;
 import java.lang.instrument.Instrumentation;
 
 /**
@@ -36,10 +37,10 @@ final class AgentMain {
     public void main(final String[] args) {
         val vm = VirtualMachine.attach(args[0]);
 
-        val jar = AgentMain.class.getProtectionDomain().getCodeSource()
-                .getLocation();
+        val jar = new File(AgentMain.class.getProtectionDomain().getCodeSource().getLocation().toURI())
+                .getPath();
 
-        vm.loadAgent(jar.getFile());
+        vm.loadAgent(jar);
     }
 
     @SneakyThrows
