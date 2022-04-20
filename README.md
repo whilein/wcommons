@@ -1,7 +1,28 @@
-Актуальная версия:
-**0.1.54**
+# wcommons
 
-В данном проекте находится:
+<div align="center">
+  <a href="https://github.com/whilein/wcommons/blob/master/LICENSE">
+    <img src="https://img.shields.io/github/license/whilein/wcommons">
+  </a>
+
+  <a href="https://discord.gg/ANEHruraCc">
+    <img src="https://img.shields.io/discord/819859288049844224?logo=discord">
+  </a>
+
+  <a href="https://github.com/whilein/wcommons/issues">
+    <img src="https://img.shields.io/github/issues/whilein/wcommons">
+  </a>
+
+  <a href="https://github.com/whilein/wcommons/pulls">
+    <img src="https://img.shields.io/github/issues-pr/whilein/wcommons">
+  </a>
+
+  <a href="https://search.maven.org/artifact/io.github.whilein.wcommons/wcommons">
+    <img src="https://img.shields.io/maven-central/v/io.github.whilein.wcommons/wcommons">
+  </a>
+</div>
+
+## Содержание
 
 - [База данных](sql)
 - ["Шина событий"](eventbus)
