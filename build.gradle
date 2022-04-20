@@ -44,6 +44,8 @@ subprojects {
     apply plugin: "java-library"
     apply plugin: "maven-publish"
 
+    apply from: file("module.gradle")
+
     repositories {
         mavenCentral()
     }
