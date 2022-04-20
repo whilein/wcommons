@@ -25,7 +25,6 @@ import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,7 +38,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author whilein
@@ -57,14 +55,14 @@ public abstract class AbstractJacksonConfigProvider implements JacksonConfigProv
     @Getter
     ObjectConverter objectConverter;
 
-    private ConfigObject loadObject(final Map<?, ?> map) {
-        val object = new ConfigObjectImpl(new LinkedHashMap<>());
+    private Config loadObject(final Map<?, ?> map) {
+        val object = new ConfigImpl(new LinkedHashMap<>());
         loadObject(map, object);
 
         return object;
     }
 
-    private void loadObject(final Map<?, ?> map, final ConfigObject object) {
+    private void loadObject(final Map<?, ?> map, final Config object) {
         for (val entry : map.entrySet()) {
             val key = entry.getKey().toString();
             val value = entry.getValue();
@@ -164,20 +162,20 @@ public abstract class AbstractJacksonConfigProvider implements JacksonConfigProv
 
     @Override
     @SneakyThrows
-    public @NotNull ConfigObject parse(final @NotNull Path path) {
+    public @NotNull Config parse(final @NotNull Path path) {
         try (val is = Files.newInputStream(path)) {
             return _parse(is);
         }
     }
 
     @Override
-    public @NotNull ConfigObject newObject() {
-        return new ConfigObjectImpl(new LinkedHashMap<>());
+    public @NotNull Config newObject() {
+        return new ConfigImpl(new LinkedHashMap<>());
     }
 
     @Override
     @SneakyThrows
-    public @NotNull ConfigObject parse(final @NotNull File file) {
+    public @NotNull Config parse(final @NotNull File file) {
         try (val is = new FileInputStream(file)) {
             return _parse(is);
         }
@@ -185,35 +183,35 @@ public abstract class AbstractJacksonConfigProvider implements JacksonConfigProv
 
     @Override
     @SneakyThrows
-    public @NotNull ConfigObject parse(final @NotNull String input) {
+    public @NotNull Config parse(final @NotNull String input) {
         return loadObject(objectReader.readValue(input, Map.class));
     }
 
     @Override
     @SneakyThrows
-    public @NotNull ConfigObject parse(final byte @NotNull [] input) {
+    public @NotNull Config parse(final byte @NotNull [] input) {
         return loadObject(objectReader.readValue(input, Map.class));
     }
 
     @Override
     @SneakyThrows
-    public @NotNull ConfigObject parse(final @NotNull Reader reader) {
+    public @NotNull Config parse(final @NotNull Reader reader) {
         return loadObject(objectReader.readValue(reader, Map.class));
     }
 
     @Override
     @SneakyThrows
-    public @NotNull ConfigObject parse(final @NotNull InputStream is) {
+    public @NotNull Config parse(final @NotNull InputStream is) {
         return _parse(is);
     }
 
-    private ConfigObject _parse(final InputStream is) throws IOException {
+    private Config _parse(final InputStream is) throws IOException {
         return loadObject(objectReader.readValue(is, Map.class));
     }
 
-    private final class ConfigObjectImpl extends AbstractMapConfigObject {
+    private final class ConfigImpl extends AbstractMapConfig {
 
-        private ConfigObjectImpl(final Map<String, Object> map) {
+        private ConfigImpl(final Map<String, Object> map) {
             super(map);
         }
 
@@ -224,13 +222,18 @@ public abstract class AbstractJacksonConfigProvider implements JacksonConfigProv
         }
 
         @Override
-        protected ConfigObject createObject(final Map<String, Object> map) {
-            return new ConfigObjectImpl(map);
+        public int hashCode() {
+            return map.hashCode();
         }
 
         @Override
-        public <T> T asType(final @NotNull Class<T> type) {
-            return objectConverter.convert(map, type);
+        public boolean equals(final Object obj) {
+            return obj == this || obj instanceof ConfigImpl config && map.equals(config.map);
+        }
+
+        @Override
+        protected Config createObject(final Map<String, Object> map) {
+            return new ConfigImpl(map);
         }
 
         @Override
@@ -246,22 +249,9 @@ public abstract class AbstractJacksonConfigProvider implements JacksonConfigProv
         }
 
         @Override
-        public <T> @Nullable T getAs(
-                final @NotNull String key,
-                final @NotNull Class<T> type,
-                final @Nullable T defaultValue
-        ) {
-            val value = map.get(key);
-
-            return value != null
-                    ? objectConverter.convert(value, type)
-                    : defaultValue;
+        protected <T> T getAs(final Object value, final Class<T> type) {
+            return objectConverter.convert(value, type);
         }
 
-        @Override
-        public @NotNull <T> Optional<T> findAs(final @NotNull String key, final @NotNull Class<T> type) {
-            return Optional.ofNullable(map.get(key))
-                    .map(object -> objectConverter.convert(object, type));
-        }
     }
 }

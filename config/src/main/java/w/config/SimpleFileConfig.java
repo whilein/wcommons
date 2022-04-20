@@ -115,8 +115,8 @@ public final class SimpleFileConfig implements FileConfig {
     ConfigProvider provider;
 
     @NonFinal
-    @Delegate(types = ConfigObject.class)
-    ConfigObject delegate;
+    @Delegate(types = Config.class)
+    Config delegate;
 
     private static ConfigProvider _findProvider(final String fileName) {
         val extensionSeparator = fileName.lastIndexOf('.');
@@ -127,19 +127,11 @@ public final class SimpleFileConfig implements FileConfig {
 
         val extension = fileName.substring(extensionSeparator + 1);
 
-        final ConfigProvider provider;
-
-        switch (extension) {
-            case "yml":
-            case "yaml":
-                provider = YamlConfigProvider.INSTANCE;
-                break;
-            case "json":
-                provider = JsonConfigProvider.INSTANCE;
-                break;
-            default:
-                throw new IllegalStateException("Cannot find config provider for " + fileName);
-        }
+        final ConfigProvider provider = switch (extension) {
+            case "yml", "yaml" -> YamlConfigProvider.INSTANCE;
+            case "json" -> JsonConfigProvider.INSTANCE;
+            default -> throw new IllegalStateException("Cannot find config provider for " + fileName);
+        };
 
         return provider;
     }

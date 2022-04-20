@@ -1,5 +1,5 @@
 /*
- *    Copyright 2021 Whilein
+ *    Copyright 2022 Whilein
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,17 +16,11 @@
 
 package w.config;
 
-import org.jetbrains.annotations.NotNull;
-
 /**
  * @author whilein
  */
-public interface FileConfig extends Config {
-
-    void saveDefaults(@NotNull String resource);
-
-    void save();
-
-    void reload();
-
+public final class ConfigMissingKeyException extends RuntimeException {
+    public ConfigMissingKeyException(final String message) {
+        super(message);
+    }
 }

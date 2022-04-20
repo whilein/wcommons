@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 /**
  * @author whilein
  */
-final class ConfigObjectTests {
+final class ConfigProviderTests {
 
     static ConfigProvider provider;
 
@@ -43,14 +43,16 @@ final class ConfigObjectTests {
 
     @Test
     void booleanKey() {
-        val object = provider.parse("keys:\n" +
-                "  yes: 111\n");
+        val object = provider.parse("""
+                keys:
+                  yes: 111
+                """);
 
         assertFalse(object.isEmpty());
         assertEquals(1, object.size());
 
         val keys = object.findObject("keys")
-                .map(ConfigObject::keySet)
+                .map(Config::keySet)
                 .orElse(Collections.emptySet());
 
         assertEquals(Set.of("yes").toString(), keys.toString());
@@ -73,14 +75,16 @@ final class ConfigObjectTests {
 
     @Test
     void integerKey() {
-        val object = provider.parse("keys:\n" +
-                "  123: 111\n");
+        val object = provider.parse("""
+                keys:
+                  123: 111
+                """);
 
         assertFalse(object.isEmpty());
         assertEquals(1, object.size());
 
         val keys = object.findObject("keys")
-                .map(ConfigObject::keySet)
+                .map(Config::keySet)
                 .orElse(Collections.emptySet());
 
         assertEquals(Set.of("123").toString(), keys.toString());
@@ -107,13 +111,15 @@ final class ConfigObjectTests {
     @Test
     void objectList() {
         val object = provider.parse(
-                "items:\n" +
-                        "  - id: 'a'\n" +
-                        "    counter: 0\n" +
-                        "  - id: 'b'\n" +
-                        "    counter: 1\n" +
-                        "  - id: 'c'\n" +
-                        "    counter: 2\n"
+                """
+                        items:
+                          - id: 'a'
+                            counter: 0
+                          - id: 'b'
+                            counter: 1
+                          - id: 'c'
+                            counter: 2
+                        """
         );
 
         assertFalse(object.isEmpty());

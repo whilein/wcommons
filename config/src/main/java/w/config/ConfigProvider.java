@@ -56,18 +56,18 @@ public interface ConfigProvider {
 
     byte @NotNull [] saveAsBytes(@NotNull Object object);
 
-    @NotNull ConfigObject newObject();
+    @NotNull Config newObject();
 
-    @NotNull ConfigObject parse(@NotNull File file);
+    @NotNull Config parse(@NotNull File file);
 
-    @NotNull ConfigObject parse(@NotNull Path path);
+    @NotNull Config parse(@NotNull Path path);
 
-    @NotNull ConfigObject parse(@NotNull Reader reader);
+    @NotNull Config parse(@NotNull Reader reader);
 
-    @NotNull ConfigObject parse(@NotNull InputStream stream);
+    @NotNull Config parse(@NotNull InputStream stream);
 
-    @NotNull ConfigObject parse(@NotNull String input);
+    @NotNull Config parse(@NotNull String input);
 
-    @NotNull ConfigObject parse(byte @NotNull [] input);
+    @NotNull Config parse(byte @NotNull [] input);
 
 }
