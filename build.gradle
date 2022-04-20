@@ -83,13 +83,12 @@ subprojects {
         repositories {
             mavenLocal()
 
-            // github packages
             maven {
-                url = "https://maven.pkg.github.com/whilein/wcommons"
+                url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2"
 
                 credentials {
-                    username = findProperty("gpr.user")
-                    password = findProperty("gpr.password")
+                    username = findProperty('sonatype.user')
+                    password = findProperty('sonatype.password')
                 }
             }
         }
