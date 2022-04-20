@@ -17,7 +17,6 @@ static boolean isNonStable(String version) {
 }
 
 plugins {
-    id "signing"
     id "com.github.ben-manes.versions" version "0.42.0"
 }
 
@@ -40,6 +39,7 @@ allprojects {
 }
 
 subprojects {
+    apply plugin: "signing"
     apply plugin: "java"
     apply plugin: "java-library"
     apply plugin: "maven-publish"
