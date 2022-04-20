@@ -17,6 +17,7 @@ static boolean isNonStable(String version) {
 }
 
 plugins {
+    id "signing"
     id "com.github.ben-manes.versions" version "0.42.0"
 }
 
@@ -47,6 +48,10 @@ subprojects {
         mavenCentral()
     }
 
+    signing {
+        sign publishing.publications
+    }
+
     publishing {
         publications {
             mavenJava(MavenPublication) {
@@ -56,11 +61,27 @@ subprojects {
 
                     url = "https://github.com/whilein/wcommons"
 
+                    organization {
+                        name = 'io.github.whilein'
+                        url = 'https://github.com/whilein'
+                    }
+
+                    issueManagement {
+                        system = 'GitHub'
+                        url = 'https://github.com/whilein/wcommons/issues'
+                    }
+
                     licenses {
                         license {
-                            name = "The Apache License, Version 2.0"
-                            url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                            name = 'The Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                         }
+                    }
+
+                    scm {
+                        url = 'https://github.com/whilein/wcommons'
+                        connection = 'scm:https://github.com/whilein/wcommons.git'
+                        developerConnection = 'scm:git://github.com/whilein/wcommons.git'
                     }
 
                     developers {
