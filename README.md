@@ -17,8 +17,8 @@
     <img src="https://img.shields.io/github/issues-pr/whilein/wcommons">
   </a>
 
-  <a href="https://search.maven.org/artifact/io.github.whilein.wcommons/wcommons">
-    <img src="https://img.shields.io/maven-central/v/io.github.whilein.wcommons/wcommons">
+  <a href="https://search.maven.org/artifact/io.github.whilein.wcommons/sql">
+    <img src="https://img.shields.io/maven-central/v/io.github.whilein.wcommons/sql">
   </a>
 </div>
 
