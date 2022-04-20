@@ -1,7 +1,7 @@
 dependencies {
     compileOnly libs.jackson.databind
-    compileOnly libs.jackson.yaml
+    compileOnly libs.jackson.dataformat.yaml
 
     testImplementation libs.jackson.databind
-    testImplementation libs.jackson.yaml
+    testImplementation libs.jackson.dataformat.yaml
 }
