@@ -155,14 +155,11 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
                 }
 
                 final Set<Class<? extends Event>> eventTypes = new HashSet<>();
+                eventTypes.add(eventType.asSubclass(Event.class));
 
-                if (subscribe.exactEvent()) {
-                    eventTypes.add(eventType.asSubclass(Event.class));
-                } else {
-                    for (val childEventType : findTypes(eventType)) {
-                        if (Event.class.isAssignableFrom(childEventType)) {
-                            eventTypes.add(childEventType.asSubclass(Event.class));
-                        }
+                for (val childEventType : subscribe.types()) {
+                    if (Event.class.isAssignableFrom(childEventType)) {
+                        eventTypes.add(childEventType.asSubclass(Event.class));
                     }
                 }
 
@@ -173,7 +170,7 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
                                 type,
                                 subscribe.order(),
                                 subscribe.ignoreCancelled()
-                                        && Cancellable.class.isAssignableFrom(eventType),
+                                && Cancellable.class.isAssignableFrom(eventType),
                                 namespace,
                                 Collections.unmodifiableSet(eventTypes)
                         )
@@ -383,7 +380,7 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitFieldInsn(GETFIELD, GEN_DISPATCHER_NAME, "log", Type.getDescriptor(Logger.class));
                 mv.visitLdcInsn("Error occurred whilst dispatching " + type.getName()
-                        + " to " + writer.getName());
+                                + " to " + writer.getName());
                 mv.visitVarInsn(ALOAD, 3);
                 mv.visitMethodInsn(INVOKEINTERFACE, Type.getInternalName(Logger.class), "error",
                         methodDescriptor(void.class, String.class, Throwable.class), true);

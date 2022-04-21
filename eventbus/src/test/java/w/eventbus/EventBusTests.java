@@ -22,6 +22,7 @@ import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import w.eventbus.debug.FileEventBusDebugger;
 import w.eventbus.debug.LoggingEventBusDebugger;
 import w.util.ClassLoaderUtils;
 
@@ -42,6 +43,7 @@ class EventBusTests implements SubscribeNamespace {
     void setup() {
         bus = SimpleEventBus.create();
         bus.addDebugger(LoggingEventBusDebugger.INSTANCE);
+        bus.addDebugger(FileEventBusDebugger.INSTANCE);
     }
 
     @Getter
@@ -72,8 +74,29 @@ class EventBusTests implements SubscribeNamespace {
 
     }
 
+    public static class Listener {
+
+        @Subscribe(types = EntityDamageByEntityEvent.class)
+        void catchAny(final Event event) {
+            System.out.println(event);
+        }
+
+        @Subscribe(types = EntityDamageByEntityEvent.class)
+        void catchDamage(final EntityDamageEvent event) {
+            System.out.println(event);
+        }
+
+    }
+
     @Test
-    void testInheritance() {
+    void testEventInheritance() {
+        bus.register(this, new Listener());
+        // bus.dispatch(new EntityDamageEvent());
+        bus.dispatch(new EntityDamageByEntityEvent());
+    }
+
+    @Test
+    void testListenerInheritance() {
         bus.register(this, new ParentListener());
         // bus.dispatch(new EntityDamageEvent());
         bus.dispatch(new EntityDamageByEntityEvent());

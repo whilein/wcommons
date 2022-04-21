@@ -44,6 +44,14 @@ public @interface Subscribe {
      */
     boolean ignoreCancelled() default false;
 
-    boolean exactEvent() default false;
+    /**
+     * Здесь можно указать типы событий, которые нужно слушать дополнительно.
+     * <p>
+     * Допустим метод принимает {@link Event}, здесь можно указать например {@link AsyncEvent} и тогда
+     * {@link AsyncEvent} и {@link Event} будут отправляться в этот метод.
+     *
+     * @return Типы событий
+     */
+    @NotNull Class<?>[] types() default {};
 
 }
