@@ -19,6 +19,7 @@ package w.util.concurrent;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.UtilityClass;
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.ThreadFactory;
@@ -31,7 +32,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ThreadFactories {
 
     public static @NotNull ThreadFactory named(final @NotNull String format) {
-        return new Named(new AtomicInteger(), format);
+        return new Named(new AtomicInteger(), format, Thread::new);
+    }
+
+    public static @NotNull ThreadFactory named(final @NotNull String format, final @NotNull ThreadFactory parent) {
+        return new Named(new AtomicInteger(), format, parent);
     }
 
     @FieldDefaults(makeFinal = true)
@@ -39,10 +44,14 @@ public class ThreadFactories {
     private static final class Named implements ThreadFactory {
         AtomicInteger counter;
         String format;
+        ThreadFactory factory;
 
         @Override
         public Thread newThread(final @NotNull Runnable r) {
-            return new Thread(r, String.format(format, counter.getAndIncrement()));
+            val thread = factory.newThread(r);
+            thread.setName(String.format(format, counter.getAndIncrement()));
+
+            return thread;
         }
     }
 
