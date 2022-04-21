@@ -90,24 +90,6 @@ public class Pairs {
 
     private static abstract class AbstractPair<L, R> implements Pair<L, R> {
 
-        // TODO implement .equals and .hashCode for array left/right
-
-        @Override
-        public boolean equals(final Object obj) {
-            return obj == this || obj instanceof Pair<?, ?> that
-                                  && Objects.equals(getLeft(), that.getLeft())
-                                  && Objects.equals(getRight(), that.getRight());
-        }
-
-        @Override
-        public int hashCode() {
-            int hash = 1;
-            hash = 31 * hash + Objects.hashCode(getLeft());
-            hash = 31 * hash + Objects.hashCode(getRight());
-
-            return hash;
-        }
-
         @Override
         public String toString() {
             return "{left=" + getLeft() + ", right=" + getRight() + "}";
@@ -120,6 +102,25 @@ public class Pairs {
             return (Pair<L, R>) super.clone();
         }
 
+        @Override
+        public boolean equals(final Object obj) {
+            return obj == this || obj instanceof Pair<?, ?> that && equals(that);
+        }
+
+        @Override
+        public boolean equals(final @NotNull Pair<?, ?> pair) {
+            return Objects.equals(getLeft(), pair.getLeft())
+                   && Objects.equals(getRight(), pair.getRight());
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 1;
+            hash = 31 * hash + Objects.hashCode(getLeft());
+            hash = 31 * hash + Objects.hashCode(getRight());
+
+            return hash;
+        }
     }
 
     @Getter
@@ -163,9 +164,6 @@ public class Pairs {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class UnorderedPairImpl<L, R> extends AbstractPair<L, R> implements UnorderedPair<L, R> {
 
-        private static final int LEFT_GREATER = 1;
-        private static final int RIGHT_GREATER = 2;
-
         @Getter
         L left;
 
@@ -177,6 +175,7 @@ public class Pairs {
         /**
          * {@link #LEFT_GREATER}, {@link #RIGHT_GREATER}
          */
+        @Getter
         int order;
 
         @Override
@@ -185,19 +184,13 @@ public class Pairs {
         }
 
         @Override
-        public boolean equals(final Object obj) {
-            if (obj == this) return true;
-
-            // fast way
-            if (obj instanceof UnorderedPair<?, ?> that) {
-                return Objects.equals(getGreater(), that.getGreater())
-                       && Objects.equals(getLower(), that.getLower());
-            } else if (obj instanceof Pair<?, ?> that) {
-                return (Objects.equals(left, that.getLeft()) && Objects.equals(right, that.getRight()))
-                       || (Objects.equals(left, that.getRight()) && Objects.equals(right, that.getLeft()));
+        public boolean equals(final @NotNull Pair<?, ?> pair) {
+            if (pair instanceof UnorderedPair<?, ?> that && order != that.getOrder()) {
+                return Objects.equals(getLeft(), pair.getRight())
+                       && Objects.equals(getRight(), pair.getLeft());
             }
 
-            return false;
+            return super.equals(pair);
         }
 
         @Override

@@ -25,6 +25,9 @@ import java.util.Map;
  */
 public interface UnorderedPair<L, R> extends Pair<L, R> {
 
+    int LEFT_GREATER = 1;
+    int RIGHT_GREATER = 2;
+
     static <L, R> @NotNull UnorderedPair<L, R> of(final L left, final R right) {
         return Pairs.unorderedOf(left, right);
     }
@@ -34,6 +37,8 @@ public interface UnorderedPair<L, R> extends Pair<L, R> {
     }
 
     @NotNull UnorderedPair<R, L> reverse();
+
+    int getOrder();
 
     @NotNull Object getGreater();
 

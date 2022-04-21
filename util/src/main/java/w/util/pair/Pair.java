@@ -33,6 +33,8 @@ public interface Pair<L, R> extends Cloneable {
         return Pairs.immutableOf(entry.getKey(), entry.getValue());
     }
 
+    boolean equals(@NotNull Pair<?, ?> pair);
+
     L getLeft();
 
     R getRight();
