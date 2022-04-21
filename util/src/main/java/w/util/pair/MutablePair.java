@@ -21,6 +21,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 /**
+ * Мутабельная пара значений, можно изменять левое и правое значение.
+ * <p>
+ * Недостаток этой реализации от обычной иммутабельной пары в том, что hashCode
+ * не кешируется.
+ *
  * @author whilein
  */
 public interface MutablePair<L, R> extends Pair<L, R> {

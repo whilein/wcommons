@@ -21,6 +21,13 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 /**
+ * Иммутабельная пара значений.
+ * <p>
+ * В реализации {@link #hashCode()} возвращает одно и то же число,
+ * когда L и R перепутаны местами. Т.е хешкод пары (A, B) равен хешкоду пары (B, A).
+ * <p>
+ * {@link #equals(Object)} также возвращает {@code true}, если значения в разном порядке.
+ *
  * @author whilein
  */
 public interface UnorderedPair<L, R> extends Pair<L, R> {

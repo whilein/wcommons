@@ -21,6 +21,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 
 /**
+ * Иммутабельная пара значений.
+ *
  * @author whilein
  */
 public interface Pair<L, R> extends Cloneable {
