@@ -168,10 +168,7 @@ public class CiStrings {
 
         @Override
         public boolean equals(final Object obj) {
-            if (!(obj instanceof CiString)) return false;
-            if (obj == this) return true;
-
-            return _equals((CiString) obj);
+            return obj == this || (obj instanceof CiString string && _equals(string));
         }
 
         @Override
@@ -230,10 +227,10 @@ public class CiStrings {
         public boolean equals(final Object obj) {
             if (obj == this) return true;
 
-            if (obj instanceof String) {
-                return ((String) obj).length() == 0;
-            } else if (obj instanceof CiString) {
-                return ((CiString) obj).length() == 0;
+            if (obj instanceof String string) {
+                return string.length() == 0;
+            } else if (obj instanceof CiString string) {
+                return string.length() == 0;
             } else {
                 return false;
             }

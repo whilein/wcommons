@@ -75,13 +75,9 @@ public class Pairs {
 
         @Override
         public boolean equals(final Object obj) {
-            if (obj == this) return true;
-            if (!(obj instanceof Pair)) return false;
-
-            val that = (Pair<?, ?>) obj;
-
-            return Objects.equals(getLeft(), that.getLeft())
-                    && Objects.equals(getRight(), that.getRight());
+            return obj == this || obj instanceof Pair<?, ?> that
+                                  && Objects.equals(getLeft(), that.getLeft())
+                                  && Objects.equals(getRight(), that.getRight());
         }
 
         @Override
