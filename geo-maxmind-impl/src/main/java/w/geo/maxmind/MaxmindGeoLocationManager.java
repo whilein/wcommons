@@ -16,7 +16,6 @@
 
 package w.geo.maxmind;
 
-import com.maxmind.db.NoCache;
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.record.AbstractNamedRecord;
 import lombok.AccessLevel;
@@ -25,18 +24,15 @@ import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
-import org.kamranzafar.jtar.TarEntry;
-import org.kamranzafar.jtar.TarInputStream;
 import w.geo.api.GeoLocation;
 import w.geo.api.GeoLocationManager;
 import w.geo.api.ImmutableCountry;
 import w.geo.api.ImmutableGeoLocation;
 import w.geo.api.UnknownGeoLocation;
+import w.geo.maxmind.provider.MaxmindProvider;
 
 import java.net.InetAddress;
-import java.net.URL;
 import java.util.Optional;
-import java.util.zip.GZIPInputStream;
 
 /**
  * @author whilein
@@ -45,33 +41,13 @@ import java.util.zip.GZIPInputStream;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class MaxmindGeoLocationManager implements GeoLocationManager {
 
-    private static final String DATABASE_URL = "https://download.maxmind.com/app/geoip_download" +
-            "?edition_id=GeoLite2-City&license_key=%s&suffix=tar.gz";
-
     DatabaseReader database;
 
     @SneakyThrows
     public static @NotNull GeoLocationManager create(
-            final @NotNull String key
+            final @NotNull MaxmindProvider provider
     ) {
-        val url = new URL(String.format(DATABASE_URL, key));
-        val urlConnection = url.openConnection();
-
-        try (val is = urlConnection.getInputStream();
-             val gis = new GZIPInputStream(is);
-             val tis = new TarInputStream(gis)) {
-            TarEntry entry;
-
-            while ((entry = tis.getNextEntry()) != null) {
-                if (entry.getName().endsWith(".mmdb")) {
-                    return new MaxmindGeoLocationManager(new DatabaseReader.Builder(tis)
-                            .withCache(NoCache.getInstance())
-                            .build());
-                }
-            }
-        }
-
-        throw new IllegalStateException("Cannot unpack maxmind database: no .mmdb file found");
+        return new MaxmindGeoLocationManager(provider.openReader());
     }
 
     private Optional<String> getName(final AbstractNamedRecord record) {
