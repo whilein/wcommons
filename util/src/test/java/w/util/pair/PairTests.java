@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
@@ -35,6 +36,22 @@ final class PairTests {
         val clonedPair = pair.clone();
 
         assertNotEquals(System.identityHashCode(pair), System.identityHashCode(clonedPair));
+    }
+
+    @Test
+    void testUnordered() {
+        val xxxyyy = UnorderedPair.of("xxx", "yyy");
+        val yyyxxx = UnorderedPair.of("yyy", "xxx");
+        assertEquals(xxxyyy.hashCode(), yyyxxx.hashCode());
+        assertEquals(xxxyyy, yyyxxx);
+
+        val xxxyyy2 = UnorderedPair.of("xxx", "yyy");
+        val yyyxxx2 = UnorderedPair.of("yyy", "xxx");
+
+        assertEquals(xxxyyy, xxxyyy2);
+        assertEquals(yyyxxx, yyyxxx2);
+        assertEquals(xxxyyy2, xxxyyy);
+        assertEquals(yyyxxx2, yyyxxx);
     }
 
     @Test

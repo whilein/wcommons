@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
@@ -43,6 +44,24 @@ public class Pairs {
 
     public <L, R> @NotNull MutablePair<L, R> mutableOf(final L left, final R right) {
         return new MutablePairImpl<>(left, right);
+    }
+
+    public <L, R> @NotNull UnorderedPair<L, R> unorderedOf(final L left, final R right) {
+        val hashLeft = Objects.hashCode(left);
+        val hashRight = Objects.hashCode(right);
+
+        final int order;
+        final int hash;
+
+        if (hashLeft > hashRight) {
+            order = UnorderedPairImpl.LEFT_GREATER;
+            hash = 1 + hashLeft * 31 + hashRight;
+        } else {
+            order = UnorderedPairImpl.RIGHT_GREATER;
+            hash = 1 + hashRight * 31 + hashLeft;
+        }
+
+        return new UnorderedPairImpl<>(left, right, hash, order);
     }
 
     public <K, V> @NotNull Predicate<Pair<K, V>> isNull() {
@@ -140,6 +159,92 @@ public class Pairs {
 
     }
 
+    @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class UnorderedPairImpl<L, R> extends AbstractPair<L, R> implements UnorderedPair<L, R> {
+
+        private static final int LEFT_GREATER = 1;
+        private static final int RIGHT_GREATER = 2;
+
+        @Getter
+        L left;
+
+        @Getter
+        R right;
+
+        int hash;
+
+        /**
+         * {@link #LEFT_GREATER}, {@link #RIGHT_GREATER}
+         */
+        int order;
+
+        @Override
+        public int hashCode() {
+            return hash;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (obj == this) return true;
+
+            // fast way
+            if (obj instanceof UnorderedPair<?, ?> that) {
+                return Objects.equals(getGreater(), that.getGreater())
+                       && Objects.equals(getLower(), that.getLower());
+            } else if (obj instanceof Pair<?, ?> that) {
+                return (Objects.equals(left, that.getLeft()) && Objects.equals(right, that.getRight()))
+                       || (Objects.equals(left, that.getRight()) && Objects.equals(right, that.getLeft()));
+            }
+
+            return false;
+        }
+
+        @Override
+        public @NotNull UnorderedPair<R, L> reverse() {
+            return new UnorderedPairImpl<>(right, left, hash,
+                    order == LEFT_GREATER
+                            ? RIGHT_GREATER
+                            : LEFT_GREATER);
+        }
+
+        @Override
+        public @NotNull Object getGreater() {
+            return order == LEFT_GREATER ? left : right;
+        }
+
+        @Override
+        public @NotNull Object getLower() {
+            return order == LEFT_GREATER ? right : left;
+        }
+
+        @Override
+        public <L1> @NotNull UnorderedPair<L1, R> withLeft(final L1 newValue) {
+            return unorderedOf(newValue, right);
+        }
+
+        @Override
+        public <R1> @NotNull UnorderedPair<L, R1> withRight(final R1 newValue) {
+            return unorderedOf(left, newValue);
+        }
+
+        @Override
+        public @NotNull UnorderedPair<L, R> deepClone() {
+            val objectCloner = ObjectCloner.INSTANCE;
+
+            val newLeft = left instanceof Cloneable ? (L) objectCloner.clone(left) : left;
+            val newRight = right instanceof Cloneable ? (R) objectCloner.clone(right) : right;
+
+            // не уверен, что тут может измениться hashCode, но на всякий случай..
+            return unorderedOf(newLeft, newRight);
+        }
+
+        @Override
+        public @NotNull UnorderedPair<L, R> clone() {
+            return (UnorderedPair<L, R>) super.clone();
+        }
+    }
+
     @Getter
     @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -147,6 +252,20 @@ public class Pairs {
 
         L left;
         R right;
+
+        @NonFinal
+        int hash;
+
+        @Override
+        public int hashCode() {
+            int hash = this.hash;
+
+            if (hash == 0) {
+                hash = this.hash = super.hashCode();
+            }
+
+            return hash;
+        }
 
         @Override
         public <L1> @NotNull Pair<L1, R> withLeft(final L1 newValue) {
