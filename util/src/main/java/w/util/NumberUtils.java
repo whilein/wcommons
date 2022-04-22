@@ -33,6 +33,24 @@ public class NumberUtils {
     private final DecimalFormat LONG_FORMATTER = new DecimalFormat("###,###");
     private final DecimalFormat DOUBLE_FORMATTER = new DecimalFormat("###,##0.00");
 
+    private final String[] ROMANS = new String[]{
+            "", "I", "II", "III", "IV", "V",
+            "VI", "VII", "VIII", "IX", "X"
+    };
+
+    /**
+     * Возвращает римскую цифру, если {@code number} от {@code 1} до {@code 10}, иначе возвращает {@code number}.
+     * Для {@code 0} возвращается пустая строка.
+     *
+     * @param number Число
+     * @return Римская цифра
+     */
+    public @NotNull String getRoman(final int number) {
+        return number < 0 || number > 10
+                ? String.valueOf(number)
+                : ROMANS[number];
+    }
+
     public int getLongLength(final long value) {
         if (value < 1000000000) {
             if (value < 100000) {
