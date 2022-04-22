@@ -36,6 +36,7 @@ dependencyUpdates {
 
 nexusStaging {
     serverUrl = "https://s01.oss.sonatype.org/service/local/"
+    packageGroup = "io.github.whilein"
     username = findProperty('sonatype.user')
     password = findProperty('sonatype.password')
 }
