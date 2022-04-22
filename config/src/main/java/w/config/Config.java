@@ -93,7 +93,7 @@ public interface Config {
      *                                   то будет это исключение.
      * @see #findString(String)
      */
-    @Nullable String getString(@NotNull String key) throws ConfigMissingKeyException;
+    @NotNull String getString(@NotNull String key) throws ConfigMissingKeyException;
 
     @Contract("_, !null -> !null")
     @Nullable String getString(@NotNull String key, @Nullable String defaultValue);
