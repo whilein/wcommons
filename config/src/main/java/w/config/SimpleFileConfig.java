@@ -249,9 +249,14 @@ public final class SimpleFileConfig implements FileConfig {
         if (!src.exists()) {
             val caller = STACK_WALKER.getCallerClass();
 
-            try (val resourceStream = caller.getResourceAsStream(resource)) {
+            val classLoader = caller.getClassLoader();
+
+            try (val resourceStream = classLoader.getResourceAsStream(resource.startsWith("/")
+                    ? resource.substring(1)
+                    : resource)) {
                 if (resourceStream == null) {
-                    throw new IllegalStateException("Cannot save defaults: no " + resource + " found");
+                    throw new IllegalStateException("Cannot save defaults, because default config "
+                                                    + resource + " not found");
                 }
 
                 delegate = provider.parse(resourceStream);
