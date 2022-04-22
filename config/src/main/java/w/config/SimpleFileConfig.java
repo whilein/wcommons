@@ -24,6 +24,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import w.util.ClassLoaderUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,8 +41,6 @@ import java.nio.file.Path;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SimpleFileConfig implements FileConfig {
-
-    private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 
     private interface Src {
 
@@ -247,13 +246,7 @@ public final class SimpleFileConfig implements FileConfig {
     @Override
     public void saveDefaults(final @NotNull String resource) {
         if (!src.exists()) {
-            val caller = STACK_WALKER.getCallerClass();
-
-            val classLoader = caller.getClassLoader();
-
-            try (val resourceStream = classLoader.getResourceAsStream(resource.startsWith("/")
-                    ? resource.substring(1)
-                    : resource)) {
+            try (val resourceStream = ClassLoaderUtils.getResource(resource)) {
                 if (resourceStream == null) {
                     throw new IllegalStateException("Cannot save defaults, because default config "
                                                     + resource + " not found");

@@ -5,3 +5,7 @@ dependencies {
     testImplementation libs.jackson.databind
     testImplementation libs.jackson.dataformat.yaml
 }
+
+dependencies {
+    api project(":util")
+}

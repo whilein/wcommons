@@ -35,6 +35,7 @@ import w.flow.IntFlows;
 import w.flow.function.FlowConsumer;
 import w.flow.function.FlowSink;
 import w.flow.function.IntFlowSupplier;
+import w.util.ClassLoaderUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -159,7 +160,7 @@ public final class HikariMessenger implements Messenger {
         @Override
         @SneakyThrows
         public @NotNull ScriptRunner run(final @NonNull String resource) {
-            val resourceStream = classLoader.getResourceAsStream(resource);
+            val resourceStream = ClassLoaderUtils.getResource(classLoader, resource);
 
             if (resourceStream == null) {
                 throw new FileNotFoundException("No resource with name " + resource + " found");

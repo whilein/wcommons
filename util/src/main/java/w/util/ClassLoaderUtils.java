@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
@@ -36,6 +37,8 @@ import java.util.Set;
  */
 @UtilityClass
 public class ClassLoaderUtils {
+
+    private final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 
     private static final class SharedClassLoader extends ClassLoader {
 
@@ -97,6 +100,16 @@ public class ClassLoaderUtils {
             return defineClass(name, data, 0, data.length, null);
         }
 
+    }
+
+    public @Nullable InputStream getResource(final @NotNull ClassLoader cl, final @NotNull String path) {
+        return cl.getResourceAsStream(path.startsWith("/")
+                ? path.substring(1)
+                : path);
+    }
+
+    public @Nullable InputStream getResource(final @NotNull String path) {
+        return getResource(STACK_WALKER.getCallerClass().getClassLoader(), path);
     }
 
     /**
