@@ -12,7 +12,7 @@ asm = "org.ow2.asm:asm:9.3"
 fastutil = "it.unimi.dsi:fastutil-core:8.5.8"
 geoip2 = "com.maxmind.geoip2:geoip2:3.0.1"
 jtar = "org.kamranzafar:jtar:2.3"
-hikaricp = "com.zaxxer:HikariCP:4.0.3"
+hikaricp = "com.zaxxer:HikariCP:5.0.1"
 h2 = "com.h2database:h2:2.1.212"
 bouncycastle = "org.bouncycastle:bcprov-jdk15on:1.70"
 
