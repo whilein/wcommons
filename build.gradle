@@ -10,29 +10,12 @@ String getCommit() {
     return stdout.toString().trim()
 }
 
-static boolean isNonStable(String version) {
-    def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { it -> version.toUpperCase().contains(it) }
-    def regex = /^[0-9,.v-]+(-r)?(-jre)?$/
-    return !stableKeyword && !(version ==~ regex)
-}
-
 plugins {
-    id "com.github.ben-manes.versions" version "0.42.0"
     id "io.codearte.nexus-staging" version "0.30.0"
 }
 
-def releaseVersion = findProperty("github.tag") ?: getCommit()
-println("Release version: ${releaseVersion}")
-
-dependencyUpdates {
-    configure {
-        rejectVersionIf {
-            isNonStable(it.candidate.version)
-        }
-
-        checkForGradleUpdate = true
-    }
-}
+def projectVersion = findProperty("github.tag") ?: getCommit()
+println("project version: ${projectVersion}")
 
 nexusStaging {
     serverUrl = "https://s01.oss.sonatype.org/service/local/"
@@ -43,7 +26,7 @@ nexusStaging {
 
 allprojects {
     group "io.github.whilein.wcommons"
-    version releaseVersion
+    version projectVersion
 }
 
 subprojects {

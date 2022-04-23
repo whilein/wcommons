@@ -1,0 +1,29 @@
+[versions]
+slf4j = "1.7.36"
+junit = "5.8.2"
+jackson = "2.13.2"
+
+[libraries]
+guava = "com.google.guava:guava:31.1-jre"
+caffeine = "com.github.ben-manes.caffeine:caffeine:3.0.6"
+lombok = "org.projectlombok:lombok:1.18.24"
+annotations = "org.jetbrains:annotations:23.0.0"
+asm = "org.ow2.asm:asm:9.3"
+fastutil = "it.unimi.dsi:fastutil-core:8.5.8"
+geoip2 = "com.maxmind.geoip2:geoip2:3.0.1"
+jtar = "org.kamranzafar:jtar:2.3"
+hikaricp = "com.zaxxer:HikariCP:4.0.3"
+h2 = "com.h2database:h2:2.1.212"
+bouncycastle = "org.bouncycastle:bcprov-jdk15on:1.70"
+
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
+
+junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+
+[plugins]
+jmh = { id = "me.champeau.jmh", version = "0.6.5" }
