@@ -14,33 +14,9 @@
  *    limitations under the License.
  */
 
-package w.util.hash;
-
-import lombok.experimental.UtilityClass;
-
 /**
+ * Интеграция с bouncycastle
+ *
  * @author whilein
  */
-@UtilityClass
-public class BouncyCastle {
-
-    private final boolean AVAILABLE;
-
-    public boolean isAvailable() {
-        return AVAILABLE;
-    }
-
-    static {
-        boolean available;
-
-        try {
-            Class.forName("org.bouncycastle.LICENSE");
-            available = true;
-        } catch (final ClassNotFoundException e) {
-            available = false;
-        }
-
-        AVAILABLE = available;
-    }
-
-}
+package w.crypto.bouncycastle;

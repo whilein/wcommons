@@ -14,13 +14,16 @@
  *    limitations under the License.
  */
 
-package w.util.hash;
+package w.crypto.bouncycastle;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.bouncycastle.jcajce.provider.digest.Keccak;
 import org.jetbrains.annotations.NotNull;
+import w.crypto.AbstractDigestFactory;
+import w.crypto.DigestFactory;
+import w.crypto.UnsupportedDigestFactory;
 
 import java.security.MessageDigest;
 
@@ -29,7 +32,7 @@ import java.security.MessageDigest;
  */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class KeccakDigestFactory extends AbstractDigestFactory {
+public final class Sha3DigestFactory extends AbstractDigestFactory {
 
     int bits;
 
@@ -42,7 +45,7 @@ public final class KeccakDigestFactory extends AbstractDigestFactory {
             throw new IllegalArgumentException("Keccak algorithm does not support " + bits + " bit length");
         }
 
-        return new KeccakDigestFactory(bits);
+        return new Sha3DigestFactory(bits);
     }
 
     private static final class Factory {

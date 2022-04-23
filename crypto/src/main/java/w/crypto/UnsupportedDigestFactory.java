@@ -14,32 +14,26 @@
  *    limitations under the License.
  */
 
-package w.util.hash;
+package w.crypto;
 
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import lombok.experimental.FieldDefaults;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-
-import java.security.MessageDigest;
 
 /**
  * @author whilein
  */
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class DefaultDigestFactory extends AbstractDigestFactory {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class UnsupportedDigestFactory implements DigestFactory {
 
-    String algorithm;
+    private static final DigestFactory INSTANCE = new UnsupportedDigestFactory();
 
-    public static @NotNull DigestFactory create(final @NotNull String algorithm) {
-        return new DefaultDigestFactory(algorithm);
+    public static @NotNull DigestFactory getInstance() {
+        return INSTANCE;
     }
 
     @Override
-    @SneakyThrows
-    protected MessageDigest getDigest() {
-        return MessageDigest.getInstance(algorithm);
+    public @NotNull DigestAlgorithm create() {
+        throw new UnsupportedOperationException();
     }
 }

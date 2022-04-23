@@ -14,26 +14,21 @@
  *    limitations under the License.
  */
 
-package w.util.hash;
+package w.crypto;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Test;
+import w.crypto.bouncycastle.BouncyCastle;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author whilein
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class UnsupportedDigestFactory implements DigestFactory {
+final class BouncyCastleTests {
 
-    private static final DigestFactory INSTANCE = new UnsupportedDigestFactory();
-
-    public static @NotNull DigestFactory getInstance() {
-        return INSTANCE;
+    @Test
+    void testAvailability() {
+        assertTrue(BouncyCastle.isAvailable());
     }
 
-    @Override
-    public @NotNull Digest create() {
-        throw new UnsupportedOperationException();
-    }
 }

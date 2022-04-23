@@ -14,12 +14,13 @@
  *    limitations under the License.
  */
 
-package w.util.hash;
+package w.crypto;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
+import w.crypto.bouncycastle.Sha3DigestFactory;
 import w.util.Hex;
 
 import java.nio.charset.StandardCharsets;
@@ -29,17 +30,17 @@ import java.nio.charset.StandardCharsets;
  */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public enum Hash {
+public enum Digest {
 
     SHA_256(DefaultDigestFactory.create("SHA-256")),
-    KECCAK_224(KeccakDigestFactory.create(224)),
-    KECCAK_256(KeccakDigestFactory.create(256)),
-    KECCAK_384(KeccakDigestFactory.create(384)),
-    KECCAK_512(KeccakDigestFactory.create(512));
+    SHA3_224(Sha3DigestFactory.create(224)),
+    SHA3_256(Sha3DigestFactory.create(256)),
+    SHA3_384(Sha3DigestFactory.create(384)),
+    SHA3_512(Sha3DigestFactory.create(512));
 
     DigestFactory digestFactory;
 
-    public @NotNull Digest getDigest() {
+    public @NotNull DigestAlgorithm createAlgorithm() {
         return digestFactory.create();
     }
 
@@ -52,7 +53,7 @@ public enum Hash {
     }
 
     public byte @NotNull [] digest(final byte @NotNull [] bytes, final int off, final int len) {
-        return getDigest().process(bytes, off, len);
+        return createAlgorithm().digest(bytes, off, len);
     }
 
 }

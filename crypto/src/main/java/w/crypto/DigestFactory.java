@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package w.util.hash;
+package w.crypto;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -23,6 +23,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface DigestFactory {
 
-    @NotNull Digest create();
+    @NotNull DigestAlgorithm create();
 
 }

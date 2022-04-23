@@ -1,0 +1,6 @@
+dependencies {
+    api project(":util")
+
+    compileOnly libs.bouncycastle
+    testImplementation libs.bouncycastle
+}

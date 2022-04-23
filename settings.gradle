@@ -20,3 +20,5 @@ include ':geo-cache-guava'
 
 include ':util'
 include ':impl-loader'
+
+include ':crypto'
