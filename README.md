@@ -24,7 +24,7 @@
 
 ## Содержание
 
-- [База данных](sql)
+- [Работа с базой данных](sql)
 - ["Шина событий"](eventbus)
 - [Изменение байткода в рантайме](asm-patcher)
 - [Java агент](agent)
@@ -33,8 +33,8 @@
 - [ASM](asm)
   - MagicAccessorImpl bridge
 - [Утилиты](util)
-  - Lazy (Simple, Concurrent & ThreadLocal)
-  - Pair, MutablePair
+  - Lazy
+  - Pair, MutablePair, UnorderedPair
   - MutableInt, MutableLong, MutableReference, MutableOptionalInt, MutableOptionalLong, MutableOptionalReference
   - Message
   - RandomUtils & RandomStringGenerator
@@ -45,9 +45,6 @@
   - Hash, Hex
   - Root
 - [Конфигурация](config)
-  - SimpleFileConfig
-  - YamlConfigProvider
-  - JsonConfigProvider
 - Геолокация
   - [Апи](geo-api)
   - [Реализация maxmind](geo-maxmind-impl)
