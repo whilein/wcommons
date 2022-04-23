@@ -32,7 +32,14 @@ import java.nio.charset.StandardCharsets;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Digest {
 
+    MD2(DefaultDigestFactory.create("MD2")),
+    MD5(DefaultDigestFactory.create("MD5")),
+    SHA_1(DefaultDigestFactory.create("SHA-1")),
+    SHA_224(DefaultDigestFactory.create("SHA-224")),
     SHA_256(DefaultDigestFactory.create("SHA-256")),
+    SHA5_224(DefaultDigestFactory.create("SHA-512/224")),
+    SHA5_256(DefaultDigestFactory.create("SHA-512/256")),
+    SHA5_512(DefaultDigestFactory.create("SHA-512")),
     SHA3_224(Sha3DigestFactory.create(224)),
     SHA3_256(Sha3DigestFactory.create(256)),
     SHA3_384(Sha3DigestFactory.create(384)),

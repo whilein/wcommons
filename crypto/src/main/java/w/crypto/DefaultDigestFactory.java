@@ -23,6 +23,7 @@ import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author whilein
@@ -34,6 +35,12 @@ public final class DefaultDigestFactory extends AbstractDigestFactory {
     String algorithm;
 
     public static @NotNull DigestFactory create(final @NotNull String algorithm) {
+        try {
+            MessageDigest.getInstance(algorithm);
+        } catch (final NoSuchAlgorithmException e) {
+            return UnsupportedDigestFactory.getInstance();
+        }
+
         return new DefaultDigestFactory(algorithm);
     }
 

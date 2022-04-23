@@ -29,6 +29,38 @@ final class DigestTests {
             = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer id sem consectetur, ullamcorper tortor malesuada.";
 
     @Test
+    void testSha5_256() {
+        assertEquals(
+                "494ac71b6013cd9eabf79effd4eb019c39092a73c7358a16c339356044ff5573",
+                Digest.SHA5_256.digest(VALUE)
+        );
+    }
+
+    @Test
+    void testSha5_224() {
+        assertEquals(
+                "251ac095d4fa4e51ce574789bbe6439f7b44694119577c9abb9f2a8a",
+                Digest.SHA5_224.digest(VALUE)
+        );
+    }
+
+    @Test
+    void testSha5_512() {
+        assertEquals(
+                "d09820e924df5debafafd0df1185467a4eca5f4259df5bba2475c2625329ee675ad7a18259495f09a8f731c79fb62680ab744e5557dc80dc49e4515991b7e20a",
+                Digest.SHA5_512.digest(VALUE)
+        );
+    }
+
+    @Test
+    void testMd5() {
+        assertEquals(
+                "413d9325f4e75eb6e01bf696d14b4f28",
+                Digest.MD5.digest(VALUE)
+        );
+    }
+
+    @Test
     void testSha_256() {
         assertEquals(
                 "1f86945a8364275a3ae5f03c094b97346217992d4e98aa21abfc183921db95a0",
