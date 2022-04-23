@@ -172,9 +172,6 @@ public class Pairs {
 
         int hash;
 
-        /**
-         * {@link #LEFT_GREATER}, {@link #RIGHT_GREATER}
-         */
         @Getter
         int order;
 

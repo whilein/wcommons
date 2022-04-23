@@ -45,6 +45,9 @@ public interface UnorderedPair<L, R> extends Pair<L, R> {
 
     @NotNull UnorderedPair<R, L> reverse();
 
+    /**
+     * @return {@link #LEFT_GREATER} или {@link #RIGHT_GREATER}
+     */
     int getOrder();
 
     @NotNull Object getGreater();
