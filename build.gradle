@@ -11,7 +11,7 @@ String getCommit() {
 }
 
 plugins {
-    id "io.codearte.nexus-staging" version "0.30.0"
+    alias(libs.plugins.nexus.staging)
 }
 
 def projectVersion = findProperty("github.tag") ?: getCommit()

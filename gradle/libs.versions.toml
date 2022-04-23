@@ -26,4 +26,4 @@ junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "jun
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 
 [plugins]
-jmh = { id = "me.champeau.jmh", version = "0.6.5" }
+nexus-staging = { id = "io.codearte.nexus-staging", version = "0.30.0" }
