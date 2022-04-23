@@ -42,7 +42,7 @@
   - Async (Упрощенный вариант Future)
   - Buffering
   - Bytes, ByteSlice
-  - Hash, Hex
+  - Hex
   - Root
 - [Конфигурация](config)
 - Геолокация
