@@ -11,6 +11,7 @@
         <revision>1.0.3</revision>
     </properties>
 
+    <name>parent</name>
     <description>Parent wcommons project</description>
 
     <modules>
