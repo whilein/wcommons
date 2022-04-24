@@ -5,7 +5,7 @@
     <name>wcommons/bom</name>
     <groupId>io.github.whilein.wcommons</groupId>
     <artifactId>wcommons-bom</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.3</version>
     <packaging>pom</packaging>
 
     <description>wcommons (Bill of Materials)</description>

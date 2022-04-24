@@ -5,7 +5,7 @@
     <parent>
         <groupId>io.github.whilein.wcommons</groupId>
         <artifactId>wcommons-parent</artifactId>
-        <version>1.0.4-SNAPSHOT</version>
+        <version>1.0.3</version>
     </parent>
 
     <name>wcommons/geo-cache-guava</name>
