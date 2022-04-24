@@ -1,7 +1,0 @@
-dependencies {
-    compileOnly project(':geo-api')
-    compileOnly libs.jackson.databind
-
-    testImplementation libs.jackson.databind
-    testImplementation project(':geo-api')
-}

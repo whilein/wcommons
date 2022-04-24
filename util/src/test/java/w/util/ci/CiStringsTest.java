@@ -44,8 +44,8 @@ class CiStringsTest {
         map.put(x, 123);
         map.put(y, 321);
 
-        assertEquals(map.get(x), 321);
-        assertEquals(map.get(y), 321);
+        assertEquals(map.get(x), Integer.valueOf(321));
+        assertEquals(map.get(y), Integer.valueOf(321));
     }
 
 }

@@ -1,5 +1,0 @@
-dependencies {
-    compileOnly libs.fastutil
-
-    api project(':util')
-}

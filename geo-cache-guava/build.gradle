@@ -1,4 +1,0 @@
-dependencies {
-    compileOnly libs.guava
-    compileOnly project(':geo-api')
-}

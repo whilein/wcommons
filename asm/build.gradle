@@ -1,7 +1,0 @@
-dependencies {
-    api libs.asm
-    implementation project(':util')
-
-    testImplementation libs.asm
-    testImplementation project(':util')
-}

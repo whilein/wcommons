@@ -84,7 +84,7 @@ class SqlTests {
         val userRank = table.<Integer>get(userId, UserColumn.RANK_ID)
                 .call();
 
-        assertEquals(rankId, userRank);
+        assertEquals(rankId, userRank.intValue());
 
         val userData = table.getAll(userId)
                 .call();

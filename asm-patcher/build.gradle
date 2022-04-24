@@ -1,9 +1,0 @@
-dependencies {
-    implementation project(':agent')
-    implementation project(':asm')
-    implementation project(':util')
-
-    testImplementation project(':agent')
-    testImplementation project(':asm')
-    testImplementation project(':util')
-}

@@ -1,4 +1,0 @@
-dependencies {
-    compileOnly libs.caffeine
-    compileOnly project(':geo-api')
-}

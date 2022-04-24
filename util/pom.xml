@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.github.whilein.wcommons</groupId>
+        <artifactId>parent</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>util</artifactId>
+    <description>Some useful tools for Java core like pair, lazy and etc</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.whilein.wcommons</groupId>
+            <artifactId>agent</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+</project>

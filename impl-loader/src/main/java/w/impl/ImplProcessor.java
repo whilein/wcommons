@@ -1,8 +1,10 @@
 package w.impl;
 
+import com.google.auto.service.AutoService;
 import lombok.val;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@AutoService(Processor.class)
 public final class ImplProcessor extends AbstractProcessor {
 
     private final Map<String, List<ImplModel>> models = new HashMap<>();

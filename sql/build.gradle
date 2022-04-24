@@ -1,9 +1,0 @@
-dependencies {
-    api project(':flow')
-    api libs.hikaricp
-
-    testImplementation project(':flow')
-    testImplementation libs.h2
-    testImplementation libs.slf4j.api
-    testImplementation libs.slf4j.simple
-}
