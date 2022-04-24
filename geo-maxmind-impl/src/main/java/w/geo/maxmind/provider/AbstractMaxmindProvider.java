@@ -35,25 +35,10 @@ import java.util.zip.GZIPInputStream;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractMaxmindProvider implements MaxmindProvider {
 
-    protected abstract InputStream openInputStream() throws IOException;
-
-    @Override
-    public @NotNull DatabaseReader openReader() throws IOException {
-        try (val is = openInputStream();
-             val gis = new GZIPInputStream(is);
-             val tis = new TarInputStream(gis)) {
-            TarEntry entry;
-
-            while ((entry = tis.getNextEntry()) != null) {
-                if (entry.getName().endsWith(".mmdb")) {
-                    return new DatabaseReader.Builder(tis)
-                            .withCache(NoCache.getInstance())
-                            .build();
-                }
-            }
-        }
-
-        throw new IllegalStateException("No .mmdb file in received database archive from download.maxmind.com");
+    protected DatabaseReader newReader(final InputStream is) throws IOException {
+        return new DatabaseReader.Builder(is)
+                .withCache(NoCache.getInstance())
+                .build();
     }
 
 }

@@ -16,9 +16,11 @@
 
 package w.geo.maxmind.provider;
 
+import com.maxmind.geoip2.DatabaseReader;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -40,8 +42,10 @@ public final class LocalMaxmindProvider extends AbstractMaxmindProvider {
     }
 
     @Override
-    protected InputStream openInputStream() throws IOException {
-        return Files.newInputStream(path);
+    public @NotNull DatabaseReader openReader() throws IOException {
+        try (val is = Files.newInputStream(path)) {
+            return newReader(is);
+        }
     }
 
 }

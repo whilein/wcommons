@@ -16,15 +16,19 @@
 
 package w.geo.maxmind.provider;
 
+import com.maxmind.geoip2.DatabaseReader;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import org.kamranzafar.jtar.TarEntry;
+import org.kamranzafar.jtar.TarInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.zip.GZIPInputStream;
 
 /**
  * @author whilein
@@ -44,11 +48,23 @@ public final class RemoteMaxmindProvider extends AbstractMaxmindProvider {
 
 
     @Override
-    protected InputStream openInputStream() throws IOException {
+    public @NotNull DatabaseReader openReader() throws IOException {
         val url = new URL(String.format(DATABASE_URL, key));
         val urlConnection = url.openConnection();
 
-        return urlConnection.getInputStream();
+        try (val is = urlConnection.getInputStream();
+             val gis = new GZIPInputStream(is);
+             val tis = new TarInputStream(gis)) {
+            TarEntry entry;
+
+            while ((entry = tis.getNextEntry()) != null) {
+                if (entry.getName().endsWith(".mmdb")) {
+                    return newReader(tis);
+                }
+            }
+        }
+
+        throw new IllegalStateException("No .mmdb file in received database archive from download.maxmind.com");
     }
 
 }
