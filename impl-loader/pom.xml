@@ -4,12 +4,12 @@
 
     <parent>
         <groupId>io.github.whilein.wcommons</groupId>
-        <artifactId>parent</artifactId>
-        <version>${revision}</version>
+        <artifactId>wcommons-parent</artifactId>
+        <version>1.0.3-SNAPSHOT</version>
     </parent>
 
     <name>wcommons/impl-loader</name>
-    <artifactId>impl-loader</artifactId>
+    <artifactId>wcommons-impl-loader</artifactId>
     <description>Simple implementation loader</description>
 
     <dependencies>

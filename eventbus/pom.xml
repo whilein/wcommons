@@ -4,12 +4,12 @@
 
     <parent>
         <groupId>io.github.whilein.wcommons</groupId>
-        <artifactId>parent</artifactId>
-        <version>${revision}</version>
+        <artifactId>wcommons-parent</artifactId>
+        <version>1.0.3-SNAPSHOT</version>
     </parent>
 
     <name>wcommons/eventbus</name>
-    <artifactId>eventbus</artifactId>
+    <artifactId>wcommons-eventbus</artifactId>
     <description>Blazing fast eventbus</description>
 
     <dependencies>
@@ -26,13 +26,13 @@
 
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>asm</artifactId>
+            <artifactId>wcommons-asm</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>util</artifactId>
+            <artifactId>wcommons-util</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

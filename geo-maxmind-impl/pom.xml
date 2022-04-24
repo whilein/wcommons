@@ -4,12 +4,12 @@
 
     <parent>
         <groupId>io.github.whilein.wcommons</groupId>
-        <artifactId>parent</artifactId>
-        <version>${revision}</version>
+        <artifactId>wcommons-parent</artifactId>
+        <version>1.0.3-SNAPSHOT</version>
     </parent>
 
     <name>wcommons/geo-maxmind-impl</name>
-    <artifactId>geo-maxmind-impl</artifactId>
+    <artifactId>wcommons-geo-maxmind-impl</artifactId>
     <description>Geolocation lookup implementation for maxmind</description>
 
     <dependencies>
@@ -30,7 +30,7 @@
 
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>geo-api</artifactId>
+            <artifactId>wcommons-geo-api</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

@@ -4,12 +4,12 @@
 
     <parent>
         <groupId>io.github.whilein.wcommons</groupId>
-        <artifactId>parent</artifactId>
-        <version>${revision}</version>
+        <artifactId>wcommons-parent</artifactId>
+        <version>1.0.3-SNAPSHOT</version>
     </parent>
 
     <name>wcommons/crypto</name>
-    <artifactId>crypto</artifactId>
+    <artifactId>wcommons-crypto</artifactId>
     <description>Cryptographic algorithms, hashing and etc</description>
 
     <dependencies>
@@ -21,7 +21,7 @@
 
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>util</artifactId>
+            <artifactId>wcommons-util</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

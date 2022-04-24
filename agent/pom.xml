@@ -4,12 +4,12 @@
 
     <parent>
         <groupId>io.github.whilein.wcommons</groupId>
-        <artifactId>parent</artifactId>
-        <version>${revision}</version>
+        <artifactId>wcommons-parent</artifactId>
+        <version>1.0.3-SNAPSHOT</version>
     </parent>
 
     <name>wcommons/agent</name>
-    <artifactId>agent</artifactId>
+    <artifactId>wcommons-agent</artifactId>
 
     <description>Attaches Java Agent in runtime and gives you access to Instrumentation</description>
 </project>

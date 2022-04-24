@@ -4,18 +4,18 @@
 
     <parent>
         <groupId>io.github.whilein.wcommons</groupId>
-        <artifactId>parent</artifactId>
-        <version>${revision}</version>
+        <artifactId>wcommons-parent</artifactId>
+        <version>1.0.3-SNAPSHOT</version>
     </parent>
 
     <name>wcommons/util</name>
-    <artifactId>util</artifactId>
+    <artifactId>wcommons-util</artifactId>
     <description>Some useful tools for Java core like pair, lazy and etc</description>
 
     <dependencies>
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>agent</artifactId>
+            <artifactId>wcommons-agent</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>

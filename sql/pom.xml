@@ -4,12 +4,12 @@
 
     <parent>
         <groupId>io.github.whilein.wcommons</groupId>
-        <artifactId>parent</artifactId>
-        <version>${revision}</version>
+        <artifactId>wcommons-parent</artifactId>
+        <version>1.0.3-SNAPSHOT</version>
     </parent>
 
     <name>wcommons/sql</name>
-    <artifactId>sql</artifactId>
+    <artifactId>wcommons-sql</artifactId>
     <description>Adapter for raw jdbc queries</description>
 
     <dependencies>
@@ -20,7 +20,7 @@
 
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>flow</artifactId>
+            <artifactId>wcommons-flow</artifactId>
             <version>${project.version}</version>
         </dependency>
 

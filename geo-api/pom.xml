@@ -4,11 +4,11 @@
 
     <parent>
         <groupId>io.github.whilein.wcommons</groupId>
-        <artifactId>parent</artifactId>
-        <version>${revision}</version>
+        <artifactId>wcommons-parent</artifactId>
+        <version>1.0.3-SNAPSHOT</version>
     </parent>
 
     <name>wcommons/geo-api</name>
-    <artifactId>geo-api</artifactId>
+    <artifactId>wcommons-geo-api</artifactId>
     <description>Geolocation lookup API</description>
 </project>

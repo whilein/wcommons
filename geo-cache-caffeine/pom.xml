@@ -4,12 +4,12 @@
 
     <parent>
         <groupId>io.github.whilein.wcommons</groupId>
-        <artifactId>parent</artifactId>
-        <version>${revision}</version>
+        <artifactId>wcommons-parent</artifactId>
+        <version>1.0.3-SNAPSHOT</version>
     </parent>
 
     <name>wcommons/geo-cache-caffeine</name>
-    <artifactId>geo-cache-caffeine</artifactId>
+    <artifactId>wcommons-geo-cache-caffeine</artifactId>
     <description>Geolocation lookup cache using Caffeine</description>
 
     <dependencies>
@@ -20,7 +20,7 @@
 
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>geo-api</artifactId>
+            <artifactId>wcommons-geo-api</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

@@ -17,10 +17,102 @@
     <img src="https://img.shields.io/github/issues-pr/whilein/wcommons">
   </a>
 
-  <a href="https://search.maven.org/artifact/io.github.whilein.wcommons/sql">
-    <img src="https://img.shields.io/maven-central/v/io.github.whilein.wcommons/sql">
+  <a href="https://search.maven.org/artifact/io.github.whilein.wcommons/wcommons-bom">
+    <img src="https://img.shields.io/maven-central/v/io.github.whilein.wcommons/wcommons-bom">
   </a>
 </div>
+
+## Использование
+```xml
+<dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>io.github.whilein.wcommons</groupId>
+      <artifactId>wcommons-bom</artifactId>
+      <version>${wcommons.version}</version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
+  </dependencies>
+  
+  <dependencies>
+    <dependency>
+      <groupId>io.github.whilein.wcommons</groupId>
+      <artifactId>wcommons-agent</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.github.whilein.wcommons</groupId>
+      <artifactId>wcommons-asm</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.github.whilein.wcommons</groupId>
+      <artifactId>wcommons-asm-patcher</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.github.whilein.wcommons</groupId>
+      <artifactId>wcommons-util</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.github.whilein.wcommons</groupId>
+      <artifactId>wcommons-config</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.github.whilein.wcommons</groupId>
+      <artifactId>wcommons-crypto</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.github.whilein.wcommons</groupId>
+      <artifactId>wcommons-eventbus</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.github.whilein.wcommons</groupId>
+      <artifactId>wcommons-geo-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>io.github.whilein.wcommons</groupId>
+      <artifactId>wcommons-geo-maxmind-impl</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.github.whilein.wcommons</groupId>
+      <artifactId>wcommons-geo-ipinfo-impl</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.github.whilein.wcommons</groupId>
+      <artifactId>wcommons-geo-cache-caffeine</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.github.whilein.wcommons</groupId>
+      <artifactId>wcommons-geo-cache-guava</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.github.whilein.wcommons</groupId>
+      <artifactId>wcommons-impl-loader</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.github.whilein.wcommons</groupId>
+      <artifactId>wcommons-flow</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.github.whilein.wcommons</groupId>
+      <artifactId>wcommons-sql</artifactId>
+    </dependency>
+  </dependencies>
+</dependencyManagement>
+```
 
 ## Содержание
 

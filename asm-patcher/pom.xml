@@ -4,30 +4,30 @@
 
     <parent>
         <groupId>io.github.whilein.wcommons</groupId>
-        <artifactId>parent</artifactId>
-        <version>${revision}</version>
+        <artifactId>wcommons-parent</artifactId>
+        <version>1.0.3-SNAPSHOT</version>
     </parent>
 
     <name>wcommons/asm-patcher</name>
-    <artifactId>asm-patcher</artifactId>
+    <artifactId>wcommons-asm-patcher</artifactId>
     <description>Runtime bytecode modification</description>
 
     <dependencies>
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>asm</artifactId>
+            <artifactId>wcommons-asm</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>agent</artifactId>
+            <artifactId>wcommons-agent</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>util</artifactId>
+            <artifactId>wcommons-util</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

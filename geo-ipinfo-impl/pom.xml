@@ -4,12 +4,12 @@
 
     <parent>
         <groupId>io.github.whilein.wcommons</groupId>
-        <artifactId>parent</artifactId>
-        <version>${revision}</version>
+        <artifactId>wcommons-parent</artifactId>
+        <version>1.0.3-SNAPSHOT</version>
     </parent>
 
     <name>wcommons/geo-ipinfo-impl</name>
-    <artifactId>geo-ipinfo-impl</artifactId>
+    <artifactId>wcommons-geo-ipinfo-impl</artifactId>
     <description>Geolocation lookup implementation for ipinfo service</description>
 
     <dependencies>
@@ -20,7 +20,7 @@
 
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>geo-api</artifactId>
+            <artifactId>wcommons-geo-api</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
