@@ -6,7 +6,7 @@ on:
       - '*'
 
 jobs:
-  publish:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -20,4 +20,4 @@ jobs:
           gpg-private-key: ${{ secrets.GPG_KEY_CONTENTS }}
           gpg-passphrase: ${{ secrets.SIGNING_PASSWORD }}
       - name: Deploy with Maven
-        run: mvn -Prelease -DskipTests=true -Dmaven.test.skip clean deploy
+        run: mvn -Pdeploy -DskipTests=true -Dmaven.test.skip clean deploy
