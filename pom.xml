@@ -8,7 +8,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <revision>1.0.3</revision>
+        <revision>1.0.3-SNAPSHOT</revision>
     </properties>
 
     <name>parent</name>
