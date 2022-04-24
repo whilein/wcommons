@@ -149,13 +149,6 @@
         </license>
     </licenses>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <scm>
         <url>https://github.com/whilein/wcommons</url>
         <connection>scm:https://github.com/whilein/wcommons.git</connection>
