@@ -11,7 +11,7 @@
         <revision>1.0.3-SNAPSHOT</revision>
     </properties>
 
-    <name>parent</name>
+    <name>wcommons/parent</name>
     <description>Parent wcommons project</description>
 
     <modules>

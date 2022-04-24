@@ -8,7 +8,7 @@
         <version>${revision}</version>
     </parent>
 
-    <name>asm</name>
+    <name>wcommons/asm</name>
     <artifactId>asm</artifactId>
     <description>Some useful tools for ow2 asm</description>
 

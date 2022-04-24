@@ -8,7 +8,7 @@
         <version>${revision}</version>
     </parent>
 
-    <name>util</name>
+    <name>wcommons/util</name>
     <artifactId>util</artifactId>
     <description>Some useful tools for Java core like pair, lazy and etc</description>
 

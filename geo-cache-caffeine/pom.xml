@@ -8,7 +8,7 @@
         <version>${revision}</version>
     </parent>
 
-    <name>geo-cache-caffeine</name>
+    <name>wcommons/geo-cache-caffeine</name>
     <artifactId>geo-cache-caffeine</artifactId>
     <description>Geolocation lookup cache using Caffeine</description>
 

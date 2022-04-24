@@ -8,7 +8,7 @@
         <version>${revision}</version>
     </parent>
 
-    <name>agent</name>
+    <name>wcommons/agent</name>
     <artifactId>agent</artifactId>
 
     <description>Attaches Java Agent in runtime and gives you access to Instrumentation</description>

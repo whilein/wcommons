@@ -8,7 +8,7 @@
         <version>${revision}</version>
     </parent>
 
-    <name>geo-ipinfo-impl</name>
+    <name>wcommons/geo-ipinfo-impl</name>
     <artifactId>geo-ipinfo-impl</artifactId>
     <description>Geolocation lookup implementation for ipinfo service</description>
 

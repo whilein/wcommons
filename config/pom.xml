@@ -8,7 +8,7 @@
         <version>${revision}</version>
     </parent>
 
-    <name>config</name>
+    <name>wcommons/config</name>
     <artifactId>config</artifactId>
     <description>Adapter for json/yaml configurations</description>
 

@@ -8,11 +8,102 @@
         <version>${revision}</version>
     </parent>
 
-    <name>bom</name>
+    <name>wcommons/bom</name>
     <artifactId>bom</artifactId>
     <packaging>pom</packaging>
 
-    <dependencyManagement>
+    <description>wcommons (Bill of Materials)</description>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.github.whilein.wcommons</groupId>
+                <artifactId>agent</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.whilein.wcommons</groupId>
+                <artifactId>asm</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.whilein.wcommons</groupId>
+                <artifactId>asm-patcher</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.whilein.wcommons</groupId>
+                <artifactId>util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.whilein.wcommons</groupId>
+                <artifactId>config</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.whilein.wcommons</groupId>
+                <artifactId>crypto</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.whilein.wcommons</groupId>
+                <artifactId>eventbus</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.whilein.wcommons</groupId>
+                <artifactId>geo-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.whilein.wcommons</groupId>
+                <artifactId>geo-maxmind-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.whilein.wcommons</groupId>
+                <artifactId>geo-ipinfo-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.whilein.wcommons</groupId>
+                <artifactId>geo-cache-caffeine</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.whilein.wcommons</groupId>
+                <artifactId>geo-cache-guava</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.whilein.wcommons</groupId>
+                <artifactId>impl-loader</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.whilein.wcommons</groupId>
+                <artifactId>flow</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.whilein.wcommons</groupId>
+                <artifactId>sql</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
     </dependencyManagement>
 </project>
