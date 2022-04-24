@@ -8,8 +8,9 @@
         <version>${revision}</version>
     </parent>
 
-    <packaging>pom</packaging>
+    <name>bom</name>
     <artifactId>bom</artifactId>
+    <packaging>pom</packaging>
 
     <dependencyManagement>
 

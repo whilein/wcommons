@@ -8,6 +8,7 @@
         <version>${revision}</version>
     </parent>
 
+    <name>geo-cache-guava</name>
     <artifactId>geo-cache-guava</artifactId>
     <description>Geolocation lookup cache using Guava's Cache</description>
 

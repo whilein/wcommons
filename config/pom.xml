@@ -8,6 +8,7 @@
         <version>${revision}</version>
     </parent>
 
+    <name>config</name>
     <artifactId>config</artifactId>
     <description>Adapter for json/yaml configurations</description>
 

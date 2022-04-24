@@ -8,6 +8,7 @@
         <version>${revision}</version>
     </parent>
 
+    <name>crypto</name>
     <artifactId>crypto</artifactId>
     <description>Cryptographic algorithms, hashing and etc</description>
 

@@ -8,6 +8,7 @@
         <version>${revision}</version>
     </parent>
 
+    <name>sql</name>
     <artifactId>sql</artifactId>
     <description>Adapter for raw jdbc queries</description>
 

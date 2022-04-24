@@ -8,6 +8,7 @@
         <version>${revision}</version>
     </parent>
 
+    <name>flow</name>
     <artifactId>flow</artifactId>
     <description>Lazy Stream, Optional and CompletableFuture in one</description>
 

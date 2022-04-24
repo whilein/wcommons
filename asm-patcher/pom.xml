@@ -8,6 +8,7 @@
         <version>${revision}</version>
     </parent>
 
+    <name>asm-patcher</name>
     <artifactId>asm-patcher</artifactId>
     <description>Runtime bytecode modification</description>
 
