@@ -14,10 +14,18 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 17
-          server-id: ossrh
-          server-username: ${{ secrets.SONATYPE_USERNAME }}
-          server-password: ${{ secrets.SONATYPE_PASSWORD }}
-          gpg-private-key: ${{ secrets.GPG_KEY_CONTENTS }}
-          gpg-passphrase: ${{ secrets.SIGNING_PASSWORD }}
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Prepare deploy
+        run: |
+          cat <(echo -e "${{ secrets.GPG_KEY_CONTENTS }}") | gpg --batch --import
       - name: Deploy with Maven
-        run: mvn -Pdeploy -DskipTests=true -Dmaven.test.skip clean deploy
+        run: mvn --no-transfer-progress --batch-mode -Dgpg.passphrase=${{ secrets.SIGNING_PASSWORD }} -s settings.xml -T 1C -Pdeploy -DskipTests=true -Dmaven.test.skip clean deploy
+        env:
+          OSSRH_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
