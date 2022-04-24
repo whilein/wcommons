@@ -23,95 +23,99 @@
 </div>
 
 ## Использование
+
 ```xml
-<dependencyManagement>
-  <dependencies>
-    <dependency>
-      <groupId>io.github.whilein.wcommons</groupId>
-      <artifactId>wcommons-bom</artifactId>
-      <version>${wcommons.version}</version>
-      <type>pom</type>
-      <scope>import</scope>
-    </dependency>
-  </dependencies>
-  
-  <dependencies>
-    <dependency>
-      <groupId>io.github.whilein.wcommons</groupId>
-      <artifactId>wcommons-agent</artifactId>
-    </dependency>
 
-    <dependency>
-      <groupId>io.github.whilein.wcommons</groupId>
-      <artifactId>wcommons-asm</artifactId>
-    </dependency>
+<project>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.github.whilein.wcommons</groupId>
+                <artifactId>wcommons-bom</artifactId>
+                <version>${wcommons.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
-    <dependency>
-      <groupId>io.github.whilein.wcommons</groupId>
-      <artifactId>wcommons-asm-patcher</artifactId>
-    </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>io.github.whilein.wcommons</groupId>
+            <artifactId>wcommons-agent</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>io.github.whilein.wcommons</groupId>
-      <artifactId>wcommons-util</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>io.github.whilein.wcommons</groupId>
+            <artifactId>wcommons-asm</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>io.github.whilein.wcommons</groupId>
-      <artifactId>wcommons-config</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>io.github.whilein.wcommons</groupId>
+            <artifactId>wcommons-asm-patcher</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>io.github.whilein.wcommons</groupId>
-      <artifactId>wcommons-crypto</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>io.github.whilein.wcommons</groupId>
+            <artifactId>wcommons-util</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>io.github.whilein.wcommons</groupId>
-      <artifactId>wcommons-eventbus</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>io.github.whilein.wcommons</groupId>
+            <artifactId>wcommons-config</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>io.github.whilein.wcommons</groupId>
-      <artifactId>wcommons-geo-api</artifactId>
-    </dependency>
-    
-    <dependency>
-      <groupId>io.github.whilein.wcommons</groupId>
-      <artifactId>wcommons-geo-maxmind-impl</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>io.github.whilein.wcommons</groupId>
+            <artifactId>wcommons-crypto</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>io.github.whilein.wcommons</groupId>
-      <artifactId>wcommons-geo-ipinfo-impl</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>io.github.whilein.wcommons</groupId>
+            <artifactId>wcommons-eventbus</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>io.github.whilein.wcommons</groupId>
-      <artifactId>wcommons-geo-cache-caffeine</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>io.github.whilein.wcommons</groupId>
+            <artifactId>wcommons-geo-api</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>io.github.whilein.wcommons</groupId>
-      <artifactId>wcommons-geo-cache-guava</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>io.github.whilein.wcommons</groupId>
+            <artifactId>wcommons-geo-maxmind-impl</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>io.github.whilein.wcommons</groupId>
-      <artifactId>wcommons-impl-loader</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>io.github.whilein.wcommons</groupId>
+            <artifactId>wcommons-geo-ipinfo-impl</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>io.github.whilein.wcommons</groupId>
-      <artifactId>wcommons-flow</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>io.github.whilein.wcommons</groupId>
+            <artifactId>wcommons-geo-cache-caffeine</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>io.github.whilein.wcommons</groupId>
-      <artifactId>wcommons-sql</artifactId>
-    </dependency>
-  </dependencies>
-</dependencyManagement>
+        <dependency>
+            <groupId>io.github.whilein.wcommons</groupId>
+            <artifactId>wcommons-geo-cache-guava</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.whilein.wcommons</groupId>
+            <artifactId>wcommons-impl-loader</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.whilein.wcommons</groupId>
+            <artifactId>wcommons-flow</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.whilein.wcommons</groupId>
+            <artifactId>wcommons-sql</artifactId>
+        </dependency>
+    </dependencies>
+</project>
 ```
 
 ## Содержание
@@ -123,23 +127,23 @@
 - [Flow](flow)
 - [Загрузка реализаций](impl-loader)
 - [ASM](asm)
-  - MagicAccessorImpl bridge
+    - MagicAccessorImpl bridge
 - [Утилиты](util)
-  - Lazy
-  - Pair, MutablePair, UnorderedPair
-  - MutableInt, MutableLong, MutableReference, MutableOptionalInt, MutableOptionalLong, MutableOptionalReference
-  - Message
-  - RandomUtils & RandomStringGenerator
-  - ClassLoaderUtils
-  - Async (Упрощенный вариант Future)
-  - Buffering
-  - Bytes, ByteSlice
-  - Hex
-  - Root
+    - Lazy
+    - Pair, MutablePair, UnorderedPair
+    - MutableInt, MutableLong, MutableReference, MutableOptionalInt, MutableOptionalLong, MutableOptionalReference
+    - Message
+    - RandomUtils & RandomStringGenerator
+    - ClassLoaderUtils
+    - Async (Упрощенный вариант Future)
+    - Buffering
+    - Bytes, ByteSlice
+    - Hex
+    - Root
 - [Конфигурация](config)
 - Геолокация
-  - [Апи](geo-api)
-  - [Реализация maxmind](geo-maxmind-impl)
-  - [Реализация ipinfo](geo-ipinfo-impl)
-  - [Кэширование на основе Google Guava](geo-cache-guava)
-  - [Кэширование на основе Caffeine](geo-cache-caffeine)
+    - [Апи](geo-api)
+    - [Реализация maxmind](geo-maxmind-impl)
+    - [Реализация ipinfo](geo-ipinfo-impl)
+    - [Кэширование на основе Google Guava](geo-cache-guava)
+    - [Кэширование на основе Caffeine](geo-cache-caffeine)
