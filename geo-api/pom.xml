@@ -8,8 +8,6 @@
         <version>${revision}</version>
     </parent>
 
-    <version>${module.geo-api.version}</version>
-
     <name>wcommons/geo-api</name>
     <artifactId>wcommons-geo-api</artifactId>
     <description>Geolocation lookup API</description>

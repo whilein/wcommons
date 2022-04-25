@@ -8,8 +8,6 @@
         <version>${revision}</version>
     </parent>
 
-    <version>${module.util.version}</version>
-
     <name>wcommons/util</name>
     <artifactId>wcommons-util</artifactId>
     <description>Some useful tools for Java core like pair, lazy and etc</description>
@@ -18,7 +16,7 @@
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-agent</artifactId>
-            <version>${module.agent.version}</version>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

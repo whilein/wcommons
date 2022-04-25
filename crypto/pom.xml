@@ -8,8 +8,6 @@
         <version>${revision}</version>
     </parent>
 
-    <version>${module.crypto.version}</version>
-
     <name>wcommons/crypto</name>
     <artifactId>wcommons-crypto</artifactId>
     <description>Cryptographic algorithms, hashing and etc</description>
@@ -24,7 +22,7 @@
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-util</artifactId>
-            <version>${module.util.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -8,8 +8,6 @@
         <version>${revision}</version>
     </parent>
 
-    <version>${module.impl-loader.version}</version>
-
     <name>wcommons/impl-loader</name>
     <artifactId>wcommons-impl-loader</artifactId>
     <description>Simple implementation loader</description>

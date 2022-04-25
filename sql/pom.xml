@@ -8,8 +8,6 @@
         <version>${revision}</version>
     </parent>
 
-    <version>${module.sql.version}</version>
-
     <name>wcommons/sql</name>
     <artifactId>wcommons-sql</artifactId>
     <description>Adapter for raw jdbc queries</description>
@@ -23,7 +21,7 @@
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-flow</artifactId>
-            <version>${module.flow.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>

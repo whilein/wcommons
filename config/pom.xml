@@ -8,8 +8,6 @@
         <version>${revision}</version>
     </parent>
 
-    <version>${module.config.version}</version>
-
     <name>wcommons/config</name>
     <artifactId>wcommons-config</artifactId>
     <description>Adapter for json/yaml configurations</description>
@@ -28,7 +26,7 @@
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-util</artifactId>
-            <version>${module.util.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

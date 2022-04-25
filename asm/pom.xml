@@ -8,8 +8,6 @@
         <version>${revision}</version>
     </parent>
 
-    <version>${module.asm.version}</version>
-
     <name>wcommons/asm</name>
     <artifactId>wcommons-asm</artifactId>
     <description>Some useful tools for ow2 asm</description>
@@ -23,7 +21,7 @@
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-util</artifactId>
-            <version>${module.util.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

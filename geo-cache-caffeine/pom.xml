@@ -8,8 +8,6 @@
         <version>${revision}</version>
     </parent>
 
-    <version>${module.geo-cache-caffeine.version}</version>
-
     <name>wcommons/geo-cache-caffeine</name>
     <artifactId>wcommons-geo-cache-caffeine</artifactId>
     <description>Geolocation lookup cache using Caffeine</description>
@@ -23,7 +21,7 @@
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-geo-api</artifactId>
-            <version>${module.geo-api.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

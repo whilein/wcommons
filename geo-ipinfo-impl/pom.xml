@@ -8,8 +8,6 @@
         <version>${revision}</version>
     </parent>
 
-    <version>${module.geo-ipinfo-impl.version}</version>
-
     <name>wcommons/geo-ipinfo-impl</name>
     <artifactId>wcommons-geo-ipinfo-impl</artifactId>
     <description>Geolocation lookup implementation for ipinfo service</description>
@@ -23,7 +21,7 @@
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-geo-api</artifactId>
-            <version>${module.geo-api.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -10,7 +10,6 @@
 
     <name>wcommons/bom</name>
     <artifactId>wcommons-bom</artifactId>
-    <version>${module.bom.version}</version>
     <packaging>pom</packaging>
 
     <description>wcommons (Bill of Materials)</description>
@@ -20,90 +19,91 @@
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-agent</artifactId>
-                <version>${module.agent.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-asm</artifactId>
-                <version>${module.asm.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-asm-patcher</artifactId>
-                <version>${module.asm-patcher.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-util</artifactId>
-                <version>${module.util.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-config</artifactId>
-                <version>${module.config.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-crypto</artifactId>
-                <version>${module.crypto.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-eventbus</artifactId>
-                <version>${module.eventbus.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-geo-api</artifactId>
-                <version>${module.geo-api.version}</version>
+                <version>${project.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-geo-maxmind-impl</artifactId>
-                <version>${module.geo-maxmind-impl.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-geo-ipinfo-impl</artifactId>
-                <version>${module.geo-ipinfo-impl.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-geo-cache-caffeine</artifactId>
-                <version>${module.geo-cache-caffeine.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-geo-cache-guava</artifactId>
-                <version>${module.geo-cache-guava.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-impl-loader</artifactId>
-                <version>${module.impl-loader.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-flow</artifactId>
-                <version>${module.flow.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-sql</artifactId>
-                <version>${module.sql.version}</version>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

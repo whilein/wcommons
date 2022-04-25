@@ -8,8 +8,6 @@
         <version>${revision}</version>
     </parent>
 
-    <version>${module.flow.version}</version>
-
     <name>wcommons/flow</name>
     <artifactId>wcommons-flow</artifactId>
     <description>Lazy Stream, Optional and CompletableFuture in one</description>
@@ -24,7 +22,7 @@
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-util</artifactId>
-            <version>${module.util.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

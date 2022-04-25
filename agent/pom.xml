@@ -8,8 +8,6 @@
         <version>${revision}</version>
     </parent>
 
-    <version>${module.agent.version}</version>
-
     <name>wcommons/agent</name>
     <artifactId>wcommons-agent</artifactId>
 

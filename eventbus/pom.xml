@@ -8,8 +8,6 @@
         <version>${revision}</version>
     </parent>
 
-    <version>${module.eventbus.version}</version>
-
     <name>wcommons/eventbus</name>
     <artifactId>wcommons-eventbus</artifactId>
     <description>Blazing fast eventbus</description>
@@ -29,19 +27,19 @@
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-asm</artifactId>
-            <version>${module.asm.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-util</artifactId>
-            <version>${module.util.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-agent</artifactId>
-            <version>${module.agent.version}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
