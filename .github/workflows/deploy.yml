@@ -28,7 +28,7 @@ jobs:
         run: |
           cat <(echo -e "${{ secrets.GPG_KEY_CONTENTS }}") | gpg --batch --import
       - name: Deploy with Maven
-        run: mvn --no-transfer-progress --batch-mode -Dgithub.tag=${{ steps.github_tag.outputs.RESULT }} -Dgpg.passphrase=${{ secrets.SIGNING_PASSWORD }} -s settings.xml -T 1C -Pdeploy -DskipTests=true -Dmaven.test.skip clean deploy
+        run: mvn --no-transfer-progress --batch-mode -Drevision=${{ steps.github_tag.outputs.RESULT }} -Dgpg.passphrase=${{ secrets.SIGNING_PASSWORD }} -s settings.xml -T 1C -Pdeploy -DskipTests=true -Dmaven.test.skip clean deploy
         env:
           OSSRH_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
