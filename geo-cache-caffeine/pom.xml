@@ -5,8 +5,10 @@
     <parent>
         <groupId>io.github.whilein.wcommons</groupId>
         <artifactId>wcommons-parent</artifactId>
-        <version>1.0.4-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
+
+    <version>${module.geo-cache-caffeine.version}</version>
 
     <name>wcommons/geo-cache-caffeine</name>
     <artifactId>wcommons-geo-cache-caffeine</artifactId>
@@ -21,7 +23,7 @@
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-geo-api</artifactId>
-            <version>${project.version}</version>
+            <version>${module.geo-api.version}</version>
         </dependency>
     </dependencies>
 </project>

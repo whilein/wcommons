@@ -5,8 +5,10 @@
     <parent>
         <groupId>io.github.whilein.wcommons</groupId>
         <artifactId>wcommons-parent</artifactId>
-        <version>1.0.4-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
+
+    <version>${module.util.version}</version>
 
     <name>wcommons/util</name>
     <artifactId>wcommons-util</artifactId>
@@ -16,8 +18,8 @@
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-agent</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
+            <version>${module.agent.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

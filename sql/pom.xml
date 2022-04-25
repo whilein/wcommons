@@ -5,8 +5,10 @@
     <parent>
         <groupId>io.github.whilein.wcommons</groupId>
         <artifactId>wcommons-parent</artifactId>
-        <version>1.0.4-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
+
+    <version>${module.sql.version}</version>
 
     <name>wcommons/sql</name>
     <artifactId>wcommons-sql</artifactId>
@@ -21,7 +23,7 @@
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-flow</artifactId>
-            <version>${project.version}</version>
+            <version>${module.flow.version}</version>
         </dependency>
 
         <dependency>

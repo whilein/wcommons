@@ -5,8 +5,10 @@
     <parent>
         <groupId>io.github.whilein.wcommons</groupId>
         <artifactId>wcommons-parent</artifactId>
-        <version>1.0.4-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
+
+    <version>${module.impl-loader.version}</version>
 
     <name>wcommons/impl-loader</name>
     <artifactId>wcommons-impl-loader</artifactId>

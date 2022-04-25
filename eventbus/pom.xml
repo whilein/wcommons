@@ -5,8 +5,10 @@
     <parent>
         <groupId>io.github.whilein.wcommons</groupId>
         <artifactId>wcommons-parent</artifactId>
-        <version>1.0.4-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
+
+    <version>${module.eventbus.version}</version>
 
     <name>wcommons/eventbus</name>
     <artifactId>wcommons-eventbus</artifactId>
@@ -27,13 +29,20 @@
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-asm</artifactId>
-            <version>${project.version}</version>
+            <version>${module.asm.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-util</artifactId>
-            <version>${project.version}</version>
+            <version>${module.util.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.whilein.wcommons</groupId>
+            <artifactId>wcommons-agent</artifactId>
+            <version>${module.agent.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

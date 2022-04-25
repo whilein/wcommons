@@ -5,8 +5,10 @@
     <parent>
         <groupId>io.github.whilein.wcommons</groupId>
         <artifactId>wcommons-parent</artifactId>
-        <version>1.0.4-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
+
+    <version>${module.geo-maxmind-impl.version}</version>
 
     <name>wcommons/geo-maxmind-impl</name>
     <artifactId>wcommons-geo-maxmind-impl</artifactId>
@@ -31,7 +33,7 @@
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-geo-api</artifactId>
-            <version>${project.version}</version>
+            <version>${module.geo-api.version}</version>
         </dependency>
     </dependencies>
 </project>

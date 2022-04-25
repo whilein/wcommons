@@ -2,177 +2,108 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>io.github.whilein.wcommons</groupId>
+        <artifactId>wcommons-parent</artifactId>
+        <version>${revision}</version>
+    </parent>
+
     <name>wcommons/bom</name>
-    <groupId>io.github.whilein.wcommons</groupId>
     <artifactId>wcommons-bom</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>${module.bom.version}</version>
     <packaging>pom</packaging>
 
     <description>wcommons (Bill of Materials)</description>
-
-    <organization>
-        <name>io.github.whilein</name>
-        <url>https://github.com/whilein</url>
-    </organization>
-
-    <issueManagement>
-        <system>GitHub</system>
-        <url>https://github.com/whilein/wcommons/issues</url>
-    </issueManagement>
-
-    <licenses>
-        <license>
-            <name>The Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-        </license>
-    </licenses>
-
-    <scm>
-        <url>https://github.com/whilein/wcommons</url>
-        <connection>scm:https://github.com/whilein/wcommons.git</connection>
-        <developerConnection>scm:git://github.com/whilein/wcommons.git</developerConnection>
-    </scm>
-
-    <developers>
-        <developer>
-            <id>whilein</id>
-            <name>whilein</name>
-            <email>whilein.1@gmail.com</email>
-        </developer>
-    </developers>
-
-    <url>https://github.com/whilein/wcommons</url>
-
-
-    <profiles>
-        <profile>
-            <id>deploy</id>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>3.0.1</version>
-
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.13</version>
-
-                        <extensions>true</extensions>
-
-                        <configuration>
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-agent</artifactId>
-                <version>${project.version}</version>
+                <version>${module.agent.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-asm</artifactId>
-                <version>${project.version}</version>
+                <version>${module.asm.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-asm-patcher</artifactId>
-                <version>${project.version}</version>
+                <version>${module.asm-patcher.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-util</artifactId>
-                <version>${project.version}</version>
+                <version>${module.util.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-config</artifactId>
-                <version>${project.version}</version>
+                <version>${module.config.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-crypto</artifactId>
-                <version>${project.version}</version>
+                <version>${module.crypto.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-eventbus</artifactId>
-                <version>${project.version}</version>
+                <version>${module.eventbus.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-geo-api</artifactId>
-                <version>${project.version}</version>
+                <version>${module.geo-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-geo-maxmind-impl</artifactId>
-                <version>${project.version}</version>
+                <version>${module.geo-maxmind-impl.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-geo-ipinfo-impl</artifactId>
-                <version>${project.version}</version>
+                <version>${module.geo-ipinfo-impl.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-geo-cache-caffeine</artifactId>
-                <version>${project.version}</version>
+                <version>${module.geo-cache-caffeine.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-geo-cache-guava</artifactId>
-                <version>${project.version}</version>
+                <version>${module.geo-cache-guava.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-impl-loader</artifactId>
-                <version>${project.version}</version>
+                <version>${module.impl-loader.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-flow</artifactId>
-                <version>${project.version}</version>
+                <version>${module.flow.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-sql</artifactId>
-                <version>${project.version}</version>
+                <version>${module.sql.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -4,11 +4,29 @@
 
     <groupId>io.github.whilein.wcommons</groupId>
     <artifactId>wcommons-parent</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
 
     <properties>
         <java.version>17</java.version>
+
+        <revision>1.1.0</revision>
+        <module.bom.version>1.1.0</module.bom.version>
+        <module.crypto.version>1.1.0</module.crypto.version>
+        <module.config.version>1.1.0</module.config.version>
+        <module.eventbus.version>1.1.0</module.eventbus.version>
+        <module.asm.version>1.1.0</module.asm.version>
+        <module.asm-patcher.version>1.1.0</module.asm-patcher.version>
+        <module.agent.version>1.1.0</module.agent.version>
+        <module.sql.version>1.1.0</module.sql.version>
+        <module.util.version>1.1.0</module.util.version>
+        <module.flow.version>1.1.0</module.flow.version>
+        <module.geo-api.version>1.1.0</module.geo-api.version>
+        <module.geo-maxmind-impl.version>1.1.0</module.geo-maxmind-impl.version>
+        <module.geo-ipinfo-impl.version>1.1.0</module.geo-ipinfo-impl.version>
+        <module.geo-cache-guava.version>1.1.0</module.geo-cache-guava.version>
+        <module.geo-cache-caffeine.version>1.1.0</module.geo-cache-caffeine.version>
+        <module.impl-loader.version>1.1.0</module.impl-loader.version>
     </properties>
 
     <name>wcommons/parent</name>
@@ -35,6 +53,42 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.4</version>
+
+                <configuration>
+                    <pomFile>.flattened-pom.xml</pomFile>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.2.2</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
