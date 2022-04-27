@@ -17,7 +17,6 @@
 package w.crypto;
 
 import org.junit.jupiter.api.Test;
-import w.crypto.bouncycastle.BouncyCastle;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

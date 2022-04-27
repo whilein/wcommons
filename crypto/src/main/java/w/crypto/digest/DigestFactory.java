@@ -14,9 +14,15 @@
  *    limitations under the License.
  */
 
+package w.crypto.digest;
+
+import org.jetbrains.annotations.NotNull;
+
 /**
- * Интеграция с bouncycastle
- *
  * @author whilein
  */
-package w.crypto.bouncycastle;
+public interface DigestFactory {
+
+    @NotNull DigestAlgorithm create();
+
+}

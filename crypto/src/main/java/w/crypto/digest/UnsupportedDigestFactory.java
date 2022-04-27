@@ -14,34 +14,26 @@
  *    limitations under the License.
  */
 
-package w.crypto.bouncycastle;
+package w.crypto.digest;
 
-import lombok.experimental.UtilityClass;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author whilein
  */
-@UtilityClass
-public class BouncyCastle {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class UnsupportedDigestFactory implements DigestFactory {
 
-    private final boolean AVAILABLE;
+    private static final DigestFactory INSTANCE = new UnsupportedDigestFactory();
 
-    public boolean isAvailable() {
-        return AVAILABLE;
+    public static @NotNull DigestFactory getInstance() {
+        return INSTANCE;
     }
 
-    static {
-        boolean available;
-
-        try {
-            Class.forName("org.bouncycastle.LICENSE");
-
-            available = true;
-        } catch (final ClassNotFoundException e) {
-            available = false;
-        }
-
-        AVAILABLE = available;
+    @Override
+    public @NotNull DigestAlgorithm create() {
+        throw new UnsupportedOperationException();
     }
-
 }

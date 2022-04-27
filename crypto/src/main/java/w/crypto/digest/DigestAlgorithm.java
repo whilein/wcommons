@@ -14,26 +14,15 @@
  *    limitations under the License.
  */
 
-package w.crypto;
+package w.crypto.digest;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * @author whilein
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class UnsupportedDigestFactory implements DigestFactory {
+public interface DigestAlgorithm {
 
-    private static final DigestFactory INSTANCE = new UnsupportedDigestFactory();
+    byte @NotNull [] digest(byte @NotNull [] bytes, int off, int len);
 
-    public static @NotNull DigestFactory getInstance() {
-        return INSTANCE;
-    }
-
-    @Override
-    public @NotNull DigestAlgorithm create() {
-        throw new UnsupportedOperationException();
-    }
 }

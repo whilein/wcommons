@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package w.crypto;
+package w.crypto.digest;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

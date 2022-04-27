@@ -14,13 +14,13 @@
  *    limitations under the License.
  */
 
-package w.crypto;
+package w.crypto.digest;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
-import w.crypto.bouncycastle.Sha3DigestFactory;
+import w.crypto.digest.bouncycastle.Sha3DigestFactory;
 import w.util.Hex;
 
 import java.nio.charset.StandardCharsets;

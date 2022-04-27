@@ -14,16 +14,17 @@
  *    limitations under the License.
  */
 
-package w.crypto.bouncycastle;
+package w.crypto.digest.bouncycastle;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.bouncycastle.jcajce.provider.digest.Keccak;
 import org.jetbrains.annotations.NotNull;
-import w.crypto.AbstractDigestFactory;
-import w.crypto.DigestFactory;
-import w.crypto.UnsupportedDigestFactory;
+import w.crypto.BouncyCastle;
+import w.crypto.digest.AbstractDigestFactory;
+import w.crypto.digest.DigestFactory;
+import w.crypto.digest.UnsupportedDigestFactory;
 
 import java.security.MessageDigest;
 
@@ -49,14 +50,14 @@ public final class Sha3DigestFactory extends AbstractDigestFactory {
     }
 
     private static final class Factory {
-        public static MessageDigest newDigestKeccak(final int bits) {
+        public static MessageDigest create(final int bits) {
             return new Keccak.DigestKeccak(bits);
         }
     }
 
     @Override
     protected MessageDigest getDigest() {
-        return Factory.newDigestKeccak(bits);
+        return Factory.create(bits);
     }
 
 }

@@ -16,13 +16,32 @@
 
 package w.crypto;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.experimental.UtilityClass;
 
 /**
  * @author whilein
  */
-public interface DigestAlgorithm {
+@UtilityClass
+public class BouncyCastle {
 
-    byte @NotNull [] digest(byte @NotNull [] bytes, int off, int len);
+    private final boolean AVAILABLE;
+
+    public boolean isAvailable() {
+        return AVAILABLE;
+    }
+
+    static {
+        boolean available;
+
+        try {
+            Class.forName("org.bouncycastle.LICENSE");
+
+            available = true;
+        } catch (final ClassNotFoundException e) {
+            available = false;
+        }
+
+        AVAILABLE = available;
+    }
 
 }

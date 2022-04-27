@@ -14,15 +14,31 @@
  *    limitations under the License.
  */
 
-package w.crypto;
+package w.crypto.digest;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
+
+import java.security.MessageDigest;
 
 /**
  * @author whilein
  */
-public interface DigestFactory {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public abstract class AbstractDigestFactory implements DigestFactory {
 
-    @NotNull DigestAlgorithm create();
+    protected abstract MessageDigest getDigest();
+
+    @Override
+    public @NotNull DigestAlgorithm create() {
+        return (bytes, off, len) -> {
+            val digest = getDigest();
+            digest.update(bytes, off, len);
+
+            return digest.digest();
+        };
+    }
 
 }

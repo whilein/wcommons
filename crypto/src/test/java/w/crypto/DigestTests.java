@@ -17,6 +17,7 @@
 package w.crypto;
 
 import org.junit.jupiter.api.Test;
+import w.crypto.digest.Digest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
