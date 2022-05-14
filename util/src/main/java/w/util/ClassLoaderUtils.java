@@ -63,22 +63,15 @@ public class ClassLoaderUtils {
 
         @Override
         protected Class<?> loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
-            return loadClass0(name, resolve);
-        }
-
-        private Class<?> loadClass0(final String name, final boolean resolve)
-                throws ClassNotFoundException {
             try {
                 return super.loadClass(name, resolve);
             } catch (final ClassNotFoundException ignored) {
             }
 
             for (val loader : shared) {
-                if (loader != this) {
-                    try {
-                        return (Class<?>) LOAD_CLASS.invokeExact(loader, name, resolve);
-                    } catch (final Throwable ignored) {
-                    }
+                try {
+                    return (Class<?>) LOAD_CLASS.invokeExact(loader, name, resolve);
+                } catch (final Throwable ignored) {
                 }
             }
 
