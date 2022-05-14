@@ -27,8 +27,8 @@ public interface AsyncEvent extends Event {
 
     @NotNull CompletableFuture<@NotNull AsyncEvent> getDoneFuture();
 
-    void registerIntent(@NotNull SubscribeNamespace namespace);
+    void registerIntent(@NotNull Object namespace);
 
-    void completeIntent(@NotNull SubscribeNamespace namespace);
+    void completeIntent(@NotNull Object namespace);
 
 }

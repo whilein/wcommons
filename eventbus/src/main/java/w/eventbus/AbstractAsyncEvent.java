@@ -37,7 +37,7 @@ import java.util.concurrent.CompletableFuture;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractAsyncEvent implements AsyncEvent {
 
-    Map<SubscribeNamespace, MutableInt> intents = new HashMap<>();
+    Map<Object, MutableInt> intents = new HashMap<>();
 
     @Getter
     CompletableFuture<AsyncEvent> doneFuture = new CompletableFuture<>();
@@ -62,25 +62,25 @@ public abstract class AbstractAsyncEvent implements AsyncEvent {
     }
 
     @Override
-    public void registerIntent(final @NotNull SubscribeNamespace plugin) {
+    public void registerIntent(final @NotNull Object namespace) {
         synchronized (mutex) {
             if (fired) {
                 throw new IllegalStateException("Event " + this + " has already been fired");
             }
 
-            intents.computeIfAbsent(plugin, __ -> Mutables.newInt())
+            intents.computeIfAbsent(namespace, __ -> Mutables.newInt())
                     .incrementAndGet();
             latch++;
         }
     }
 
     @Override
-    public void completeIntent(final @NotNull SubscribeNamespace plugin) {
+    public void completeIntent(final @NotNull Object namespace) {
         synchronized (mutex) {
-            val intentCount = intents.get(plugin);
+            val intentCount = intents.get(namespace);
 
             if (intentCount == null || intentCount.get() == 0) {
-                throw new IllegalStateException("Plugin " + plugin + " has not registered intents for event " + this);
+                throw new IllegalStateException("Plugin " + namespace + " has not registered intents for event " + this);
             }
 
             intentCount.decrementAndGet();
