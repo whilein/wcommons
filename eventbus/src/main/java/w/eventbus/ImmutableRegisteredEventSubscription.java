@@ -45,7 +45,7 @@ public final class ImmutableRegisteredEventSubscription implements RegisteredSub
 
     boolean ignoreCancelled;
 
-    SubscribeNamespace namespace;
+    Object namespace;
 
     Set<Class<? extends Event>> events;
 
@@ -67,7 +67,7 @@ public final class ImmutableRegisteredEventSubscription implements RegisteredSub
             final @NotNull Class<?> ownerType,
             final @NotNull PostOrder postOrder,
             final boolean ignoreCancelled,
-            final @NotNull SubscribeNamespace namespace,
+            final @NotNull Object namespace,
             final @NotNull Set<Class<? extends Event>> events
     ) {
         return new ImmutableRegisteredEventSubscription(dispatchWriter, owner, ownerType,

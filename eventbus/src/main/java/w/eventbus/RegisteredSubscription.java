@@ -60,7 +60,7 @@ public interface RegisteredSubscription extends Comparable<RegisteredSubscriptio
      *
      * @return Неймспейс
      */
-    @NotNull SubscribeNamespace getNamespace();
+    @NotNull Object getNamespace();
 
     /**
      * Получить статус игнорирования отменённых событий.

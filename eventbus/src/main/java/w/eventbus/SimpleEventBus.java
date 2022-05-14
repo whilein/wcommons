@@ -20,7 +20,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
@@ -33,7 +32,6 @@ import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import w.asm.Asm;
-import w.eventbus.debug.EventBusDebugger;
 import w.util.ClassLoaderUtils;
 import w.util.TypeUtils;
 import w.util.mutable.Mutables;
@@ -70,18 +68,14 @@ import static w.asm.Asm.methodDescriptor;
  */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class SimpleEventBus<T extends SubscribeNamespace>
-        implements EventBus<T> {
+public final class SimpleEventBus implements EventBus {
+
+    private static final Object DEFAULT_NAMESPACE = new Object[0];
 
     private static final String GEN_DISPATCHER_NAME = "w/eventbus/GeneratedEventDispatcher";
 
     @Getter
     Logger logger;
-
-    @Setter
-    @Getter
-    @NonFinal
-    EventBusDebugger debugger;
 
     Object mutex;
 
@@ -93,33 +87,49 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
     @NonFinal
     Map<Class<?>, EventDispatcher> dispatchers;
 
+    NamespaceValidator namespaceValidator;
+
     /**
      * Создать новый {@link EventBus} с определённым логгером
      *
-     * @param <T>    Тип неймспейса
-     * @param logger Логгер, в котором будет выводиться ошибки слушателей и отладка
+     * @param logger             Логгер, в котором будет выводиться ошибки слушателей и отладка
+     * @param namespaceValidator Проверка на валидность namespace
      * @return Новый {@link EventBus}
      */
-    public static <T extends SubscribeNamespace> @NotNull EventBus<T> create(final @NotNull Logger logger) {
-        return new SimpleEventBus<>(logger, null, new Object[0],
-                new ArrayList<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
+    public static @NotNull EventBus create(
+            final @NotNull Logger logger,
+            final @NotNull NamespaceValidator namespaceValidator
+    ) {
+        return new SimpleEventBus(
+                logger,
+                new Object[0],
+                new ArrayList<>(),
+                new HashMap<>(),
+                new HashMap<>(),
+                new HashMap<>(),
+                namespaceValidator
+        );
     }
 
     /**
      * Создать новый {@link EventBus}
      *
-     * @param <T> Тип неймспейса
+     * @param namespaceValidator Проверка на валидность namespace
      * @return Новый {@link EventBus}
      */
-    public static <T extends SubscribeNamespace> @NotNull EventBus<T> create() {
-        return create(LoggerFactory.getLogger(EventBus.class));
+    public static @NotNull EventBus create(
+            final @NotNull NamespaceValidator namespaceValidator
+    ) {
+        return create(LoggerFactory.getLogger(EventBus.class), namespaceValidator);
     }
 
     private void register(
-            final SubscribeNamespace namespace,
+            final Object namespace,
             final Class<?> subscriptionType,
             final Object subscription
     ) {
+        ensureValid(namespace);
+
         if (subscriptionType.isInterface()) {
             throw new IllegalStateException("Cannot register interface as subscription");
         }
@@ -209,8 +219,6 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
             dispatchers.remove(type);
             return;
         }
-
-        val startNanos = System.nanoTime();
 
         Collections.sort(subscriptions);
 
@@ -328,10 +336,16 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
             mv.visitVarInsn(ASTORE, 1);
 
             boolean hasCastToCancellable = false;
-            Label endIgnoreCancelled = null;
+
+            Label nextSubscriptionStart = null;
 
             for (val subscription : subscriptions) {
                 val writer = subscription.getDispatchWriter();
+
+                if (nextSubscriptionStart != null) {
+                    mv.visitLabel(nextSubscriptionStart);
+                    nextSubscriptionStart = null;
+                }
 
                 if (subscription.isIgnoreCancelled()) {
                     if (!hasCastToCancellable) {
@@ -341,19 +355,12 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
                         hasCastToCancellable = true;
                     }
 
-                    if (endIgnoreCancelled == null) {
-                        endIgnoreCancelled = new Label();
+                    mv.visitVarInsn(ALOAD, 2);
 
-                        mv.visitVarInsn(ALOAD, 2);
+                    mv.visitMethodInsn(INVOKEINTERFACE, Type.getInternalName(Cancellable.class),
+                            "isCancelled", methodDescriptor(boolean.class), true);
 
-                        mv.visitMethodInsn(INVOKEINTERFACE, Type.getInternalName(Cancellable.class),
-                                "isCancelled", methodDescriptor(boolean.class), true);
-
-                        mv.visitJumpInsn(IFNE, endIgnoreCancelled);
-                    }
-                } else if (endIgnoreCancelled != null) {
-                    mv.visitLabel(endIgnoreCancelled);
-                    endIgnoreCancelled = null;
+                    mv.visitJumpInsn(IFNE, nextSubscriptionStart = new Label());
                 }
 
                 val start = new Label();
@@ -388,8 +395,8 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
                 mv.visitTryCatchBlock(start, end, handler, Asm.EXCEPTION_TYPE);
             }
 
-            if (endIgnoreCancelled != null) {
-                mv.visitLabel(endIgnoreCancelled);
+            if (nextSubscriptionStart != null) {
+                mv.visitLabel(nextSubscriptionStart);
             }
 
             mv.visitInsn(RETURN);
@@ -399,13 +406,6 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
         // endregion
 
         val result = cw.toByteArray();
-
-        val elapsedNanos = System.nanoTime() - startNanos;
-
-        if (debugger != null) {
-            debugger.handleBake(this, result, GEN_DISPATCHER_NAME,
-                    type, subscriptions, elapsedNanos);
-        }
 
         val generatedType = ClassLoaderUtils.defineSharedClass(
                 EventBus.class.getClassLoader(),
@@ -520,15 +520,6 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
     }
 
     @Override
-    public void addDebugger(final @NotNull EventBusDebugger debugger) {
-        if (this.debugger == null) {
-            this.debugger = debugger;
-        } else {
-            this.debugger = this.debugger.compose(debugger);
-        }
-    }
-
-    @Override
     public void unregisterAll(final @NotNull Object owner) {
         unregisterAll(subscription -> subscription.getOwner() == owner);
     }
@@ -539,36 +530,64 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
     }
 
     @Override
-    public void unregisterAll(final @NotNull T namespace) {
+    public void unregisterAllByNamespace(final @NotNull Object namespace) {
         unregisterAll(subscription -> subscription.getNamespace() == namespace);
     }
 
     @Override
-    public void register(final @NotNull T namespace, final @NotNull Object subscription) {
+    public void unregisterAll() {
+        synchronized (mutex) {
+            dispatchers = new HashMap<>();
+        }
+    }
+
+    @Override
+    public void register(final @NotNull Object namespace, final @NotNull Object subscription) {
         register(namespace, subscription.getClass(), subscription);
     }
 
     @Override
-    public void register(final @NotNull T namespace, final @NotNull Class<?> subscriptionType) {
+    public void register(final @NotNull Object namespace, final @NotNull Class<?> subscriptionType) {
         register(namespace, subscriptionType, null);
     }
 
     @Override
+    public void register(final @NotNull Object subscription) {
+        register(DEFAULT_NAMESPACE, subscription);
+    }
+
+    @Override
+    public void register(final @NotNull Class<?> subscriptionType) {
+        register(DEFAULT_NAMESPACE, subscriptionType);
+    }
+
+    @Override
     public @NotNull <E extends Event> RegisteredSubscription register(
-            final @NotNull T namespace,
+            final @NotNull Object namespace,
             final @NotNull Class<E> type,
             final @NotNull Consumer<@NotNull E> subscription
     ) {
+
         return register(namespace, type, PostOrder.NORMAL, subscription);
     }
 
     @Override
     public @NotNull <E extends Event> RegisteredSubscription register(
-            final @NotNull T namespace,
+            final @NotNull Class<E> type,
+            final @NotNull Consumer<@NotNull E> subscription
+    ) {
+        return register(DEFAULT_NAMESPACE, type, subscription);
+    }
+
+    @Override
+    public @NotNull <E extends Event> RegisteredSubscription register(
+            final @NotNull Object namespace,
             final @NotNull Class<E> type,
             final @NotNull PostOrder order,
             final @NotNull Consumer<@NotNull E> subscription
     ) {
+        ensureValid(namespace);
+
         val registeredSubscription = ImmutableRegisteredEventSubscription.create(
                 AsmDispatchWriters.fromConsumer(subscription),
                 subscription,
@@ -584,6 +603,24 @@ public final class SimpleEventBus<T extends SubscribeNamespace>
         }
 
         return registeredSubscription;
+    }
+
+    @Override
+    public @NotNull <E extends Event> RegisteredSubscription register(
+            final @NotNull Class<E> type,
+            final @NotNull PostOrder order,
+            final @NotNull Consumer<@NotNull E> subscription
+    ) {
+        return register(DEFAULT_NAMESPACE, type, order, subscription);
+    }
+
+    private void ensureValid(final Object namespace) {
+        if (!namespaceValidator.isValid(namespace)) {
+            throw new IllegalStateException("EventBus doesn't permit usage of namespace: " +
+                                            (namespace != DEFAULT_NAMESPACE
+                                                    ? namespace.getClass().getName()
+                                                    : "<none>"));
+        }
     }
 
 }

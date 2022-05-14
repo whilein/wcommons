@@ -17,9 +17,7 @@
 package w.eventbus;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
-import w.eventbus.debug.EventBusDebugger;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -27,7 +25,7 @@ import java.util.function.Consumer;
 /**
  * @author whilein
  */
-public interface EventBus<T extends SubscribeNamespace> {
+public interface EventBus {
 
     /**
      * Получить логгер, который будет использоваться для лога ошибок.
@@ -35,12 +33,6 @@ public interface EventBus<T extends SubscribeNamespace> {
      * @return Логгер
      */
     @NotNull Logger getLogger();
-
-    @Nullable EventBusDebugger getDebugger();
-
-    void addDebugger(@NotNull EventBusDebugger debugger);
-
-    void setDebugger(@Nullable EventBusDebugger debugger);
 
     /**
      * Удалить все подписки на события, зарегистрированные
@@ -64,7 +56,9 @@ public interface EventBus<T extends SubscribeNamespace> {
      *
      * @param namespace Неймспейс
      */
-    void unregisterAll(@NotNull T namespace);
+    void unregisterAllByNamespace(@NotNull Object namespace);
+
+    void unregisterAll();
 
     /**
      * Удалить подписку на события
@@ -83,7 +77,20 @@ public interface EventBus<T extends SubscribeNamespace> {
      * @return Зарегистрированный слушатель
      */
     <E extends Event> @NotNull RegisteredSubscription register(
-            @NotNull T namespace,
+            @NotNull Object namespace,
+            @NotNull Class<E> type,
+            @NotNull Consumer<@NotNull E> subscription
+    );
+
+    /**
+     * Зарегистрировать подписку на событие.
+     *
+     * @param type         Класс события
+     * @param subscription Слушатель
+     * @param <E>          Тип события
+     * @return Зарегистрированный слушатель
+     */
+    <E extends Event> @NotNull RegisteredSubscription register(
             @NotNull Class<E> type,
             @NotNull Consumer<@NotNull E> subscription
     );
@@ -99,7 +106,22 @@ public interface EventBus<T extends SubscribeNamespace> {
      * @return Зарегистрированный слушатель
      */
     <E extends Event> @NotNull RegisteredSubscription register(
-            @NotNull T namespace,
+            @NotNull Object namespace,
+            @NotNull Class<E> type,
+            @NotNull PostOrder order,
+            @NotNull Consumer<@NotNull E> subscription
+    );
+
+    /**
+     * Зарегистрировать подписку на событие.
+     *
+     * @param type         Класс события
+     * @param subscription Подписка
+     * @param order        Порядок слушателя
+     * @param <E>          Тип события
+     * @return Зарегистрированный слушатель
+     */
+    <E extends Event> @NotNull RegisteredSubscription register(
             @NotNull Class<E> type,
             @NotNull PostOrder order,
             @NotNull Consumer<@NotNull E> subscription
@@ -111,7 +133,7 @@ public interface EventBus<T extends SubscribeNamespace> {
      * @param namespace    Неймспейс
      * @param subscription Объект со слушателями
      */
-    void register(@NotNull T namespace, @NotNull Object subscription);
+    void register(@NotNull Object namespace, @NotNull Object subscription);
 
     /**
      * Зарегистрировать слушатели из класса. Методы, которые слушают события,
@@ -120,7 +142,22 @@ public interface EventBus<T extends SubscribeNamespace> {
      * @param namespace        Неймспейс
      * @param subscriptionType Класс со статичными слушателями
      */
-    void register(@NotNull T namespace, @NotNull Class<?> subscriptionType);
+    void register(@NotNull Object namespace, @NotNull Class<?> subscriptionType);
+
+    /**
+     * Зарегистрировать слушатели из объекта.
+     *
+     * @param subscription Объект со слушателями
+     */
+    void register(@NotNull Object subscription);
+
+    /**
+     * Зарегистрировать слушатели из класса. Методы, которые слушают события,
+     * должны быть статичны.
+     *
+     * @param subscriptionType Класс со статичными слушателями
+     */
+    void register(@NotNull Class<?> subscriptionType);
 
     <E extends AsyncEvent> @NotNull CompletableFuture<E> dispatchAsync(@NotNull E event);
 

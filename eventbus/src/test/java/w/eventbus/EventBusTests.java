@@ -16,120 +16,139 @@
 
 package w.eventbus;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import w.eventbus.debug.FileEventBusDebugger;
-import w.eventbus.debug.LoggingEventBusDebugger;
-import w.util.ClassLoaderUtils;
+import w.util.mutable.Mutables;
 
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author whilein
  */
-class EventBusTests implements SubscribeNamespace {
+class EventBusTests {
 
-    EventBus<EventBusTests> bus;
+    EventBus bus;
 
     @BeforeEach
     void setup() {
-        bus = SimpleEventBus.create();
-        bus.addDebugger(LoggingEventBusDebugger.INSTANCE);
-        bus.addDebugger(FileEventBusDebugger.INSTANCE);
+        bus = SimpleEventBus.create(NamespaceValidator.permitAll());
     }
 
-    @Getter
     @Setter
-    public static class EntityDamageEvent extends AbstractAsyncEvent implements Cancellable {
+    @Getter
+    private static class IntEvent implements Event {
+        int value;
+    }
+
+    @Setter
+    @Getter
+    private static class CancellableIntEvent extends IntEvent implements Cancellable {
         boolean cancelled;
     }
 
-    public static class EntityDamageByEntityEvent extends EntityDamageEvent {
+    @Test
+    void testInheritance() {
+        val listener = new Object() {
+            @Subscribe(types = CancellableIntEvent.class)
+            public void handleInherited(final IntEvent event) {
+                event.value++;
+            }
 
-    }
+            @Subscribe
+            public void handle(final IntEvent event) {
+                event.value++;
+            }
+        };
 
-    public static class ChildListener {
+        bus.register(listener);
 
-        @Subscribe
-        void catchDamage(final EntityDamageEvent event) {
-            System.out.println("DAMAGE CAUGHT: " + event);
-        }
+        IntEvent event;
 
-    }
+        bus.dispatch(event = new IntEvent());
+        assertEquals(2, event.value);
 
-    public static class ParentListener extends ChildListener {
-
-        @Subscribe
-        void catchDamageByEntity(final EntityDamageByEntityEvent event) {
-            System.out.println("DAMAGE BY ENTITY CAUGHT: " + event);
-        }
-
-    }
-
-    public static class Listener {
-
-        @Subscribe(types = EntityDamageByEntityEvent.class)
-        void catchAny(final Event event) {
-            System.out.println(event);
-        }
-
-        @Subscribe(types = EntityDamageByEntityEvent.class)
-        void catchDamage(final EntityDamageEvent event) {
-            System.out.println(event);
-        }
-
+        bus.dispatch(event = new CancellableIntEvent());
+        assertEquals(1, event.value);
     }
 
     @Test
-    void testEventInheritance() {
-        bus.register(this, new Listener());
-        // bus.dispatch(new EntityDamageEvent());
-        bus.dispatch(new EntityDamageByEntityEvent());
+    void testCancellableEvent() {
+        val firstListener = new Object() {
+            @Subscribe(order = PostOrder.LOWEST, ignoreCancelled = true)
+            public void handle(final CancellableIntEvent event) {
+                event.value += 10;
+                event.setCancelled(true);
+            }
+        };
+
+        val secondListener = new Object() {
+            @Subscribe(ignoreCancelled = true)
+            public void handle(final CancellableIntEvent event) {
+                event.value += 5;
+                event.setCancelled(true);
+            }
+        };
+
+        bus.register(firstListener);
+        bus.register(secondListener);
+
+        CancellableIntEvent event;
+
+        bus.dispatch(event = new CancellableIntEvent());
+        assertEquals(10, event.value);
+
+        bus.unregisterAll(firstListener);
+
+        bus.dispatch(event = new CancellableIntEvent());
+        assertEquals(5, event.value);
+
+        bus.unregisterAll(secondListener);
+
+        bus.dispatch(event = new CancellableIntEvent());
+        assertEquals(0, event.value);
     }
 
     @Test
-    void testListenerInheritance() {
-        bus.register(this, new ParentListener());
-        // bus.dispatch(new EntityDamageEvent());
-        bus.dispatch(new EntityDamageByEntityEvent());
+    void testObjectListener() {
+        val listener = new Object() {
+            @Subscribe
+            public void handle(final IntEvent event) {
+                event.value++;
+            }
+        };
+
+        IntEvent event;
+
+        bus.register(listener);
+        bus.dispatch(event = new IntEvent());
+
+        assertEquals(1, event.value);
+
+        bus.unregisterAll(listener);
+        bus.dispatch(event = new IntEvent());
+
+        assertEquals(0, event.value);
     }
 
     @Test
-    @SneakyThrows
-    void testDifferentClassLoaderDispatch() {
-        val event = new DummyEvent();
-        val cl = EventBusTests.class.getClassLoader();
+    void testConsumerListener() {
+        val subscription = bus.register(
+                IntEvent.class,
+                event -> event.value++
+        );
 
-        val bytes = ClassLoaderUtils.getResourceBytes(cl, "bytecode/DummyListener.class");
+        IntEvent event;
+        bus.dispatch(event = new IntEvent());
 
-        val type = ClassLoaderUtils.defineClass(new URLClassLoader(new URL[0], cl),
-                "w.eventbus.DummyListener", bytes);
-
-        val instance = type.newInstance();
-
-        bus.register(this, instance);
-        bus.dispatch(event);
-        bus.unregisterAll(instance);
-    }
-
-    @Test
-    void testDispatch() {
-        val state = new AtomicBoolean();
-
-        val subscription = bus.register(this, DummyEvent.class,
-                receivedEvent -> state.set(true));
-
-        bus.dispatch(new DummyEvent());
-        assertTrue(state.get());
+        assertEquals(1, event.value);
 
         bus.unregister(subscription);
+        bus.dispatch(event = new IntEvent());
+
+        assertEquals(0, event.value);
     }
 }
