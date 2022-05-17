@@ -24,8 +24,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -41,17 +39,6 @@ public class ClassLoaderUtils {
     private final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 
     private static final class SharedClassLoader extends ClassLoader {
-
-        private static final MethodHandle LOAD_CLASS;
-
-        static {
-            try {
-                LOAD_CLASS = Root.trustedLookupIn(ClassLoader.class).findVirtual(ClassLoader.class,
-                        "loadClass", MethodType.methodType(Class.class, String.class, boolean.class));
-            } catch (final Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
 
         private final Set<ClassLoader> shared;
 
@@ -70,7 +57,7 @@ public class ClassLoaderUtils {
 
             for (val loader : shared) {
                 try {
-                    return (Class<?>) LOAD_CLASS.invokeExact(loader, name, resolve);
+                    return Class.forName(name, resolve, loader);
                 } catch (final Throwable ignored) {
                 }
             }
@@ -120,7 +107,8 @@ public class ClassLoaderUtils {
             final @NotNull String name,
             final byte @NotNull [] data
     ) {
-        return new SharedClassLoader(parent, shared).defineClass(name, data);
+        val sharedClassLoader = new SharedClassLoader(parent, shared);
+        return sharedClassLoader.defineClass(name, data);
     }
 
     public @NotNull Class<?> defineClass(
