@@ -65,6 +65,12 @@
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
+                <artifactId>wcommons-unsafe</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-config</artifactId>
                 <version>${project.version}</version>
             </dependency>

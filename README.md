@@ -109,7 +109,12 @@
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-flow</artifactId>
         </dependency>
-
+      
+        <dependency>
+            <groupId>io.github.whilein.wcommons</groupId>
+            <artifactId>wcommons-util</artifactId>
+        </dependency>
+      
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-sql</artifactId>
