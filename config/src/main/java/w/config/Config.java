@@ -109,7 +109,7 @@ public interface Config {
      * @see #findRaw(String)
      * @see #getAs(String, Class, Object)
      */
-    @Nullable Object getRaw(@NotNull String key) throws ConfigMissingKeyException;
+    @NotNull Object getRaw(@NotNull String key) throws ConfigMissingKeyException;
 
     @Contract("_, !null -> !null")
     @Nullable Object getRaw(@NotNull String key, @Nullable Object defaultValue);
