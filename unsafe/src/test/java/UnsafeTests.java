@@ -14,26 +14,37 @@
  *    limitations under the License.
  */
 
-package w.util;
-
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import w.unsafe.Unsafe;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
  * @author whilein
  */
-class RootTests {
+class UnsafeTests {
+
+    Unsafe unsafe;
+
+    @BeforeEach
+    void setup() {
+        unsafe = Unsafe.getUnsafe();
+
+        assertTrue(unsafe.isAvailable());
+    }
 
     @Test
     @SneakyThrows
     void putStaticField() {
         assertEquals("Old Value", Dummy.STATIC_VALUE);
 
-        Root.putStaticField(Dummy.class.getDeclaredField("STATIC_VALUE"), "New Value");
+        unsafe.putStaticField(Dummy.class.getDeclaredField("STATIC_VALUE"), "New Value");
 
         assertEquals("New Value", Dummy.STATIC_VALUE);
     }
@@ -45,7 +56,7 @@ class RootTests {
 
         assertEquals("Old Value", dummy.objectValue);
 
-        Root.putField(Dummy.class.getDeclaredField("objectValue"), dummy, "New Value");
+        unsafe.putField(Dummy.class.getDeclaredField("objectValue"), dummy, "New Value");
 
         assertEquals("New Value", dummy.objectValue);
     }

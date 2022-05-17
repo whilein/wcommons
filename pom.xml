@@ -32,6 +32,7 @@
         <module>flow</module>
         <module>sql</module>
         <module>agent</module>
+        <module>unsafe</module>
     </modules>
 
     <build>

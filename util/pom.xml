@@ -15,9 +15,8 @@
     <dependencies>
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>wcommons-agent</artifactId>
+            <artifactId>wcommons-unsafe</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
