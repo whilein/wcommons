@@ -24,11 +24,5 @@
             <artifactId>wcommons-agent</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>wcommons-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 </project>

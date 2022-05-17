@@ -22,11 +22,5 @@
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>wcommons-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 </project>
