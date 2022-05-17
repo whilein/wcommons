@@ -19,7 +19,9 @@ package w.util;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import w.unsafe.Unsafe;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
@@ -29,28 +31,32 @@ import java.lang.invoke.MethodType;
  */
 public interface ObjectCloner {
 
-    @NotNull ObjectCloner INSTANCE = Root.isUnsafeSupported()
-            ? new Unsafe()
-            : new Stub();
+    @NotNull ObjectCloner INSTANCE = Unsafe.isUnsafeAvailable()
+            ? new UnsafeObjectCloner()
+            : new SafeObjectCloner();
 
     @NotNull Object clone(@NotNull Object object);
 
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    final class Stub implements ObjectCloner {
+    final class SafeObjectCloner implements ObjectCloner {
+
         @Override
+        @SneakyThrows
         public @NotNull Object clone(final @NotNull Object object) {
-            throw new UnsupportedOperationException("ObjectCloner is not supported because Unsafe is not available");
+            val method = object.getClass().getDeclaredMethod("clone");
+            return method.invoke(object);
         }
     }
 
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    final class Unsafe implements ObjectCloner {
+    final class UnsafeObjectCloner implements ObjectCloner {
         private static final MethodHandle CLONE;
 
         static {
             try {
-                CLONE = Root.trustedLookupIn(Object.class).findVirtual(Object.class, "clone",
-                        MethodType.methodType(Object.class));
+                val lookup = Unsafe.getUnsafe().trustedLookupIn(Object.class);
+
+                CLONE = lookup.findVirtual(Object.class, "clone", MethodType.methodType(Object.class));
             } catch (final Exception e) {
                 throw new RuntimeException(e);
             }

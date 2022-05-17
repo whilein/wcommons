@@ -19,20 +19,21 @@ package w.util;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import w.unsafe.Unsafe;
 
 /**
  * @author whilein
  */
 public interface ByteAllocator {
 
-    @NotNull ByteAllocator INSTANCE = Root.isUnsafeSupported()
-            ? new Unsafe()
-            : new Default();
+    @NotNull ByteAllocator INSTANCE = Unsafe.isUnsafeAvailable()
+            ? new UnsafeByteAllocator()
+            : new SafeByteAllocator();
 
     byte @NotNull [] allocate(int length);
 
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    final class Default implements ByteAllocator {
+    final class SafeByteAllocator implements ByteAllocator {
 
         @Override
         public byte @NotNull [] allocate(final int length) {
@@ -42,11 +43,11 @@ public interface ByteAllocator {
     }
 
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    final class Unsafe implements ByteAllocator {
+    final class UnsafeByteAllocator implements ByteAllocator {
 
         @Override
         public byte @NotNull [] allocate(final int length) {
-            return (byte[]) Root.allocateUninitializedArray(byte.class, length);
+            return (byte[]) Unsafe.getUnsafe().allocateUninitializedArray(byte.class, length);
         }
 
     }

@@ -31,8 +31,8 @@ class CiStringsTest {
     @Test
     void testInMap() {
         final String[] array = {
-                "ХУЙ член залупа",
-                "хуй ЧЛЕН залупа"
+                "A a A",
+                "a A a"
         };
 
         val x = CiStrings.from(array[0]);

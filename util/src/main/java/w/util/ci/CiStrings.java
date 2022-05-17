@@ -16,16 +16,16 @@
 
 package w.util.ci;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
-import w.util.Root;
+import w.unsafe.Unsafe;
 
 import java.lang.invoke.VarHandle;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author whilein
@@ -34,19 +34,72 @@ import java.lang.invoke.VarHandle;
 public class CiStrings {
 
     private static final CiString EMPTY = new EmptyCiString();
+    private static final boolean UNSAFE = Unsafe.isUnsafeAvailable();
 
     public @NotNull CiString empty() {
         return EMPTY;
     }
 
     public @NotNull CiString from(final @NotNull String another) {
-        return another.length() > 0 ? TrustedCiString.create(another) : EMPTY;
+        return another.length() > 0 ? (UNSAFE ? UnsafeCiString.from(another) : SafeCiString.from(another)) : EMPTY;
     }
 
+    @FieldDefaults(makeFinal = true)
+    @RequiredArgsConstructor
+    private static final class SafeCiString implements CiString {
 
-    @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class TrustedCiString implements CiString {
+        String original;
+        String lowerCase;
+
+        public static @NotNull CiString from(final @NotNull String text) {
+            return new SafeCiString(text, text.toLowerCase());
+        }
+
+        @Override
+        public @NotNull String toString() {
+            return original;
+        }
+
+
+        @Override
+        public boolean equals(final Object obj) {
+            return obj == this || (obj instanceof CiString that && _equals(that));
+        }
+
+        private boolean _equals(final CiString that) {
+            return that.equals(original);
+        }
+
+        @Override
+        public int length() {
+            return original.length();
+        }
+
+        @Override
+        public int hashCode() {
+            return lowerCase.hashCode();
+        }
+
+        @Override
+        public boolean equals(final byte coder, final byte[] value) {
+            val s = new String(value, coder == 0 ? StandardCharsets.US_ASCII : StandardCharsets.UTF_16);
+            return s.equalsIgnoreCase(original);
+        }
+
+        @Override
+        public boolean equals(final CiString another) {
+            return _equals(another);
+        }
+
+        @Override
+        public boolean equals(final String another) {
+            return original.equalsIgnoreCase(another);
+        }
+    }
+
+    @FieldDefaults(makeFinal = true)
+    @RequiredArgsConstructor
+    private static final class UnsafeCiString implements CiString {
 
         private static final VarHandle STRING__CODER;
         private static final VarHandle STRING__VALUE;
@@ -56,7 +109,7 @@ public class CiStrings {
 
         static {
             try {
-                val lookup = Root.trustedLookupIn(String.class);
+                val lookup = Unsafe.getUnsafe().trustedLookupIn(String.class);
                 STRING__CODER = lookup.findVarHandle(String.class, "coder", byte.class);
                 STRING__VALUE = lookup.findVarHandle(String.class, "value", byte[].class);
 
@@ -84,8 +137,8 @@ public class CiStrings {
             return value.length >> coder;
         }
 
-        public static CiString create(final String text) {
-            return new TrustedCiString(text, (byte[]) STRING__VALUE.get(text), (byte) STRING__CODER.get(text));
+        public static @NotNull CiString from(final @NotNull String text) {
+            return new UnsafeCiString(text, (byte[]) STRING__VALUE.get(text), (byte) STRING__CODER.get(text));
         }
 
         private static char getChar(final byte[] val, int index) {
@@ -168,7 +221,7 @@ public class CiStrings {
 
         @Override
         public boolean equals(final Object obj) {
-            return obj == this || (obj instanceof CiString string && _equals(string));
+            return obj == this || (obj instanceof CiString that && _equals(that));
         }
 
         @Override

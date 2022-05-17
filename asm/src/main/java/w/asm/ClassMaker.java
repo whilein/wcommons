@@ -116,8 +116,6 @@ public class ClassMaker extends ClassVisitor {
 
         constructor.visitMaxs(1, 1);
 
-        constructor.visitEnd();
-
         return constructor;
     }
 

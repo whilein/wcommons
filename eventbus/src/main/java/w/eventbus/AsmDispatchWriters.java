@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
+import w.asm.MagicAccessorBridge;
 
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
@@ -33,6 +34,7 @@ import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static w.asm.Asm.methodDescriptor;
 
 /**
@@ -58,13 +60,19 @@ public class AsmDispatchWriters {
      * @param method Метод
      * @return Врайтер
      */
-    public static @NotNull AsmDispatchWriter fromMethod(final @Nullable Object owner, final @NotNull Method method) {
+    public static @NotNull AsmDispatchWriter fromMethod(
+            final @Nullable Object owner,
+            final @NotNull Method method
+    ) {
         return new MethodWriter(
                 Type.getType(method.getDeclaringClass()),
                 Type.getInternalName(method.getParameterTypes()[0]),
                 method.getName(),
                 Type.getMethodDescriptor(method),
-                owner == null ? INVOKESTATIC : INVOKESPECIAL
+                owner == null ? INVOKESTATIC :
+                        MagicAccessorBridge.isMagicAccessorAvailable()
+                                ? INVOKESPECIAL
+                                : INVOKEVIRTUAL
         );
     }
 

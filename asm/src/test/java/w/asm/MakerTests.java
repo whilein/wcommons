@@ -59,7 +59,7 @@ final class MakerTests {
     @Test
     @SneakyThrows
     void testEmptyConstructor() {
-        cm.visitEmptyConstructor(Opcodes.ACC_PUBLIC);
+        cm.visitEmptyConstructor(Opcodes.ACC_PUBLIC).visitEnd();
 
         Object object = make().getConstructor().newInstance();
         assertNotNull(object);

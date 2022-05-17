@@ -20,6 +20,7 @@ import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import w.unsafe.Unsafe;
 import w.util.buffering.Buffering;
 
 import java.lang.invoke.MethodHandle;
@@ -38,9 +39,9 @@ public class Hex {
 
     private final int[] HEX_TENS = new int[8];
 
-    private final BigIntegerInternals BIG_INTEGER_INTERNALS = Root.isUnsafeSupported()
+    private final BigIntegerInternals BIG_INTEGER_INTERNALS = Unsafe.isUnsafeAvailable()
             ? new UnsafeBigIntegerInternals()
-            : new StubBigIntegerInternals();
+            : new SafeBigIntegerInternals();
 
     static {
         int hex = 1;
@@ -165,7 +166,7 @@ public class Hex {
             throw new IllegalArgumentException("Input length should be even");
         }
 
-        val data = (byte[]) Root.allocateUninitializedArray(byte.class, length >> 1);
+        val data = ByteAllocator.INSTANCE.allocate(length >> 1);
 
         for (int i = 0; i < length; i += 2) {
             data[((i + 1) >> 1)] = (byte) ((parseChar(input.charAt(i)) << 4) + parseChar(input.charAt(i + 1)));
@@ -188,7 +189,7 @@ public class Hex {
         }
     }
 
-    private static final class StubBigIntegerInternals implements BigIntegerInternals {
+    private static final class SafeBigIntegerInternals implements BigIntegerInternals {
 
         @Override
         public void toString(final BigInteger value, final StringBuilder out, final int digits) {
@@ -209,7 +210,7 @@ public class Hex {
 
         static {
             try {
-                val lookup = Root.trustedLookupIn(BigInteger.class);
+                val lookup = Unsafe.getUnsafe().trustedLookupIn(BigInteger.class);
 
                 BIG_INTEGER__TO_STRING = lookup.findStatic(BigInteger.class, "toString",
                         MethodType.methodType(void.class, BigInteger.class, StringBuilder.class,

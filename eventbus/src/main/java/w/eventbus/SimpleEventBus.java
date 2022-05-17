@@ -32,16 +32,20 @@ import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import w.asm.Asm;
+import w.asm.MagicAccessorBridge;
 import w.util.ClassLoaderUtils;
 import w.util.TypeUtils;
 import w.util.mutable.Mutables;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -235,9 +239,11 @@ public final class SimpleEventBus implements EventBus {
 
         val cw = new ClassWriter(0);
 
+        val magicAccessor = MagicAccessorBridge.getInstance();
+
         cw.visit(
-                Opcodes.V1_1, ACC_PRIVATE | ACC_FINAL, GEN_DISPATCHER_NAME, null,
-                Type.getInternalName(Asm.MAGIC_ACCESSOR_BRIDGE),
+                Opcodes.V1_1, ACC_PUBLIC | ACC_FINAL, GEN_DISPATCHER_NAME, null,
+                magicAccessor.isAvailable() ? magicAccessor.getInternalName() : OBJECT_TYPE,
                 new String[]{Type.getInternalName(EventDispatcher.class)}
         );
 
@@ -290,7 +296,9 @@ public final class SimpleEventBus implements EventBus {
 
             val constructor = cw.visitMethod(ACC_PRIVATE, "<init>",
                     descriptor.toString(), null, null);
+
             constructor.visitVarInsn(ALOAD, 0);
+
             constructor.visitMethodInsn(INVOKESPECIAL, OBJECT_TYPE,
                     "<init>", methodDescriptor(void.class), false);
 
@@ -336,8 +344,9 @@ public final class SimpleEventBus implements EventBus {
             mv.visitVarInsn(ASTORE, 1);
 
             boolean hasCastToCancellable = false;
-
             Label nextSubscriptionStart = null;
+
+            val anyCancellable = subscriptions.stream().anyMatch(RegisteredSubscription::isIgnoreCancelled);
 
             for (val subscription : subscriptions) {
                 val writer = subscription.getDispatchWriter();
@@ -383,12 +392,12 @@ public final class SimpleEventBus implements EventBus {
                 mv.visitJumpInsn(GOTO, next);
                 mv.visitLabel(end);
                 mv.visitLabel(handler);
-                mv.visitVarInsn(ASTORE, 3); // exception
+                mv.visitVarInsn(ASTORE, anyCancellable ? 3 : 2); // exception
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitFieldInsn(GETFIELD, GEN_DISPATCHER_NAME, "log", Type.getDescriptor(Logger.class));
                 mv.visitLdcInsn("Error occurred whilst dispatching " + type.getName()
                                 + " to " + writer.getName());
-                mv.visitVarInsn(ALOAD, 3);
+                mv.visitVarInsn(ALOAD, anyCancellable ? 3 : 2);
                 mv.visitMethodInsn(INVOKEINTERFACE, Type.getInternalName(Logger.class), "error",
                         methodDescriptor(void.class, String.class, Throwable.class), true);
                 mv.visitLabel(next);
@@ -400,19 +409,23 @@ public final class SimpleEventBus implements EventBus {
             }
 
             mv.visitInsn(RETURN);
-            mv.visitMaxs(2, 4);
+            mv.visitMaxs(3, anyCancellable ? 4 : 3);
             mv.visitEnd();
         }
         // endregion
 
         val result = cw.toByteArray();
 
-        val generatedType = ClassLoaderUtils.defineSharedClass(
-                EventBus.class.getClassLoader(),
-                classLoaders,
-                GEN_DISPATCHER_NAME.replace('/', '.'),
-                result
-        );
+        classLoaders.removeIf(Objects::isNull);
+
+        val genDispatcherName = GEN_DISPATCHER_NAME.replace('/', '.');
+        val currentClassLoader = EventBus.class.getClassLoader();
+
+        final ClassLoader firstClassLoader;
+
+        val generatedType = classLoaders.size() == 1 && (firstClassLoader = classLoaders.iterator().next()) == currentClassLoader
+                ? ClassLoaderUtils.defineClass(firstClassLoader, genDispatcherName, result)
+                : ClassLoaderUtils.defineSharedClass(currentClassLoader, classLoaders, genDispatcherName, result);
 
         val constructor = generatedType.asSubclass(EventDispatcher.class)
                 .getDeclaredConstructor(parameterTypes.toArray(new Class[0]));
