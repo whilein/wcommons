@@ -16,13 +16,11 @@
 
 package w.eventbus;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import w.util.mutable.Mutables;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -40,30 +38,31 @@ class EventBusTests {
 
     @Setter
     @Getter
-    private static class IntEvent implements Event {
+    public static class IntEvent implements Event {
         int value;
     }
 
     @Setter
     @Getter
-    private static class CancellableIntEvent extends IntEvent implements Cancellable {
+    public static class CancellableIntEvent extends IntEvent implements Cancellable {
         boolean cancelled;
+    }
+
+    public static final class TestInheritanceListener {
+        @Subscribe(types = CancellableIntEvent.class)
+        public void handleInherited(final IntEvent event) {
+            event.value++;
+        }
+
+        @Subscribe
+        public void handle(final IntEvent event) {
+            event.value++;
+        }
     }
 
     @Test
     void testInheritance() {
-        val listener = new Object() {
-            @Subscribe(types = CancellableIntEvent.class)
-            public void handleInherited(final IntEvent event) {
-                event.value++;
-            }
-
-            @Subscribe
-            public void handle(final IntEvent event) {
-                event.value++;
-            }
-        };
-
+        val listener = new TestInheritanceListener();
         bus.register(listener);
 
         IntEvent event;
@@ -75,60 +74,60 @@ class EventBusTests {
         assertEquals(1, event.value);
     }
 
+    public static final class TestCancellableEventFirstListener {
+        @Subscribe(order = PostOrder.LOWEST, ignoreCancelled = true)
+        public void handle(final CancellableIntEvent event) {
+            event.value += 10;
+            event.setCancelled(true);
+        }
+    }
+
+    public static final class TestCancellableEventSecondListener {
+        @Subscribe(order = PostOrder.LOWEST, ignoreCancelled = true)
+        public void handle(final CancellableIntEvent event) {
+            event.value += 5;
+            event.setCancelled(true);
+        }
+    }
+
     @Test
     void testCancellableEvent() {
-        val firstListener = new Object() {
-            @Subscribe(order = PostOrder.LOWEST, ignoreCancelled = true)
-            public void handle(final CancellableIntEvent event) {
-                event.value += 10;
-                event.setCancelled(true);
-            }
-        };
-
-        val secondListener = new Object() {
-            @Subscribe(ignoreCancelled = true)
-            public void handle(final CancellableIntEvent event) {
-                event.value += 5;
-                event.setCancelled(true);
-            }
-        };
-
-        bus.register(firstListener);
-        bus.register(secondListener);
+        bus.register(new TestCancellableEventFirstListener());
+        bus.register(new TestCancellableEventSecondListener());
 
         CancellableIntEvent event;
 
         bus.dispatch(event = new CancellableIntEvent());
         assertEquals(10, event.value);
 
-        bus.unregisterAll(firstListener);
+        bus.unregisterAll(TestCancellableEventFirstListener.class);
 
         bus.dispatch(event = new CancellableIntEvent());
         assertEquals(5, event.value);
 
-        bus.unregisterAll(secondListener);
+        bus.unregisterAll(TestCancellableEventSecondListener.class);
 
         bus.dispatch(event = new CancellableIntEvent());
         assertEquals(0, event.value);
     }
 
+    public static final class TestObjectListener {
+        @Subscribe
+        public void handle(final IntEvent event) {
+            event.value++;
+        }
+    }
+
     @Test
     void testObjectListener() {
-        val listener = new Object() {
-            @Subscribe
-            public void handle(final IntEvent event) {
-                event.value++;
-            }
-        };
-
         IntEvent event;
 
-        bus.register(listener);
+        bus.register(new TestObjectListener());
         bus.dispatch(event = new IntEvent());
 
         assertEquals(1, event.value);
 
-        bus.unregisterAll(listener);
+        bus.unregisterAll(TestObjectListener.class);
         bus.dispatch(event = new IntEvent());
 
         assertEquals(0, event.value);
