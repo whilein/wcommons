@@ -19,6 +19,8 @@ package w.config;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -155,5 +157,38 @@ final class ConfigTests {
         assertEquals("The string", config.getString("str", null));
         assertEquals("123", config.getString("num", null));
         assertEquals("default", config.getString("idk", "default"));
+    }
+
+    @Test
+    void testList() {
+        config.set("list", List.of("element0", "element1"));
+
+        config.set("intList", List.of(123));
+        config.set("charList", List.of('c', 'a'));
+        config.set("floatList", List.of(0.123f));
+        config.set("longList", List.of(1234567890L));
+        config.set("doubleList", List.of(123.321));
+
+        config.set("emptyList", List.of());
+
+        // get
+        assertEquals(List.of("element0", "element1"), config.getList("list"));
+        assertEquals(List.of(123), config.getList("intList"));
+        assertEquals(List.of('c', 'a'), config.getList("charList"));
+        assertEquals(List.of(0.123f), config.getList("floatList"));
+        assertEquals(List.of(123.321), config.getList("doubleList"));
+        assertEquals(List.of(1234567890L), config.getList("longList"));
+
+        assertEquals(List.of(123), config.getIntList("intList"));
+        assertEquals(List.of('c', 'a'), config.getCharList("charList"));
+        assertEquals(List.of(0.123f), config.getFloatList("floatList"));
+        assertEquals(List.of(123.321), config.getDoubleList("doubleList"));
+        assertEquals(List.of(1234567890L), config.getLongList("longList"));
+
+        assertTrue(config.getList("emptyList").isEmpty());
+
+        // default
+        assertEquals(List.of("element0", "element1"), config.getList("list", null));
+        assertEquals(List.of("element0", "element1"), config.getList("idk", List.of("element0", "element1")));
     }
 }

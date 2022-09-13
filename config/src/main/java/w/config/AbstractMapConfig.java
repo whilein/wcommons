@@ -101,8 +101,8 @@ public abstract class AbstractMapConfig implements Config {
         val value = map.get(key);
 
         return value instanceof String || value instanceof Number || value instanceof Boolean
-                ? value.toString()
-                : null;
+          ? value.toString()
+          : null;
     }
 
     @Override
@@ -120,8 +120,8 @@ public abstract class AbstractMapConfig implements Config {
         val value = _getString(key);
 
         return value == null
-                ? defaultValue
-                : value;
+          ? defaultValue
+          : value;
     }
 
     // endregion
@@ -145,8 +145,8 @@ public abstract class AbstractMapConfig implements Config {
         val value = _getBoolean(key);
 
         return value == null
-                ? defaultValue
-                : value;
+          ? defaultValue
+          : value;
     }
 
     @Override
@@ -254,7 +254,7 @@ public abstract class AbstractMapConfig implements Config {
     @Override
     public @NotNull <T> Optional<T> findAs(final @NotNull String key, final @NotNull Class<T> type) {
         return Optional.ofNullable(map.get(key))
-                .map(object -> getAs(object, type));
+          .map(object -> getAs(object, type));
     }
 
     @Override
@@ -293,18 +293,14 @@ public abstract class AbstractMapConfig implements Config {
     @SuppressWarnings("unchecked")
     public @NotNull Optional<@NotNull Config> findObject(final @NotNull String key) {
         return Optional.ofNullable(map.get(key))
-                .filter(Map.class::isInstance)
-                .map(element -> createObject((Map<String, Object>) element));
+          .filter(Map.class::isInstance)
+          .map(element -> createObject((Map<String, Object>) element));
     }
 
+    // region list
     @Override
-    @SuppressWarnings("unchecked")
     public @Unmodifiable @NotNull List<@NotNull String> getStringList(final @NotNull String key) {
-        val value = map.get(key);
-
-        return value instanceof List
-                ? List.copyOf((List<String>) value)
-                : Collections.emptyList();
+        return getList(key);
     }
 
     @Override
@@ -314,12 +310,84 @@ public abstract class AbstractMapConfig implements Config {
 
         if (value instanceof List list) {
             return list.stream()
-                    .map(element -> createObject((Map<String, Object>) element))
-                    .toList();
+              .map(element -> createObject((Map<String, Object>) element))
+              .toList();
         }
 
         return Collections.emptyList();
     }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public @Unmodifiable @NotNull <T> List<T> getList(final @NotNull String key, final @Nullable List<T> def) {
+        val value = map.get(key);
+
+        return value instanceof List<?>
+          ? List.copyOf((List<T>) value)
+          : def == null ? List.of() : def;
+    }
+
+    @Override
+    public @Unmodifiable @NotNull <T> List<T> getList(final @NotNull String key) {
+        return getList(key, null);
+    }
+
+    @Override
+    public @Unmodifiable @NotNull List<@NotNull Integer> getIntList(
+      final @NotNull String key,
+      final List<Integer> def
+    ) {
+        return getList(key, def);
+    }
+
+    @Override
+    public @Unmodifiable @NotNull List<@NotNull Long> getLongList(
+      final @NotNull String key,
+      final @Nullable List<Long> def
+    ) {
+        return getList(key, def);
+    }
+
+    @Override
+    public @Unmodifiable @NotNull List<@NotNull Short> getShortList(
+      final @NotNull String key,
+      final @Nullable List<Short> def
+    ) {
+        return getList(key, def);
+    }
+
+    @Override
+    public @Unmodifiable @NotNull List<@NotNull Double> getDoubleList(
+      final @NotNull String key,
+      final @Nullable List<Double> def
+    ) {
+        return getList(key, def);
+    }
+
+    @Override
+    public @Unmodifiable @NotNull List<@NotNull Float> getFloatList(
+      final @NotNull String key,
+      final @Nullable List<Float> def
+    ) {
+        return getList(key, def);
+    }
+
+    @Override
+    public @Unmodifiable @NotNull List<@NotNull Boolean> getBooleanList(
+      final @NotNull String key,
+      final @Nullable List<Boolean> def
+    ) {
+        return getList(key, def);
+    }
+
+    @Override
+    public @Unmodifiable @NotNull List<@NotNull Character> getCharList(
+      final @NotNull String key,
+      final @Nullable List<Character> def
+    ) {
+        return getList(key, def);
+    }
+    // endregion
 
     @Override
     public @NotNull Map<@NotNull String, @NotNull Object> asMap() {

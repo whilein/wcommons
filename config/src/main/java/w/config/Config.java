@@ -35,9 +35,8 @@ import java.util.OptionalLong;
 import java.util.Set;
 
 /**
- * todo список для int, long, double
- *
  * @author whilein
+ * @author _Novit_ (novitpw)
  */
 public interface Config {
 
@@ -184,16 +183,95 @@ public interface Config {
     @NotNull Config getObject(@NotNull String key) throws ConfigMissingKeyException;
 
     /**
-     * Получить значение по ключу в виде long
+     * Получает список строк.
      *
      * @param key Ключ
-     * @return Значение в виде long
-     * @see #findLong(String)
-     * @see #getLong(String, long)
+     * @return Список строк.
+     *
+     * @see #getList(String)
+     * @see #getList(String, List)
      */
     @Unmodifiable @NotNull List<@NotNull String> getStringList(@NotNull String key);
 
+    /**
+     * Получает список объектов конфига {@link Config}
+     *
+     * @param key Ключ.
+     * @return Список {@link Config}
+     *
+     * @see #getList(String)
+     * @see #getList(String, List)
+     */
     @Unmodifiable @NotNull List<@NotNull Config> getObjectList(@NotNull String key);
+
+    /**
+     * Получает список с неопределенным значением.
+     *
+     * @param key Ключ.
+     * @param def Список по умолчанию, если таковой не найден.
+     *            Может быть {@code null}, тогда вернет пустой список.
+     *
+     * @return Список с неопределенным значением.
+     *
+     * @see #getList(String)
+     */
+    @Unmodifiable @NotNull <T> List<T> getList(@NotNull String key, List<T> def);
+
+    /**
+     * Получает список.
+     *
+     * @param key Ключ.
+     *
+     * @return Список.
+     *
+     * @see #getList(String)
+     */
+    default @Unmodifiable @NotNull <T> List<T> getList(@NotNull String key) {
+        return getList(key, null);
+    }
+
+    @Unmodifiable @NotNull List<@NotNull Integer> getIntList(@NotNull String key, @Nullable List<Integer> def);
+
+    default @Unmodifiable @NotNull List<@NotNull Integer> getIntList(@NotNull String key) {
+        return getIntList(key, null);
+    }
+
+    @Unmodifiable @NotNull List<@NotNull Long> getLongList(@NotNull String key, @Nullable List<Long> def);
+
+    default @Unmodifiable @NotNull List<@NotNull Long> getLongList(@NotNull String key) {
+        return getLongList(key, null);
+    }
+
+    @Unmodifiable @NotNull List<@NotNull Short> getShortList(@NotNull String key, @Nullable List<Short> def);
+
+    default @Unmodifiable @NotNull List<@NotNull Short> getShortList(@NotNull String key) {
+        return getShortList(key, null);
+    }
+
+    @Unmodifiable @NotNull List<@NotNull Double> getDoubleList(@NotNull String key, @Nullable List<Double> def);
+
+    default @Unmodifiable @NotNull List<@NotNull Double> getDoubleList(@NotNull String key) {
+        return getDoubleList(key, null);
+    }
+
+    @Unmodifiable @NotNull List<@NotNull Float> getFloatList(@NotNull String key, @Nullable List<Float> def);
+
+    default @Unmodifiable @NotNull List<@NotNull Float> getFloatList(@NotNull String key) {
+        return getFloatList(key, null);
+    }
+
+    @Unmodifiable @NotNull List<@NotNull Boolean> getBooleanList(@NotNull String key, @Nullable List<Boolean> def);
+
+    default @Unmodifiable @NotNull List<@NotNull Boolean> getBooleanList(@NotNull String key) {
+        return getBooleanList(key, null);
+    }
+
+    @Unmodifiable @NotNull List<@NotNull Character> getCharList(@NotNull String key, @Nullable List<Character> def);
+
+    default @Unmodifiable @NotNull List<@NotNull Character> getCharList(@NotNull String key) {
+        return getCharList(key, null);
+    }
+
 
     <T> @NotNull Optional<T> findAs(@NotNull String key, @NotNull Class<T> type);
 
