@@ -47,6 +47,8 @@ public final class YamlConfigProvider extends AbstractJacksonConfigProvider {
                 .configure(YAMLParser.Feature.EMPTY_STRING_AS_NULL, false)
                 .configure(YAMLGenerator.Feature.WRITE_DOC_START_MARKER, false));
 
+        KotlinSupport.tryEnable(mapper);
+
         return new YamlConfigProvider(mapper.writer(), mapper.reader(), mapper::convertValue);
     }
 

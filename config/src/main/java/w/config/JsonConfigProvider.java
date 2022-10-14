@@ -60,6 +60,8 @@ public final class JsonConfigProvider extends AbstractJacksonConfigProvider {
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .setDefaultPrettyPrinter(new ConfigPrettyPrinter());
 
+        KotlinSupport.tryEnable(mapper);
+
         return new JsonConfigProvider(mapper.writerWithDefaultPrettyPrinter(), mapper.reader(), mapper::convertValue);
     }
 
