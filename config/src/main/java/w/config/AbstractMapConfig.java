@@ -20,9 +20,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import w.config.transformer.Transformer;
+import w.config.transformer.Transformers;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -40,14 +43,49 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author whilein
  */
 @FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class AbstractMapConfig implements Config {
+public abstract class AbstractMapConfig implements Config, Transformer<Config> {
+
     Map<String, Object> map;
+
+    @Override
+    public @NotNull Transformer<Config> configTransformer() {
+        return this;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Config transformOrNull(final Object o) {
+        if (o == null) {
+            return null;
+        }
+
+        if (o instanceof Map<?, ?>) {
+            return createObject((Map<String, Object>) o);
+        }
+
+        return null;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Config transform(final Object o) {
+        if (o == null) {
+            return null;
+        }
+
+        if (o instanceof Map<?, ?>) {
+            return createObject((Map<String, Object>) o);
+        }
+
+        throw new IllegalStateException("Cannot transform " + o + " to config");
+    }
 
     protected abstract Config createObject(final Map<String, Object> map);
 
@@ -97,141 +135,83 @@ public abstract class AbstractMapConfig implements Config {
 
     // endregion
     // region string
-    private String _getString(final String key) {
-        val value = map.get(key);
-
-        return value instanceof String || value instanceof Number || value instanceof Boolean
-          ? value.toString()
-          : null;
-    }
-
     @Override
     public @NotNull Optional<@NotNull String> findString(final @NotNull String key) {
-        return Optional.ofNullable(_getString(key));
+        return find(key, Transformers.stringTransformer());
     }
 
     @Override
     public @NotNull String getString(final @NotNull String key) {
-        return require(_getString(key), key);
+        return get(key, Transformers.stringTransformer());
     }
 
     @Override
     public @Nullable String getString(final @NotNull String key, final @Nullable String defaultValue) {
-        val value = _getString(key);
-
-        return value == null
-          ? defaultValue
-          : value;
+        return get(key, Transformers.stringTransformer(), defaultValue);
     }
 
     // endregion
     // region boolean
-    private Boolean _getBoolean(final String key) {
-        val value = map.get(key);
-
-        if (value instanceof Boolean booleanValue) {
-            return booleanValue;
-        } else if (value instanceof Number numberValue) {
-            return numberValue.byteValue() == 1 ? Boolean.TRUE : Boolean.FALSE;
-        } else if (value instanceof String) {
-            return value.equals("true") ? Boolean.TRUE : Boolean.FALSE;
-        }
-
-        return null;
-    }
-
     @Override
     public boolean getBoolean(final @NotNull String key, final boolean defaultValue) {
-        val value = _getBoolean(key);
-
-        return value == null
-          ? defaultValue
-          : value;
+        return get(key, Transformers.booleanTransformer(), defaultValue);
     }
 
     @Override
     public boolean getBoolean(final @NotNull String key) {
-        val value = _getBoolean(key);
-
-        if (value == null) {
-            throw new ConfigMissingKeyException(key);
-        }
-
-        return value;
+        return get(key, Transformers.booleanTransformer());
     }
 
     @Override
     public @NotNull Optional<Boolean> findBoolean(final @NotNull String key) {
-        return Optional.ofNullable(_getBoolean(key));
+        return find(key, Transformers.booleanTransformer());
     }
-
     // endregion
     // region numbers
-    private static final Function<String, Number> INT = Integer::valueOf;
-    private static final Function<String, Number> LONG = Long::valueOf;
-    private static final Function<String, Number> DOUBLE = Double::valueOf;
-
-    private Number _getNumber(final String key, final Function<String, Number> parse) {
-        val value = map.get(key);
-
-        if (value instanceof Number numberValue) {
-            return numberValue;
-        } else if (value instanceof String stringValue) {
-            return parse.apply(stringValue);
-        } else {
-            return null;
-        }
-    }
 
     @Override
     public int getInt(final @NotNull String key) {
-        return require(_getNumber(key, INT), key).intValue();
+        return get(key, Transformers.intTransformer());
     }
 
     @Override
     public int getInt(final @NotNull String key, final int defaultValue) {
-        val value = _getNumber(key, INT);
-        return value == null ? defaultValue : value.intValue();
+        return get(key, Transformers.intTransformer(), defaultValue);
     }
 
     @Override
     public @NotNull OptionalInt findInt(final @NotNull String key) {
-        val value = _getNumber(key, INT);
-        return value == null ? OptionalInt.empty() : OptionalInt.of(value.intValue());
+        return find0(key, OptionalInt::empty, OptionalInt::of, Transformers.intTransformer());
     }
 
     @Override
     public double getDouble(final @NotNull String key) {
-        return require(_getNumber(key, DOUBLE), key).doubleValue();
+        return get(key, Transformers.doubleTransformer());
     }
 
     @Override
     public double getDouble(final @NotNull String key, final double defaultValue) {
-        val value = _getNumber(key, DOUBLE);
-        return value == null ? defaultValue : value.doubleValue();
+        return get(key, Transformers.doubleTransformer(), defaultValue);
     }
 
     @Override
     public @NotNull OptionalDouble findDouble(final @NotNull String key) {
-        val value = _getNumber(key, DOUBLE);
-        return value == null ? OptionalDouble.empty() : OptionalDouble.of(value.doubleValue());
+        return find0(key, OptionalDouble::empty, OptionalDouble::of, Transformers.doubleTransformer());
     }
 
     @Override
     public long getLong(final @NotNull String key) {
-        return require(_getNumber(key, LONG), key).longValue();
+        return get(key, Transformers.longTransformer());
     }
 
     @Override
     public long getLong(final @NotNull String key, final long defaultValue) {
-        val value = _getNumber(key, LONG);
-        return value == null ? defaultValue : value.longValue();
+        return get(key, Transformers.longTransformer(), defaultValue);
     }
 
     @Override
     public @NotNull OptionalLong findLong(final @NotNull String key) {
-        val value = _getNumber(key, LONG);
-        return value == null ? OptionalLong.empty() : OptionalLong.of(value.longValue());
+        return find0(key, OptionalLong::empty, OptionalLong::of, Transformers.longTransformer());
     }
 
     // endregion
@@ -253,141 +233,203 @@ public abstract class AbstractMapConfig implements Config {
 
     @Override
     public @NotNull <T> Optional<T> findAs(final @NotNull String key, final @NotNull Class<T> type) {
-        return Optional.ofNullable(map.get(key))
-          .map(object -> getAs(object, type));
+        return find(key, transformAs(type));
     }
 
     @Override
     public <T> @NotNull T getAs(final @NotNull String key, final @NotNull Class<T> type) {
-        return getAs(require(map.get(key), key), type);
+        return get(key, transformAs(type));
     }
 
     @Override
     public <T> @Nullable T getAs(final @NotNull String key,
                                  final @NotNull Class<T> type,
-                                 final @Nullable T defaultValue) {
-        val value = map.get(key);
-        return value == null ? defaultValue : getAs(value, type);
-    }
-
-    protected abstract <T> T getAs(Object value, Class<T> type);
-
-    @Override
-    public <T> T asType(final @NotNull Class<T> type) {
-        return getAs(map, type);
+                                 final @Nullable T def) {
+        return get(key, transformAs(type), def);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public @NotNull Config getObject(final @NotNull String key) {
         val value = map.get(key);
 
-        if (value instanceof Map map) {
-            return createObject(map);
+        if (value instanceof Map mapValue) {
+            return createObject(mapValue);
         }
 
         throw new ConfigMissingKeyException(key);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public @NotNull Optional<@NotNull Config> findObject(final @NotNull String key) {
-        return Optional.ofNullable(map.get(key))
-          .filter(Map.class::isInstance)
-          .map(element -> createObject((Map<String, Object>) element));
+        return find(key, configTransformer());
+    }
+
+    @Override
+    public <T> @NotNull T get(
+            final @NotNull String key,
+            final @NotNull Transformer<T> transformer
+    ) throws ConfigMissingKeyException {
+        return require(transformer.transform(map.get(key)), key);
+    }
+
+    @Override
+    public <T> @Nullable T get(
+            final @NotNull String key,
+            final @NotNull Transformer<T> transformer,
+            final @Nullable T def
+    ) {
+        val result = transformer.transformOrNull(map.get(key));
+        return result == null ? def : result;
+    }
+
+    @Override
+    public @NotNull <T> Optional<T> find(final @NotNull String key, final @NotNull Transformer<T> transformer) {
+        return find0(key, Optional::empty, Optional::of, transformer);
+    }
+
+    private <T, U> T find0(
+            final String key,
+            final Supplier<T> empty,
+            final Function<U, T> wrap,
+            final Transformer<U> transformer
+    ) {
+        val result = transformer.transformOrNull(map.get(key));
+
+        return result == null ? empty.get() : wrap.apply(result);
     }
 
     // region list
+
+
+    @Override
+    public @Unmodifiable @Nullable List<@NotNull Byte> getByteList(
+            final @NotNull String key,
+            final @Nullable List<Byte> def
+    ) {
+        return getList(key, Transformers.byteTransformer());
+    }
+
+    @Override
+    public @Unmodifiable @NotNull List<@NotNull Byte> getByteList(final @NotNull String key) {
+        return getByteList(key, Collections.emptyList());
+    }
+
     @Override
     public @Unmodifiable @NotNull List<@NotNull String> getStringList(final @NotNull String key) {
-        return getList(key);
+        return getList(key, Transformers.stringTransformer());
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public @Unmodifiable @NotNull List<@NotNull Config> getObjectList(final @NotNull String key) {
+        return getList(key, configTransformer(), Collections.emptyList());
+    }
+
+    @Override
+    @Contract("_, _, !null -> !null")
+    public @Unmodifiable @Nullable <T> List<T> getList(
+            final @NotNull String key,
+            final @NotNull Transformer<T> transformer,
+            final @Nullable List<T> def
+    ) {
         val value = map.get(key);
 
-        if (value instanceof List list) {
+        if (value instanceof List<?> list) {
             return list.stream()
-              .map(element -> createObject((Map<String, Object>) element))
-              .toList();
+                    .map(transformer::transform)
+                    .toList();
         }
 
-        return Collections.emptyList();
+        return def;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public @Unmodifiable @NotNull <T> List<T> getList(final @NotNull String key, final @Nullable List<T> def) {
-        val value = map.get(key);
-
-        return value instanceof List<?>
-          ? List.copyOf((List<T>) value)
-          : def == null ? List.of() : def;
-    }
-
-    @Override
-    public @Unmodifiable @NotNull <T> List<T> getList(final @NotNull String key) {
-        return getList(key, null);
+    public @Unmodifiable @NotNull <T> List<T> getList(
+            final @NotNull String key,
+            final @NotNull Transformer<T> transformer
+    ) {
+        return getList(key, transformer, Collections.emptyList());
     }
 
     @Override
     public @Unmodifiable @NotNull List<@NotNull Integer> getIntList(
-      final @NotNull String key,
-      final List<Integer> def
+            final @NotNull String key
     ) {
-        return getList(key, def);
+        return getIntList(key, Collections.emptyList());
     }
 
     @Override
-    public @Unmodifiable @NotNull List<@NotNull Long> getLongList(
-      final @NotNull String key,
-      final @Nullable List<Long> def
+    public @Unmodifiable @Nullable List<@NotNull Integer> getIntList(
+            final @NotNull String key,
+            final @Nullable List<Integer> def
     ) {
-        return getList(key, def);
+        return getList(key, Transformers.intTransformer(), def);
     }
 
     @Override
-    public @Unmodifiable @NotNull List<@NotNull Short> getShortList(
-      final @NotNull String key,
-      final @Nullable List<Short> def
+    public @Unmodifiable @Nullable List<@NotNull Long> getLongList(
+            final @NotNull String key,
+            final @Nullable List<Long> def
     ) {
-        return getList(key, def);
+        return getList(key, Transformers.longTransformer(), def);
     }
 
     @Override
-    public @Unmodifiable @NotNull List<@NotNull Double> getDoubleList(
-      final @NotNull String key,
-      final @Nullable List<Double> def
+    public @Unmodifiable @Nullable List<@NotNull Short> getShortList(
+            final @NotNull String key,
+            final @Nullable List<Short> def
     ) {
-        return getList(key, def);
+        return getList(key, Transformers.shortTransformer());
     }
 
     @Override
-    public @Unmodifiable @NotNull List<@NotNull Float> getFloatList(
-      final @NotNull String key,
-      final @Nullable List<Float> def
+    public @Unmodifiable @Nullable List<@NotNull Double> getDoubleList(
+            final @NotNull String key,
+            final @Nullable List<Double> def
     ) {
-        return getList(key, def);
+        return getList(key, Transformers.doubleTransformer(), def);
     }
 
     @Override
-    public @Unmodifiable @NotNull List<@NotNull Boolean> getBooleanList(
-      final @NotNull String key,
-      final @Nullable List<Boolean> def
+    public @Unmodifiable @Nullable List<@NotNull Float> getFloatList(
+            final @NotNull String key,
+            final @Nullable List<Float> def
     ) {
-        return getList(key, def);
+        return getList(key, Transformers.floatTransformer(), def);
     }
 
     @Override
-    public @Unmodifiable @NotNull List<@NotNull Character> getCharList(
-      final @NotNull String key,
-      final @Nullable List<Character> def
+    public @Unmodifiable @Nullable List<@NotNull Boolean> getBooleanList(
+            final @NotNull String key,
+            final @Nullable List<Boolean> def
     ) {
-        return getList(key, def);
+        return getList(key, Transformers.booleanTransformer(), def);
     }
-    // endregion
+
+    @Override
+    public @Unmodifiable @NotNull List<@NotNull Long> getLongList(final @NotNull String key) {
+        return getLongList(key, Collections.emptyList());
+    }
+
+    @Override
+    public @Unmodifiable @NotNull List<@NotNull Short> getShortList(final @NotNull String key) {
+        return getShortList(key, Collections.emptyList());
+    }
+
+    @Override
+    public @Unmodifiable @NotNull List<@NotNull Double> getDoubleList(final @NotNull String key) {
+        return getDoubleList(key, Collections.emptyList());
+    }
+
+    @Override
+    public @Unmodifiable @NotNull List<@NotNull Float> getFloatList(final @NotNull String key) {
+        return getFloatList(key, Collections.emptyList());
+    }
+
+    @Override
+    public @Unmodifiable @NotNull List<@NotNull Boolean> getBooleanList(final @NotNull String key) {
+        return getBooleanList(key, Collections.emptyList());
+    }
 
     @Override
     public @NotNull Map<@NotNull String, @NotNull Object> asMap() {

@@ -16,10 +16,14 @@
 
 package w.config;
 
+import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import w.config.transformer.Transformer;
+import w.config.transformer.Transformers;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -39,6 +43,24 @@ final class ConfigTests {
     void setup() {
         config = SimpleConfig.create();
     }
+
+    @Test
+    void testObjectList() {
+        config.set("list", List.of(
+                Map.of(
+                        "x", "y"
+                ),
+                Map.of(
+                        "a", "b"
+                )
+        ));
+
+        val list = config.getObjectList("list");
+        assertEquals(2, list.size());
+        assertEquals("y", list.get(0).getString("x"));
+        assertEquals("b", list.get(1).getString("a"));
+    }
+
 
     @Test
     void testInts() {
@@ -160,35 +182,97 @@ final class ConfigTests {
     }
 
     @Test
-    void testList() {
-        config.set("list", List.of("element0", "element1"));
-
-        config.set("intList", List.of(123));
-        config.set("charList", List.of('c', 'a'));
-        config.set("floatList", List.of(0.123f));
-        config.set("longList", List.of(1234567890L));
-        config.set("doubleList", List.of(123.321));
-
-        config.set("emptyList", List.of());
-
-        // get
-        assertEquals(List.of("element0", "element1"), config.getList("list"));
-        assertEquals(List.of(123), config.getList("intList"));
-        assertEquals(List.of('c', 'a'), config.getList("charList"));
-        assertEquals(List.of(0.123f), config.getList("floatList"));
-        assertEquals(List.of(123.321), config.getList("doubleList"));
-        assertEquals(List.of(1234567890L), config.getList("longList"));
-
-        assertEquals(List.of(123), config.getIntList("intList"));
-        assertEquals(List.of('c', 'a'), config.getCharList("charList"));
-        assertEquals(List.of(0.123f), config.getFloatList("floatList"));
-        assertEquals(List.of(123.321), config.getDoubleList("doubleList"));
-        assertEquals(List.of(1234567890L), config.getLongList("longList"));
-
-        assertTrue(config.getList("emptyList").isEmpty());
-
-        // default
-        assertEquals(List.of("element0", "element1"), config.getList("list", null));
-        assertEquals(List.of("element0", "element1"), config.getList("idk", List.of("element0", "element1")));
+    void testByteFromString() {
+        assertTransformer((byte) 1, "1", Transformers.byteTransformer());
     }
+
+    @Test
+    void testByteFromAnotherNumber() {
+        assertTransformer((byte) 2, 2, Transformers.byteTransformer());
+    }
+
+    @Test
+    void testByteFromByte() {
+        assertTransformer((byte) 3, (byte) 3, Transformers.byteTransformer());
+    }
+
+    @Test
+    void testShortFromString() {
+        assertTransformer((short) 1, "1", Transformers.shortTransformer());
+    }
+
+    @Test
+    void testShortFromAnotherNumber() {
+        assertTransformer((short) 2, 2, Transformers.shortTransformer());
+    }
+
+    @Test
+    void testShortFromShort() {
+        assertTransformer((short) 3, (short) 3, Transformers.shortTransformer());
+    }
+
+    @Test
+    void testIntFromString() {
+        assertTransformer(1, "1", Transformers.intTransformer());
+    }
+
+    @Test
+    void testIntFromAnotherNumber() {
+        assertTransformer(2, 2L, Transformers.intTransformer());
+    }
+
+    @Test
+    void testIntFromInt() {
+        assertTransformer(3, 3, Transformers.intTransformer());
+    }
+
+    @Test
+    void testDoubleFromString() {
+        assertTransformer(1.1d, "1.1", Transformers.doubleTransformer());
+    }
+
+    @Test
+    void testDoubleFromAnotherNumber() {
+        assertTransformer(2d, 2L, Transformers.doubleTransformer());
+    }
+
+    @Test
+    void testDoubleFromDouble() {
+        assertTransformer(3.3d, 3.3d, Transformers.doubleTransformer());
+    }
+
+    @Test
+    void testStringFromBoolean() {
+        assertTransformer("true", true, Transformers.stringTransformer());
+    }
+
+    @Test
+    void testStringFromNumber() {
+        assertTransformer("1.1", 1.1, Transformers.stringTransformer());
+    }
+
+    @Test
+    void testStringFromString() {
+        assertTransformer("1.1", "1.1", Transformers.stringTransformer());
+    }
+
+    @Test
+    void testFloatFromString() {
+        assertTransformer(1.1f, "1.1", Transformers.floatTransformer());
+    }
+
+    @Test
+    void testFloatFromAnotherNumber() {
+        assertTransformer(2f, 2L, Transformers.floatTransformer());
+    }
+
+    @Test
+    void testFloatFromFloat() {
+        assertTransformer(3.3f, 3.3f, Transformers.floatTransformer());
+    }
+
+    private <T> void assertTransformer(final T expect, final Object from, final Transformer<T> transformer) {
+        assertEquals(expect, transformer.transform(from));
+    }
+
 }

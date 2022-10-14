@@ -25,6 +25,8 @@ import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import w.config.transformer.AbstractTransformer;
+import w.config.transformer.Transformer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -209,6 +211,22 @@ public abstract class AbstractJacksonConfigProvider implements JacksonConfigProv
         return loadObject(objectReader.readValue(is, Map.class));
     }
 
+    private final class TransformAsImpl<T> extends AbstractTransformer<T> {
+
+        private TransformAsImpl(final Class<T> type) {
+            super(type);
+        }
+
+        @Override
+        protected T doTransform(final Object o) {
+            try {
+                return objectConverter.convert(o, type);
+            } catch (final Exception e) {
+                return null;
+            }
+        }
+    }
+
     private final class ConfigImpl extends AbstractMapConfig {
 
         private ConfigImpl(final Map<String, Object> map) {
@@ -237,6 +255,11 @@ public abstract class AbstractJacksonConfigProvider implements JacksonConfigProv
         }
 
         @Override
+        public @NotNull <T> Transformer<T> transformAs(final @NotNull Class<T> type) {
+            return new TransformAsImpl<>(type);
+        }
+
+        @Override
         @SneakyThrows
         public void writeTo(final @NotNull Writer writer) {
             objectWriter.writeValue(writer, map);
@@ -249,9 +272,8 @@ public abstract class AbstractJacksonConfigProvider implements JacksonConfigProv
         }
 
         @Override
-        protected <T> T getAs(final Object value, final Class<T> type) {
-            return objectConverter.convert(value, type);
+        public <T> T asType(final @NotNull Class<T> type) {
+            return objectConverter.convert(map, type);
         }
-
     }
 }

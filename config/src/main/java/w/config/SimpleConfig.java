@@ -19,6 +19,7 @@ package w.config;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
+import w.config.transformer.Transformer;
 
 import java.io.OutputStream;
 import java.io.Writer;
@@ -59,7 +60,12 @@ public final class SimpleConfig extends AbstractMapConfig {
     }
 
     @Override
-    protected <T> T getAs(final Object value, final Class<T> type) {
+    public  <T> T asType(final @NotNull Class<T> type) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public @NotNull <T> Transformer<T> transformAs(final @NotNull Class<T> type) {
         throw new UnsupportedOperationException();
     }
 

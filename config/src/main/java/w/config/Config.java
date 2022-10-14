@@ -20,6 +20,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import w.config.transformer.Transformer;
+import w.config.transformer.Transformers;
 
 import java.io.File;
 import java.io.OutputStream;
@@ -41,6 +43,10 @@ import java.util.Set;
 public interface Config {
 
     <T> T asType(@NotNull Class<T> type);
+
+    @NotNull Transformer<Config> configTransformer();
+
+    <T> @NotNull Transformer<T> transformAs(@NotNull Class<T> type);
 
     /**
      * Представить объект как {@link Map}.
@@ -113,6 +119,12 @@ public interface Config {
     @Contract("_, !null -> !null")
     @Nullable Object getRaw(@NotNull String key, @Nullable Object defaultValue);
 
+    <T> @NotNull Optional<T> find(@NotNull String key, @NotNull Transformer<T> transformer);
+
+    <T> @NotNull T get(@NotNull String key, @NotNull Transformer<T> transformer) throws ConfigMissingKeyException;
+
+    @Contract("_, _, !null -> !null")
+    <T> @Nullable T get(@NotNull String key, @NotNull Transformer<T> transformer, @Nullable T def);
 
     /**
      * Получить значение по ключу и сериализовать его
@@ -187,9 +199,6 @@ public interface Config {
      *
      * @param key Ключ
      * @return Список строк.
-     *
-     * @see #getList(String)
-     * @see #getList(String, List)
      */
     @Unmodifiable @NotNull List<@NotNull String> getStringList(@NotNull String key);
 
@@ -198,80 +207,68 @@ public interface Config {
      *
      * @param key Ключ.
      * @return Список {@link Config}
-     *
-     * @see #getList(String)
-     * @see #getList(String, List)
      */
     @Unmodifiable @NotNull List<@NotNull Config> getObjectList(@NotNull String key);
 
     /**
-     * Получает список с неопределенным значением.
+     * Получить список с неопределенным значением.
      *
      * @param key Ключ.
      * @param def Список по умолчанию, если таковой не найден.
      *            Может быть {@code null}, тогда вернет пустой список.
-     *
      * @return Список с неопределенным значением.
-     *
-     * @see #getList(String)
+     * @see #getList(String, Transformer)
      */
-    @Unmodifiable @NotNull <T> List<T> getList(@NotNull String key, List<T> def);
+    @Contract("_, _, !null -> !null")
+    @Unmodifiable @Nullable <T> List<T> getList(
+            @NotNull String key,
+            @NotNull Transformer<T> transformer,
+            @Nullable List<T> def
+    );
 
     /**
-     * Получает список.
+     * Получить список.
      *
      * @param key Ключ.
-     *
      * @return Список.
-     *
-     * @see #getList(String)
+     * @see #getList(String, Transformer, List)
      */
-    default @Unmodifiable @NotNull <T> List<T> getList(@NotNull String key) {
-        return getList(key, null);
-    }
+    @Unmodifiable @NotNull <T> List<T> getList(@NotNull String key, @NotNull Transformer<T> transformer);
 
-    @Unmodifiable @NotNull List<@NotNull Integer> getIntList(@NotNull String key, @Nullable List<Integer> def);
+    @Contract("_, !null -> !null")
+    @Unmodifiable @Nullable List<@NotNull Byte> getByteList(@NotNull String key, @Nullable List<Byte> def);
 
-    default @Unmodifiable @NotNull List<@NotNull Integer> getIntList(@NotNull String key) {
-        return getIntList(key, null);
-    }
+    @Unmodifiable @NotNull List<@NotNull Byte> getByteList(@NotNull String key);
 
-    @Unmodifiable @NotNull List<@NotNull Long> getLongList(@NotNull String key, @Nullable List<Long> def);
+    @Contract("_, !null -> !null")
+    @Unmodifiable @Nullable List<@NotNull Integer> getIntList(@NotNull String key, @Nullable List<Integer> def);
 
-    default @Unmodifiable @NotNull List<@NotNull Long> getLongList(@NotNull String key) {
-        return getLongList(key, null);
-    }
+    @Unmodifiable @NotNull List<@NotNull Integer> getIntList(@NotNull String key);
 
-    @Unmodifiable @NotNull List<@NotNull Short> getShortList(@NotNull String key, @Nullable List<Short> def);
+    @Contract("_, !null -> !null")
+    @Unmodifiable @Nullable List<@NotNull Long> getLongList(@NotNull String key, @Nullable List<Long> def);
 
-    default @Unmodifiable @NotNull List<@NotNull Short> getShortList(@NotNull String key) {
-        return getShortList(key, null);
-    }
+    @Unmodifiable @NotNull List<@NotNull Long> getLongList(@NotNull String key);
 
-    @Unmodifiable @NotNull List<@NotNull Double> getDoubleList(@NotNull String key, @Nullable List<Double> def);
+    @Contract("_, !null -> !null")
+    @Unmodifiable @Nullable List<@NotNull Short> getShortList(@NotNull String key, @Nullable List<Short> def);
 
-    default @Unmodifiable @NotNull List<@NotNull Double> getDoubleList(@NotNull String key) {
-        return getDoubleList(key, null);
-    }
+    @Unmodifiable @NotNull List<@NotNull Short> getShortList(@NotNull String key);
 
-    @Unmodifiable @NotNull List<@NotNull Float> getFloatList(@NotNull String key, @Nullable List<Float> def);
+    @Contract("_, !null -> !null")
+    @Unmodifiable @Nullable List<@NotNull Double> getDoubleList(@NotNull String key, @Nullable List<Double> def);
 
-    default @Unmodifiable @NotNull List<@NotNull Float> getFloatList(@NotNull String key) {
-        return getFloatList(key, null);
-    }
+    @Unmodifiable @NotNull List<@NotNull Double> getDoubleList(@NotNull String key);
 
-    @Unmodifiable @NotNull List<@NotNull Boolean> getBooleanList(@NotNull String key, @Nullable List<Boolean> def);
+    @Contract("_, !null -> !null")
+    @Unmodifiable @Nullable List<@NotNull Float> getFloatList(@NotNull String key, @Nullable List<Float> def);
 
-    default @Unmodifiable @NotNull List<@NotNull Boolean> getBooleanList(@NotNull String key) {
-        return getBooleanList(key, null);
-    }
+    @Unmodifiable @NotNull List<@NotNull Float> getFloatList(@NotNull String key);
 
-    @Unmodifiable @NotNull List<@NotNull Character> getCharList(@NotNull String key, @Nullable List<Character> def);
+    @Contract("_, !null -> !null")
+    @Unmodifiable @Nullable List<@NotNull Boolean> getBooleanList(@NotNull String key, @Nullable List<Boolean> def);
 
-    default @Unmodifiable @NotNull List<@NotNull Character> getCharList(@NotNull String key) {
-        return getCharList(key, null);
-    }
-
+    @Unmodifiable @NotNull List<@NotNull Boolean> getBooleanList(@NotNull String key);
 
     <T> @NotNull Optional<T> findAs(@NotNull String key, @NotNull Class<T> type);
 
