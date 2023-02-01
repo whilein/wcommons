@@ -18,9 +18,13 @@ package w.eventbus;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -146,6 +150,31 @@ class EventBusTests {
         assertEquals(1, event.value);
 
         bus.unregister(subscription);
+        bus.dispatch(event = new IntEvent());
+
+        assertEquals(0, event.value);
+    }
+
+    @Test
+    @SneakyThrows
+    void testAsyncRegistration() {
+        IntEvent event;
+
+        // register listeners
+        val executor = Executors.newFixedThreadPool(2);
+
+        val future1 = executor.submit(() -> bus.register(new TestObjectListener()));
+        val future2 = executor.submit(() -> bus.register(new TestObjectListener()));
+
+        // wtf??? I don't know what to do here...
+        future1.get();
+        future2.get();
+
+        bus.dispatch(event = new IntEvent());
+
+        assertEquals(2, event.value);
+
+        bus.unregisterAll(TestObjectListener.class);
         bus.dispatch(event = new IntEvent());
 
         assertEquals(0, event.value);
