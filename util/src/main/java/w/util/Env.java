@@ -1,11 +1,11 @@
 package w.util;
 
+import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
-import java.util.OptionalInt;
 
 /**
  * @author whilein
@@ -13,11 +13,15 @@ import java.util.OptionalInt;
 @UtilityClass
 public class Env {
 
-    public @NotNull String getString(final @NotNull String key, final @NotNull String defaultValue) {
-        return Optional.ofNullable(System.getenv(key)).orElse(defaultValue);
+    public @NotNull String getString(final @NonNull String key, final @NonNull String defaultValue) {
+        return getOptionalString(key).orElse(defaultValue);
     }
 
-    public int getInt(final @NotNull String key, final  int defaultValue) {
+    public @NotNull Optional<@NotNull String> getOptionalString(final @NonNull String key) {
+        return Optional.ofNullable(System.getenv(key));
+    }
+
+    public int getInt(final @NonNull String key, final  int defaultValue) {
         val value = System.getenv(key);
 
         if (value == null) {

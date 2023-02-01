@@ -21,6 +21,8 @@ import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
@@ -30,8 +32,11 @@ import java.util.OptionalLong;
 @UtilityClass
 public class NumberUtils {
 
-    private final DecimalFormat LONG_FORMATTER = new DecimalFormat("###,###");
-    private final DecimalFormat DOUBLE_FORMATTER = new DecimalFormat("###,##0.00");
+    // use US locale instead of DEFAULT
+    private final DecimalFormatSymbols FORMAT_SYMBOLS = DecimalFormatSymbols.getInstance(Locale.US);
+
+    private final DecimalFormat LONG_FORMATTER = new DecimalFormat("###,###", FORMAT_SYMBOLS);
+    private final DecimalFormat DOUBLE_FORMATTER = new DecimalFormat("###,##0.00", FORMAT_SYMBOLS);
 
     private final String[] ROMANS = new String[]{
             "", "I", "II", "III", "IV", "V",
