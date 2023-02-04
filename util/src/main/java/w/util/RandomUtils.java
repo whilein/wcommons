@@ -76,6 +76,14 @@ public class RandomUtils {
         );
     }
 
+    public static <T> @Nullable T removeRandomElement(
+      final @Nullable List<T> list
+    ) {
+        return list != null && !list.isEmpty()
+            ? list.remove(RANDOM.nextInt(list.size()))
+            : null;
+    }
+
     private <T> List<T> wrapList(final List<T> list, final boolean distinct) {
         return distinct
                 ? new ArrayList<>(list) // копия, ибо будут удаляться элементы

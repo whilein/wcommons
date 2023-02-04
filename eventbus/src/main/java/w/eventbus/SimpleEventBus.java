@@ -37,8 +37,6 @@ import w.util.ClassLoaderUtils;
 import w.util.TypeUtils;
 import w.util.mutable.Mutables;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -192,7 +190,9 @@ public final class SimpleEventBus implements EventBus {
             }
         }
 
-        bakeAll(map);
+        synchronized (mutex) {
+            bakeAll(map);
+        }
     }
 
     private void bakeAll(final Map<Class<?>, List<RegisteredSubscription>> modifiedDispatchers) {
@@ -509,7 +509,9 @@ public final class SimpleEventBus implements EventBus {
     }
 
     private Set<Class<?>> findTypes(final Class<?> type) {
-        return typeCache.computeIfAbsent(type, TypeUtils::findTypes);
+        synchronized (mutex) {
+            return typeCache.computeIfAbsent(type, TypeUtils::findTypes);
+        }
     }
 
     private Map<Class<?>, List<RegisteredSubscription>> register(
