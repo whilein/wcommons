@@ -13,11 +13,15 @@ import java.util.Optional;
 @UtilityClass
 public class Env {
 
-    public @NotNull String getString(final @NonNull String key, final @NonNull String defaultValue) {
-        return getOptionalString(key).orElse(defaultValue);
+    public @NotNull String getString(final @NonNull String key) {
+        return findString(key).orElseThrow(() -> new IllegalStateException("Cannot find environment entry: " + key));
     }
 
-    public @NotNull Optional<@NotNull String> getOptionalString(final @NonNull String key) {
+    public @NotNull String getString(final @NonNull String key, final @NonNull String defaultValue) {
+        return findString(key).orElse(defaultValue);
+    }
+
+    public @NotNull Optional<@NotNull String> findString(final @NonNull String key) {
         return Optional.ofNullable(System.getenv(key));
     }
 
