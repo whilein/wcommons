@@ -23,6 +23,7 @@ import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -161,18 +162,25 @@ class EventBusTests {
         IntEvent event;
 
         // register listeners
-        val executor = Executors.newFixedThreadPool(2);
+        val executor = Executors.newFixedThreadPool(16);
 
-        val future1 = executor.submit(() -> bus.register(new TestObjectListener()));
-        val future2 = executor.submit(() -> bus.register(new TestObjectListener()));
+        final int iterations = 100;
 
-        // wtf??? I don't know what to do here...
-        future1.get();
-        future2.get();
+        val latch = new CountDownLatch(iterations);
+
+        for (int i = 0; i < iterations; i++) {
+            executor.submit(() -> {
+                bus.register(new TestObjectListener());
+
+                latch.countDown();
+            });
+        }
+
+        latch.await();
 
         bus.dispatch(event = new IntEvent());
 
-        assertEquals(2, event.value);
+        assertEquals(iterations, event.value);
 
         bus.unregisterAll(TestObjectListener.class);
         bus.dispatch(event = new IntEvent());
