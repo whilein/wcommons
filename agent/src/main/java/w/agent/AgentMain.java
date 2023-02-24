@@ -43,6 +43,11 @@ final class AgentMain {
         vm.loadAgent(jar);
     }
 
+    public void premain(final String args, final Instrumentation instrumentation) {
+        System.setProperty("wcommons.agent.premain", "true");
+        AgentMain.instrumentation = instrumentation;
+    }
+
     @SneakyThrows
     public void agentmain(final String args, final Instrumentation instrumentation) {
         AgentMain.instrumentation = instrumentation;

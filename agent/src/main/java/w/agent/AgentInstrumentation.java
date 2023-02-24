@@ -16,6 +16,7 @@
 
 package w.agent;
 
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 
@@ -41,38 +42,46 @@ import java.util.zip.ZipEntry;
 @UtilityClass
 public final class AgentInstrumentation {
 
-    private final long PID;
-    private final String JAVA_EXECUTABLE;
-
     private final Instrumentation INSTRUMENTATION;
 
     static {
-        val process = ProcessHandle.current();
+        Instrumentation instrumentation;
 
-        PID = process.pid();
 
-        JAVA_EXECUTABLE = process.info().command()
-                .orElseGet(() -> System.getProperty("JAVA_HOME") // or default
-                        + "/bin/java");
-
-        try {
-            val agentJar = createAgentJar();
-
-            val instrumentation = runAgent(agentJar);
-
-            if (instrumentation == null) {
-                throw new IllegalStateException("Unable to install java agent");
+        if (Boolean.getBoolean("wcommons.agent.premain")) {
+            try {
+                instrumentation = getInstrumentation(getAgentMain());
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
             }
+        } else {
+            val process = ProcessHandle.current();
 
-            INSTRUMENTATION = instrumentation;
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
+            val pid = process.pid();
+
+            val javaExecutable = process.info().command()
+                    .orElseGet(() -> System.getProperty("JAVA_HOME") // or default
+                            + "/bin/java");
+
+            try {
+                val agentJar = createAgentJar();
+
+                instrumentation = runAgent(agentJar, javaExecutable, pid);
+
+                if (instrumentation == null) {
+                    throw new IllegalStateException("Unable to install java agent");
+                }
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
         }
+
+        INSTRUMENTATION = instrumentation;
     }
 
     /**
      * Создать Jar-ник с одним классом и манифестом,
-     * для того, чтобы запустить его через {@link #runAgent(Path)}
+     * для того, чтобы запустить его через {@link #runAgent(Path, String, long)} (Path)}
      *
      * @return путь нового Jar-ника
      * @throws IOException ошибка при создании временного файла
@@ -118,17 +127,18 @@ public final class AgentInstrumentation {
      * @throws IOException          ошибка, если не удалось запустить процесс
      * @throws InterruptedException ошибка, если не удалось дождаться завершения процесса
      */
-    private Instrumentation runAgent(final Path agent) throws IOException, InterruptedException {
+    private Instrumentation runAgent(final Path agent, final String javaExecutable, final long pid)
+            throws IOException, InterruptedException {
         val cp = AgentInstrumentation.class.getProtectionDomain().getCodeSource()
                 .getLocation();
 
         val args = new String[]{
-                JAVA_EXECUTABLE,
+                javaExecutable,
                 "-cp",
                 cp.getFile(),
                 "-jar",
                 agent.toAbsolutePath().toString(),
-                String.valueOf(PID)
+                String.valueOf(pid)
         };
 
         val process = new ProcessBuilder(args).start();
@@ -144,15 +154,22 @@ public final class AgentInstrumentation {
         process.waitFor();
 
         try {
-            val agentMain = ClassLoader.getSystemClassLoader().loadClass("w.agent.AgentMain");
-
-            val field = agentMain.getDeclaredField("instrumentation");
-            field.setAccessible(true);
-
-            return (Instrumentation) field.get(null);
+            return getInstrumentation(getAgentMain());
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private Class<?> getAgentMain() throws ClassNotFoundException {
+        return ClassLoader.getSystemClassLoader().loadClass("w.agent.AgentMain");
+    }
+
+    @SneakyThrows
+    private Instrumentation getInstrumentation(Class<?> agentMain) {
+        val field = agentMain.getDeclaredField("instrumentation");
+        field.setAccessible(true);
+
+        return (Instrumentation) field.get(null);
     }
 
     public void addTransformer(final ClassFileTransformer transformer, final boolean canRetransform) {

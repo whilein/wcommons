@@ -12,4 +12,26 @@
     <artifactId>wcommons-agent</artifactId>
 
     <description>Attaches Java Agent in runtime and gives you access to Instrumentation</description>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
+                            <Can-Redefine-Classes>true</Can-Redefine-Classes>
+                            <Agent-Class>w.agent.AgentMain</Agent-Class>
+                            <Premain-Class>w.agent.AgentMain</Premain-Class>
+                            <Main-Class>w.agent.AgentMain</Main-Class>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
