@@ -79,6 +79,8 @@ public interface Config {
 
     void set(@NotNull String key, @Nullable Object object);
 
+    void setAll(@NotNull Config config);
+
     @NotNull Config createObject(@NotNull String key);
 
     void remove(@NotNull String key);

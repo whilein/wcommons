@@ -437,6 +437,11 @@ public abstract class AbstractMapConfig implements Config, Transformer<Config> {
     }
 
     @Override
+    public void setAll(@NotNull Config config) {
+        map.putAll(config.asMap());
+    }
+
+    @Override
     public void writeTo(final @NotNull File file) {
         try (val os = new FileOutputStream(file)) {
             writeTo(os);
