@@ -25,6 +25,8 @@ public interface FileConfig extends Config {
 
     void saveDefaults(@NotNull String resource);
 
+    void saveDefaults(@NotNull ClassLoader classLoader, @NotNull String resource);
+
     void save();
 
     void reload();

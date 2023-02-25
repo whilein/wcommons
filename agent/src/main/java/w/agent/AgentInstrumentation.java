@@ -47,7 +47,6 @@ public final class AgentInstrumentation {
     static {
         Instrumentation instrumentation;
 
-
         if (Boolean.getBoolean("wcommons.agent.premain")) {
             try {
                 instrumentation = getInstrumentation(getAgentMain());

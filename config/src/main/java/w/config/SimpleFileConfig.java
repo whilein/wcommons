@@ -244,16 +244,14 @@ public final class SimpleFileConfig implements FileConfig {
     }
 
     @Override
-    public void saveDefaults(final @NotNull String resource) {
+    public void saveDefaults(@NotNull ClassLoader classLoader, @NotNull String resource) {
         if (!src.exists()) {
-            val cl = STACK_WALKER.getCallerClass().getClassLoader();
-
-            try (val resourceStream = cl.getResourceAsStream(resource.startsWith("/")
+            try (val resourceStream = classLoader.getResourceAsStream(resource.startsWith("/")
                     ? resource.substring(1)
                     : resource)) {
                 if (resourceStream == null) {
                     throw new IllegalStateException("Cannot save defaults, because default config "
-                                                    + resource + " not found");
+                            + resource + " not found");
                 }
 
                 delegate = provider.parse(resourceStream);
@@ -267,6 +265,11 @@ public final class SimpleFileConfig implements FileConfig {
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public void saveDefaults(final @NotNull String resource) {
+        saveDefaults(STACK_WALKER.getCallerClass().getClassLoader(), resource);
     }
 
     @Override
