@@ -13,7 +13,7 @@
     <description>Adapter for json/yaml configurations</description>
 
     <properties>
-        <kotlin.version>1.7.21</kotlin.version>
+        <kotlin.version>1.8.10</kotlin.version>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
     </properties>
 
