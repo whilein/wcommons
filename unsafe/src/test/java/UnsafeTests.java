@@ -21,8 +21,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import w.unsafe.Unsafe;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.lang.invoke.VarHandle;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
@@ -47,6 +48,18 @@ class UnsafeTests {
         unsafe.putStaticField(Dummy.class.getDeclaredField("STATIC_VALUE"), "New Value");
 
         assertEquals("New Value", Dummy.STATIC_VALUE);
+    }
+
+    @Test
+    @SneakyThrows
+    void allocateInstance() {
+        val lookup = unsafe.trustedLookup();
+        val vh = lookup.findVarHandle(Dummy.class, "objectValue", String.class);
+
+        val dummy = (Dummy) unsafe.allocateInstance(Dummy.class);
+        assertNull(dummy.objectValue);
+        vh.set(dummy, "321");
+        assertEquals("321", dummy.objectValue);
     }
 
     @Test

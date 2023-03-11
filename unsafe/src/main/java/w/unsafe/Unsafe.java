@@ -51,6 +51,8 @@ public interface Unsafe {
 
     @NotNull Object allocateUninitializedArray(@NotNull Class<?> componentType, int length);
 
+    @NotNull Object allocateInstance(@NotNull Class<?> type);
+
     @UtilityClass
     final class Initializer {
         private final Class<?> UNSAFE_TYPE;
@@ -155,6 +157,8 @@ public interface Unsafe {
 
             private static final MethodHandle UNSAFE__OBJECT_FIELD_OFFSET;
 
+            private static final MethodHandle UNSAFE__ALLOCATE_INSTANCE;
+
             static {
                 // region IMPL_LOOKUP
                 try {
@@ -207,6 +211,13 @@ public interface Unsafe {
                                     methodType(void.class, Object.class, long.class, Object.class)
                             )
                             .bindTo(theUnsafe);
+
+                    UNSAFE__ALLOCATE_INSTANCE = IMPL_LOOKUP.findVirtual(
+                                    UNSAFE_TYPE,
+                                    "allocateInstance",
+                                    methodType(Object.class, Class.class)
+                            )
+                            .bindTo(theUnsafe);
                 } catch (final Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -242,6 +253,11 @@ public interface Unsafe {
                 return UNSAFE__ALLOCATE_UNINITIALIZED_ARRAY.invokeExact(componentType, length);
             }
 
+            @Override
+            @SneakyThrows
+            public @NotNull Object allocateInstance(@NotNull Class<?> type) {
+                return UNSAFE__ALLOCATE_INSTANCE.invokeExact(type);
+            }
 
             @Override
             public boolean isAvailable() {
@@ -269,7 +285,7 @@ public interface Unsafe {
             private UnsupportedOperationException constructException() {
                 return new UnsupportedOperationException(
                         "Unsafe is not accessible on current JVM version (" + System.getProperty("java.version") + "). " +
-                        "To fix the issue, add io.github.whilein.wcommons:wcommons-agent to dependencies"
+                                "To fix the issue, add io.github.whilein.wcommons:wcommons-agent to dependencies"
                 );
             }
 
@@ -296,6 +312,11 @@ public interface Unsafe {
 
             @Override
             public @NotNull Object allocateUninitializedArray(final @NotNull Class<?> componentType, final int length) {
+                throw constructException();
+            }
+
+            @Override
+            public @NotNull Object allocateInstance(@NotNull Class<?> type) {
                 throw constructException();
             }
 
