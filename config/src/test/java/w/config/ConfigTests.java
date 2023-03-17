@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import w.config.transformer.Transformer;
 import w.config.transformer.Transformers;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +40,37 @@ final class ConfigTests {
     @BeforeEach
     void setup() {
         config = SimpleConfig.create();
+    }
+
+    @Test
+    void testCopyContents() {
+        config.set("number", 1);
+        config.set("list", Arrays.asList("1", "2", "3"));
+        config.createObject("object").set("string", "321");
+
+        val clonedConfig = config.copyContents();
+
+        assertNotSame(config, clonedConfig);
+
+        { // clone object
+            config.getObject("object").set("string", "123");
+
+            assertNotEquals(
+                    config.getObject("object").getString("string"),
+                    clonedConfig.getObject("object").getString("string")
+            );
+        }
+
+        { // clone list
+            ((List<?>) config.getRaw("list")).set(0, null);
+
+            assertNotEquals(
+                    config.getStringList("list"),
+                    clonedConfig.getStringList("list")
+            );
+        }
+
+        assertSame(config.getRaw("number"), clonedConfig.getRaw("number"));
     }
 
     @Test

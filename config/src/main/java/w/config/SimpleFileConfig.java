@@ -35,6 +35,7 @@ import java.nio.file.Path;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SimpleFileConfig implements FileConfig {
+
     private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 
     private interface Src {
@@ -121,13 +122,11 @@ public final class SimpleFileConfig implements FileConfig {
 
         val extension = fileName.substring(extensionSeparator + 1);
 
-        final ConfigProvider provider = switch (extension) {
+        return switch (extension) {
             case "yml", "yaml" -> YamlConfigProvider.INSTANCE;
             case "json" -> JsonConfigProvider.INSTANCE;
             default -> throw new IllegalStateException("Cannot find config provider for " + fileName);
         };
-
-        return provider;
     }
 
     @SneakyThrows

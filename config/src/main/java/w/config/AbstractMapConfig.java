@@ -48,6 +48,42 @@ public abstract class AbstractMapConfig implements Config, Transformer<Config> {
     Map<String, Object> map;
 
     @Override
+    public @NotNull Config copyContents() {
+        return createObject(copyContents(map));
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object copy(Object object) {
+        if (object instanceof Map<?, ?> contents) {
+            return copyContents((Map<String, Object>) contents);
+        } else if (object instanceof List<?> contents) {
+            return copyContents(contents);
+        } else {
+            return object;
+        }
+    }
+
+    private List<Object> copyContents(List<?> contents) {
+        val copiedList = new ArrayList<>(contents.size());
+
+        for (val element : contents) {
+            copiedList.add(copy(element));
+        }
+
+        return copiedList;
+    }
+
+    private Map<String, Object> copyContents(Map<String, Object> contents) {
+        val copiedMap = new HashMap<String, Object>();
+
+        for (val entry : contents.entrySet()) {
+            copiedMap.put(entry.getKey(), copy(entry.getValue()));
+        }
+
+        return copiedMap;
+    }
+
+    @Override
     public @NotNull Transformer<Config> configTransformer() {
         return this;
     }

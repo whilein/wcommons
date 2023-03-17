@@ -35,6 +35,8 @@ import java.util.*;
  */
 public interface Config {
 
+    @NotNull Config copyContents();
+
     <T> T asType(@NotNull Class<T> type);
 
     @NotNull Transformer<Config> configTransformer();
