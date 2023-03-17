@@ -58,7 +58,7 @@ final class ConfigTests {
 
             fail();
         } catch (final ConfigMissingKeyException e) {
-            assertEquals("foo.baz.bar", e.getMessage());
+            assertEquals("foo.bar.foo", e.getMessage());
         }
 
         assertTrue(missingPath.asOptionalString().isEmpty());
