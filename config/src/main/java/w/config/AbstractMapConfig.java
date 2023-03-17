@@ -479,7 +479,36 @@ public abstract class AbstractMapConfig implements Config, Transformer<Config> {
 
     @Override
     public void setAll(@NotNull Config config) {
-        map.putAll(config.asMap());
+        merge(map, config.asMap());
+    }
+
+    private <E> void merge(List<E> oldList, List<E> newList) {
+        oldList.addAll(newList);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T merge(T oldValue, T newValue) {
+        if (oldValue instanceof Map<?, ?> && newValue instanceof Map<?, ?>) {
+            merge((Map<String, Object>) oldValue, (Map<String, Object>) newValue);
+            return oldValue;
+        }
+
+        if (oldValue instanceof List<?> && newValue instanceof List<?>) {
+            merge((List<Object>) newValue, (List<Object>) oldValue);
+            return oldValue;
+        }
+
+        return newValue;
+    }
+
+    private <K, V> void merge(Map<K, V> oldMap, Map<K, V> newMap) {
+        for (val entry : newMap.entrySet()) {
+            val key = entry.getKey();
+            val newValue = entry.getValue();
+            val oldValue = oldMap.get(key);
+
+            oldMap.put(key, merge(oldValue, newValue));
+        }
     }
 
     @Override
