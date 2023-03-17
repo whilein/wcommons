@@ -48,6 +48,16 @@ public abstract class AbstractMapConfig implements Config, Transformer<Config> {
     Map<String, Object> map;
 
     @Override
+    public boolean equals(@Nullable Object o) {
+        return o == this || (o instanceof Config config && map.equals(config.asMap()));
+    }
+
+    @Override
+    public int hashCode() {
+        return map.hashCode();
+    }
+
+    @Override
     public @NotNull Config copyContents() {
         return createObject(copyContents(map));
     }

@@ -43,6 +43,17 @@ final class ConfigTests {
     }
 
     @Test
+    void testEquals() {
+        val anotherConfig = SimpleConfig.create();
+        anotherConfig.set("blablabla", List.of("123123"));
+
+        config.set("blablabla", Arrays.asList("123123"));
+
+        assertEquals(config.hashCode(), anotherConfig.hashCode());
+        assertEquals(config, anotherConfig);
+    }
+
+    @Test
     void testCopyContents() {
         config.set("number", 1);
         config.set("list", Arrays.asList("1", "2", "3"));
