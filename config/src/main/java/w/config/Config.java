@@ -20,21 +20,14 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import w.config.path.ConfigPath;
 import w.config.transformer.Transformer;
-import w.config.transformer.Transformers;
 
 import java.io.File;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author whilein
@@ -287,5 +280,7 @@ public interface Config {
     @NotNull Optional<@NotNull String> findString(@NotNull String key);
 
     @NotNull Optional<@NotNull Config> findObject(@NotNull String key);
+
+    @NotNull ConfigPath walk(@NotNull String path);
 
 }

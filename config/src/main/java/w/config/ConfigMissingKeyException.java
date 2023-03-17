@@ -20,7 +20,13 @@ package w.config;
  * @author whilein
  */
 public final class ConfigMissingKeyException extends RuntimeException {
-    public ConfigMissingKeyException(final String message) {
+    public ConfigMissingKeyException(String message) {
         super(message);
+    }
+
+    public ConfigMissingKeyException(String message, ConfigMissingKeyException delegate) {
+        super(message);
+
+        setStackTrace(delegate.getStackTrace());
     }
 }

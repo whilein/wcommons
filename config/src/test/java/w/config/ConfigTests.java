@@ -25,10 +25,7 @@ import w.config.transformer.Transformers;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * TODO тесты на raw, object, stringlist, objectlist
@@ -42,6 +39,29 @@ final class ConfigTests {
     @BeforeEach
     void setup() {
         config = SimpleConfig.create();
+    }
+
+    @Test
+    void testPath() {
+        val presentPath = config.walk("foo.bar.baz");
+        val missingPath = config.walk("foo.bar.foo");
+
+        config.createObject("foo").createObject("bar").set("baz", "123");
+
+        assertTrue(presentPath.isPresent());
+        assertFalse(missingPath.isPresent());
+
+        assertEquals("123", presentPath.asString());
+
+        try {
+            missingPath.asString();
+
+            fail();
+        } catch (final ConfigMissingKeyException e) {
+            assertEquals("foo.baz.bar", e.getMessage());
+        }
+
+        assertTrue(missingPath.asOptionalString().isEmpty());
     }
 
     @Test

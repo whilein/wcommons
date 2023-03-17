@@ -24,6 +24,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import w.config.path.ConfigPath;
+import w.config.path.SimpleConfigPath;
 import w.config.transformer.Transformer;
 import w.config.transformer.Transformers;
 
@@ -265,6 +267,8 @@ public abstract class AbstractMapConfig implements Config, Transformer<Config> {
         return find(key, configTransformer());
     }
 
+
+
     @Override
     public <T> @NotNull T get(
             final @NotNull String key,
@@ -467,4 +471,8 @@ public abstract class AbstractMapConfig implements Config, Transformer<Config> {
         return createObject(object);
     }
 
+    @Override
+    public @NotNull ConfigPath walk(@NotNull String path) {
+        return SimpleConfigPath.create(this, path);
+    }
 }

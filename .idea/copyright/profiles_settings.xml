@@ -1,5 +1,5 @@
 <component name="CopyrightManager">
-  <settings>
+  <settings default="Apache">
     <module2copyright>
       <element module="Only source and tests" copyright="Apache" />
     </module2copyright>

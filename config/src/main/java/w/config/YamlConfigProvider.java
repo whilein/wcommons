@@ -42,7 +42,7 @@ public final class YamlConfigProvider extends AbstractJacksonConfigProvider {
 
     public static final @NotNull ConfigProvider INSTANCE = create();
 
-    public static @NotNull YamlConfigProvider create() {
+    public static @NotNull ConfigProvider create() {
         val mapper = new ObjectMapper(new YAMLFactory()
                 .configure(YAMLParser.Feature.EMPTY_STRING_AS_NULL, false)
                 .configure(YAMLGenerator.Feature.WRITE_DOC_START_MARKER, false));

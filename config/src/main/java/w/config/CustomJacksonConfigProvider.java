@@ -34,12 +34,12 @@ public final class CustomJacksonConfigProvider extends AbstractJacksonConfigProv
         super(objectWriter, objectReader, objectConverter);
     }
 
-    public static @NotNull CustomJacksonConfigProvider create(final @NotNull ObjectMapper objectMapper) {
+    public static @NotNull ConfigProvider create(final @NotNull ObjectMapper objectMapper) {
         return new CustomJacksonConfigProvider(objectMapper.writer(), objectMapper.reader(),
                 objectMapper::convertValue);
     }
 
-    public static @NotNull CustomJacksonConfigProvider create(final @NotNull ObjectWriter objectWriter,
+    public static @NotNull ConfigProvider create(final @NotNull ObjectWriter objectWriter,
                                                               final @NotNull ObjectReader objectReader,
                                                               final @NotNull ObjectConverter objectConverter) {
         return new CustomJacksonConfigProvider(objectWriter, objectReader, objectConverter);
