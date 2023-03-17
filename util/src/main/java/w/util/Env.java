@@ -1,3 +1,19 @@
+/*
+ *    Copyright 2023 Whilein
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package w.util;
 
 import lombok.NonNull;
@@ -8,7 +24,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @author whilein
@@ -44,17 +63,17 @@ public class Env {
     }
 
     public @Unmodifiable @NotNull List<@NotNull String> getStringList(
-        final @NonNull String key,
-        final @NonNull String delimiter
+            final @NonNull String key,
+            final @NonNull String delimiter
     ) {
         return getStringList(key, delimiter, Collections.emptyList());
     }
 
     @Contract("_, _, !null -> !null")
     public @Unmodifiable @Nullable List<String> getStringList(
-        final @NonNull String key,
-        final @NonNull String delimiter,
-        final @Nullable List<String> defaultValue
+            final @NonNull String key,
+            final @NonNull String delimiter,
+            final @Nullable List<String> defaultValue
     ) {
         val value = System.getenv(key);
 
@@ -66,17 +85,17 @@ public class Env {
     }
 
     public @Unmodifiable @NotNull List<@NotNull Integer> getIntList(
-        final @NonNull String key,
-        final @NonNull String delimiter
+            final @NonNull String key,
+            final @NonNull String delimiter
     ) {
         return getIntList(key, delimiter, Collections.emptyList());
     }
 
     @Contract("_, _, !null -> !null")
     public @Unmodifiable @Nullable List<@NotNull Integer> getIntList(
-        final @NonNull String key,
-        final @NonNull String delimiter,
-        final @Nullable List<Integer> defaultValue
+            final @NonNull String key,
+            final @NonNull String delimiter,
+            final @Nullable List<Integer> defaultValue
     ) {
         val value = System.getenv(key);
 
@@ -85,7 +104,7 @@ public class Env {
         }
 
         return Arrays.stream(value.split(delimiter))
-          .map(Integer::valueOf)
-          .toList();
+                .map(Integer::valueOf)
+                .toList();
     }
 }

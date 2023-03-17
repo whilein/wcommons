@@ -1,5 +1,5 @@
 /*
- *    Copyright 2022 Whilein
+ *    Copyright 2023 Whilein
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,16 +16,10 @@
 
 package w.util.pair;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.SneakyThrows;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.experimental.UtilityClass;
-import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import w.util.ObjectCloner;
 
