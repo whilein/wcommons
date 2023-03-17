@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/github/issues-pr/whilein/wcommons">
   </a>
 
-  <a href="https://central.sonatype.com/artifact/io.github.whilein.wcommons/wcommons-bom">
+  <a href="https://central.sonatype.com/artifact/io.github.whilein.wcommons/wcommons-bom/1.0.3/versions">
     <img src="https://img.shields.io/maven-central/v/io.github.whilein.wcommons/wcommons-bom">
   </a>
 </div>
