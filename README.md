@@ -99,25 +99,10 @@
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-geo-cache-guava</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>wcommons-impl-loader</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>wcommons-flow</artifactId>
-        </dependency>
-      
+        
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-util</artifactId>
-        </dependency>
-      
-        <dependency>
-            <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>wcommons-sql</artifactId>
         </dependency>
     </dependencies>
 </project>
@@ -125,12 +110,9 @@
 
 ## Содержание
 
-- [Работа с базой данных](sql)
 - ["Шина событий"](eventbus)
 - [Изменение байткода в рантайме](asm-patcher)
 - [Java агент](agent)
-- [Flow](flow)
-- [Загрузка реализаций](impl-loader)
 - [ASM](asm)
     - MagicAccessorImpl bridge
 - [Утилиты](util)
@@ -138,7 +120,7 @@
     - Pair, MutablePair, UnorderedPair
     - MutableInt, MutableLong, MutableReference, MutableOptionalInt, MutableOptionalLong, MutableOptionalReference
     - Message
-    - RandomUtils & RandomStringGenerator
+    - RandomUtils, RandomStringGenerator, WeightedRandom
     - ClassLoaderUtils
     - Async (Упрощенный вариант Future)
     - Buffering
