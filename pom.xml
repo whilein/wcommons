@@ -27,10 +27,7 @@
         <module>config</module>
         <module>eventbus</module>
         <module>crypto</module>
-        <module>impl-loader</module>
         <module>util</module>
-        <module>flow</module>
-        <module>sql</module>
         <module>agent</module>
         <module>unsafe</module>
     </modules>
