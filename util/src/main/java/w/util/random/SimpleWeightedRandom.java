@@ -19,9 +19,9 @@ package w.util.random;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
-import w.util.RandomUtils;
 
 import java.util.Collection;
 import java.util.Map;
@@ -41,51 +41,27 @@ public class SimpleWeightedRandom<E, T> implements WeightedRandom<T> {
     Function<E, T> objectFunction;
     ToDoubleFunction<E> weightFunction;
 
-    public static <E, T> @NotNull WeightedRandom<T> create(
+    T defaultValue;
+
+    public static <T> @NotNull WeightedRandomBuilder<T> builder(
+            @NotNull Map<T, Double> map
+    ) {
+        return new Builder<>(map.entrySet(), Map.Entry::getKey, Map.Entry::getValue);
+    }
+
+    public static <T> @NotNull WeightedRandomBuilder<T> builder(
+            @NotNull Collection<T> collection,
+            @NotNull ToDoubleFunction<T> weightFunction
+    ) {
+        return new Builder<>(collection, Function.identity(), weightFunction);
+    }
+
+    public static <E, T> @NotNull WeightedRandomBuilder<T> builder(
             @NotNull Collection<E> collection,
             @NotNull Function<E, T> objectFunction,
             @NotNull ToDoubleFunction<E> weightFunction
     ) {
-        if (collection.isEmpty()) {
-            throw new IllegalArgumentException("Collection cannot be empty");
-        }
-
-        val sum = collection.stream()
-                .mapToDouble(weightFunction)
-                .sum();
-
-        return new SimpleWeightedRandom<>(sum, collection, objectFunction, weightFunction);
-    }
-
-    /**
-     * Создать заранее подготовленный рандом с весами.
-     * <p>
-     * Функция веса должна возвращать константное значение для каждого объекта, либо веса
-     * не должны превышать изначальную сумму всех весов.
-     * В противном случае алгоритм не будет работать корректно.
-     * <p>
-     * Также нежелательно изменять коллекцию, либо изменять вес каждого элемента, чтобы он
-     * не превышал изначальную сумму всех весов.
-     * <p>
-     * Если у вас изменяется коллекция или веса элементов, то следует использовать
-     * {@link RandomUtils#weightedRandom(Collection, ToDoubleFunction)}
-     *
-     * @param collection     коллекция объектов
-     * @param weightFunction функция расчёта веса объекта
-     * @param <T>            тип отъекта
-     * @return рандом с весами
-     */
-    public static <T> @NotNull WeightedRandom<T> create(
-            @NotNull Collection<T> collection,
-            @NotNull ToDoubleFunction<T> weightFunction
-    ) {
-        return create(collection, Function.identity(), weightFunction);
-    }
-
-    public static <T> @NotNull WeightedRandom<T> create(
-            @NotNull Map<T, Double> map
-    ) {
-        return create(map.entrySet(), Map.Entry::getKey, Map.Entry::getValue);
+        return new Builder<>(collection, objectFunction, weightFunction);
     }
 
     @Override
@@ -100,20 +76,61 @@ public class SimpleWeightedRandom<E, T> implements WeightedRandom<T> {
 
         double from = 0.0;
 
-        E result = null;
-
         for (val element : collection) {
             val itemWeight = weightFunction.applyAsDouble(element);
 
             if (randomizedSum >= from && randomizedSum < from + itemWeight) {
-                result = element;
-                break;
+                return objectFunction.apply(element);
             }
 
-            result = element;
             from += itemWeight;
         }
 
-        return objectFunction.apply(result);
+        return defaultValue;
+    }
+
+    @FieldDefaults(makeFinal = true)
+    @RequiredArgsConstructor
+    private static final class Builder<E, T> implements WeightedRandomBuilder<T> {
+        Collection<E> collection;
+        Function<E, T> objectFunction;
+        ToDoubleFunction<E> weightFunction;
+
+        @NonFinal
+        boolean manualSum;
+
+        @NonFinal
+        double sum;
+
+        @NonFinal
+        T defaultValue;
+
+        @Override
+        public @NotNull WeightedRandomBuilder<T> sum(double value, T defaultValue) {
+            this.manualSum = true;
+
+            this.sum = value;
+            this.defaultValue = defaultValue;
+
+            return this;
+        }
+
+        @Override
+        public @NotNull WeightedRandomBuilder<T> autoSum() {
+            manualSum = false;
+
+            return this;
+        }
+
+        @Override
+        public @NotNull WeightedRandom<T> build() {
+            if (collection.isEmpty()) {
+                throw new IllegalStateException("Collection is empty");
+            }
+
+            val sum = manualSum ? this.sum : collection.stream().mapToDouble(weightFunction).sum();
+
+            return new SimpleWeightedRandom<>(sum, collection, objectFunction, weightFunction, defaultValue);
+        }
     }
 }

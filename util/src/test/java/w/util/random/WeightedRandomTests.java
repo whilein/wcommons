@@ -30,7 +30,35 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class WeightedRandomTests {
 
     @Test
-    public void test() {
+    public void testSum() {
+        val values = Map.of(
+                "123", 0.2,
+                "321", 0.4,
+                "333", 0.1
+        );
+
+        val counts = new HashMap<String, Integer>();
+
+        val weightedRandom = SimpleWeightedRandom.builder(values)
+                .sum(1.0, "666")
+                .build();
+
+        final int iterations = 100_000;
+
+        for (int i = 0; i < iterations; i++) {
+            val object = weightedRandom.nextObject();
+            counts.merge(object, 1, Integer::sum);
+        }
+
+        for (val count : counts.entrySet()) {
+            assertEquals(values.getOrDefault(count.getKey(), 0.3),
+                    count.getValue() / (double) iterations, 0.1);
+        }
+    }
+
+
+    @Test
+    public void testAutoSum() {
         val values = Map.of(
                 "123", 0.2,
                 "321", 0.4,
@@ -40,7 +68,8 @@ public class WeightedRandomTests {
 
         val counts = new HashMap<String, Integer>();
 
-        val weightedRandom = SimpleWeightedRandom.create(values);
+        val weightedRandom = SimpleWeightedRandom.builder(values)
+                .build();
 
         final int iterations = 100_000;
 
@@ -49,8 +78,8 @@ public class WeightedRandomTests {
             counts.merge(object, 1, Integer::sum);
         }
 
-        for (val value : values.entrySet()) {
-            assertEquals(value.getValue(), counts.get(value.getKey()) / (double) iterations, 0.1);
+        for (val count : counts.entrySet()) {
+            assertEquals(values.get(count.getKey()), count.getValue() / (double) iterations, 0.1);
         }
     }
 
