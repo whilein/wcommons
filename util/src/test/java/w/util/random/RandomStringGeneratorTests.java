@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package w.util.randomstring;
+package w.util.random;
 
 import lombok.val;
 import org.junit.jupiter.api.Test;

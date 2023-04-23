@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package w.util.randomstring;
+package w.util.random;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +40,7 @@ public final class SimpleRandomStringGenerator implements RandomStringGenerator 
     char[] dictionary;
 
     public static @NotNull RandomStringGeneratorBuilder builder() {
-        return new SimpleRandomStringGenerator.Builder(new StringBuilder());
+        return new Builder(new StringBuilder());
     }
 
     @Override
