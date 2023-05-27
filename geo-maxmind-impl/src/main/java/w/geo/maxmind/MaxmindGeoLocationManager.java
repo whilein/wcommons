@@ -37,20 +37,36 @@ import java.util.Optional;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class MaxmindGeoLocationManager implements GeoLocationManager {
 
+    private static final String DEFAULT_LOCALE = "en";
+
+    String locale;
     DatabaseReader database;
 
     @SneakyThrows
     public static @NotNull GeoLocationManager create(
             final @NotNull MaxmindProvider provider
     ) {
-        return new MaxmindGeoLocationManager(provider.openReader());
+        return create(DEFAULT_LOCALE, provider);
     }
 
-    private Optional<String> getName(final AbstractNamedRecord record) {
+    @SneakyThrows
+    public static @NotNull GeoLocationManager create(
+            final @NotNull String locale,
+            final @NotNull MaxmindProvider provider
+    ) {
+        return new MaxmindGeoLocationManager(locale, provider.openReader());
+    }
+
+    private Optional<String> getName(final AbstractNamedRecord record, final String locale) {
         val names = record.getNames();
 
-        return Optional.ofNullable(names.get("ru"))
-                .or(() -> Optional.ofNullable(names.get("en")));
+        val name = names.get(locale);
+
+        if (name == null) {
+            return locale.equals(DEFAULT_LOCALE) ? Optional.empty() : getName(record, DEFAULT_LOCALE);
+        }
+
+        return Optional.of(name);
     }
 
     @Override
@@ -58,14 +74,14 @@ public final class MaxmindGeoLocationManager implements GeoLocationManager {
         try {
             return database.tryCity(address)
                     .map(result -> {
-                        val country = getName(result.getCountry())
+                        val country = getName(result.getCountry(), locale)
                                 .map(countryName -> ImmutableCountry.create(
                                         countryName,
                                         result.getCountry().getIsoCode()
                                 ))
                                 .orElse(null);
 
-                        val city = getName(result.getCity())
+                        val city = getName(result.getCity(), locale)
                                 .orElse(null);
 
                         return country != null || city != null
