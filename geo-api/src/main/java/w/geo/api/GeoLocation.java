@@ -16,12 +16,16 @@
 
 package w.geo.api;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.immutables.value.Value;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * @author whilein
  */
+@Value.Immutable
+@JsonDeserialize(as = ImmutableGeoLocation.class)
 public interface GeoLocation {
 
     @Contract(pure = true)

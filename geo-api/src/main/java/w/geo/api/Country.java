@@ -16,11 +16,15 @@
 
 package w.geo.api;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.immutables.value.Value;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * @author whilein
  */
+@Value.Immutable
+@JsonDeserialize(as = ImmutableCountry.class)
 public interface Country {
 
     @NotNull String getName();

@@ -84,13 +84,16 @@ public final class IpInfoGeoLocationManager implements GeoLocationManager {
                 return UnknownGeoLocation.INSTANCE;
             }
 
-            return ImmutableGeoLocation.create(
-                    ImmutableCountry.create(
-                            ISO2COUNTRY.getOrDefault(country, country),
-                            country
-                    ),
-                    city
-            );
+            return ImmutableGeoLocation.builder()
+                    .country(
+                            ImmutableCountry.builder()
+                                    .isoCode(ISO2COUNTRY.getOrDefault(country, country))
+                                    .name(city)
+                                    .build()
+                    )
+                    .city(city)
+                    .build();
+
         } catch (final Exception e) {
             e.printStackTrace();
 
