@@ -70,26 +70,33 @@ public final class MaxmindGeoLocationManager implements GeoLocationManager {
     }
 
     @Override
-    public @NotNull GeoLocation lookup(final @NotNull InetAddress address) {
+    public @NotNull GeoLocation lookup(@NotNull InetAddress address) {
         try {
             return database.tryCity(address)
                     .map(result -> {
                         val country = getName(result.getCountry(), locale)
-                                .map(countryName -> ImmutableCountry.create(
-                                        countryName,
-                                        result.getCountry().getIsoCode()
-                                ))
-                                .orElse(null);
+                                .map(countryName -> ImmutableCountry.builder()
+                                        .name(countryName)
+                                        .isoCode(result.getCountry().getIsoCode())
+                                        .build()
+                                ).orElse(null);
 
                         val city = getName(result.getCity(), locale)
                                 .orElse(null);
 
-                        return country != null || city != null
-                                ? ImmutableGeoLocation.create(country, city)
-                                : UnknownGeoLocation.INSTANCE;
+                        if (country != null || city != null) {
+                            return ImmutableGeoLocation.builder()
+                                    .country(country)
+                                    .city(city)
+                                    .build();
+                        }
+
+                        return UnknownGeoLocation.INSTANCE;
                     })
                     .orElse(UnknownGeoLocation.INSTANCE);
         } catch (final Exception e) {
+            e.printStackTrace();
+
             return UnknownGeoLocation.INSTANCE;
         }
     }
