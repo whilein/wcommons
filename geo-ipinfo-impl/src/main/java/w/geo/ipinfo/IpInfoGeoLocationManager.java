@@ -88,7 +88,7 @@ public final class IpInfoGeoLocationManager implements GeoLocationManager {
                     .country(
                             ImmutableCountry.builder()
                                     .isoCode(ISO2COUNTRY.getOrDefault(country, country))
-                                    .name(city)
+                                    .name(country)
                                     .build()
                     )
                     .city(city)
