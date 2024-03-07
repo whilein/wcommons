@@ -41,11 +41,15 @@ import java.util.Map;
 /**
  * @author whilein
  */
-@FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
-@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class JacksonConfigProvider implements ConfigProvider {
 
     ObjectMapper objectMapper;
+
+    public static @NotNull ConfigProvider create(@NotNull ObjectMapper objectMapper) {
+        return new JacksonConfigProvider(objectMapper);
+    }
 
     private MutableConfig loadObject(final Map<?, ?> map) {
         val object = new JacksonConfig(new LinkedHashMap<>());
