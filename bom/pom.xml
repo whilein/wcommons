@@ -77,43 +77,13 @@
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
-                <artifactId>wcommons-crypto</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.whilein.wcommons</groupId>
                 <artifactId>wcommons-eventbus</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.whilein.wcommons</groupId>
-                <artifactId>wcommons-geo-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.whilein.wcommons</groupId>
-                <artifactId>wcommons-geo-maxmind-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.whilein.wcommons</groupId>
-                <artifactId>wcommons-geo-ipinfo-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.whilein.wcommons</groupId>
-                <artifactId>wcommons-geo-cache-caffeine</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.whilein.wcommons</groupId>
-                <artifactId>wcommons-geo-cache-guava</artifactId>
+                <artifactId>wcommons-geo</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

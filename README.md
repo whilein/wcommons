@@ -67,39 +67,14 @@
 
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>wcommons-crypto</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-eventbus</artifactId>
         </dependency>
 
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>wcommons-geo-api</artifactId>
+            <artifactId>wcommons-geo</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>wcommons-geo-maxmind-impl</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>wcommons-geo-ipinfo-impl</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>wcommons-geo-cache-caffeine</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.github.whilein.wcommons</groupId>
-            <artifactId>wcommons-geo-cache-guava</artifactId>
-        </dependency>
-        
         <dependency>
             <groupId>io.github.whilein.wcommons</groupId>
             <artifactId>wcommons-util</artifactId>
@@ -128,9 +103,4 @@
     - Hex
     - Root
 - [Конфигурация](config)
-- Геолокация
-    - [Апи](geo-api)
-    - [Реализация maxmind](geo-maxmind-impl)
-    - [Реализация ipinfo](geo-ipinfo-impl)
-    - [Кэширование на основе Google Guava](geo-cache-guava)
-    - [Кэширование на основе Caffeine](geo-cache-caffeine)
+- [Геолокация](geo)

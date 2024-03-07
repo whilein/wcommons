@@ -17,16 +17,11 @@
 
     <modules>
         <module>bom</module>
-        <module>geo-api</module>
-        <module>geo-cache-caffeine</module>
-        <module>geo-cache-guava</module>
-        <module>geo-ipinfo-impl</module>
-        <module>geo-maxmind-impl</module>
+        <module>geo</module>
         <module>asm</module>
         <module>asm-patcher</module>
         <module>config</module>
         <module>eventbus</module>
-        <module>crypto</module>
         <module>util</module>
         <module>agent</module>
         <module>unsafe</module>
@@ -196,12 +191,6 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.google.auto.service</groupId>
-                <artifactId>auto-service</artifactId>
-                <version>1.1.1</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk15on</artifactId>
                 <version>1.70</version>
@@ -256,12 +245,6 @@
             </dependency>
 
             <dependency>
-                <groupId>it.unimi.dsi</groupId>
-                <artifactId>fastutil-core</artifactId>
-                <version>8.5.12</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.kamranzafar</groupId>
                 <artifactId>jtar</artifactId>
                 <version>2.3</version>
@@ -271,18 +254,6 @@
                 <groupId>com.maxmind.geoip2</groupId>
                 <artifactId>geoip2</artifactId>
                 <version>4.1.0</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.zaxxer</groupId>
-                <artifactId>HikariCP</artifactId>
-                <version>5.1.0</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-                <version>2.2.222</version>
             </dependency>
 
             <dependency>
@@ -308,22 +279,10 @@
                 <artifactId>junit-jupiter-engine</artifactId>
                 <version>5.10.2</version>
             </dependency>
-
-            <dependency>
-                <groupId>org.immutables</groupId>
-                <artifactId>value</artifactId>
-                <version>2.10.1</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
-        <dependency>
-            <groupId>org.immutables</groupId>
-            <artifactId>value</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -350,3 +309,4 @@
     </dependencies>
 
 </project>
+

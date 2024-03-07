@@ -1,5 +1,5 @@
 /*
- *    Copyright 2023 Whilein
+ *    Copyright 2024 Whilein
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,29 +14,12 @@
  *    limitations under the License.
  */
 
-package w.util.random;
+package w.geo.model;
 
 import org.jetbrains.annotations.NotNull;
 
 /**
  * @author whilein
  */
-public interface WeightedRandomBuilder<T> {
-
-
-    /**
-     * Установить фиксированную сумму для рандома.
-     *
-     * @return {@code this}
-     */
-    @NotNull WeightedRandomBuilder<T> sum(double value, T defaultValue);
-
-    /**
-     * Автоматически посчитать сумму всех весов перед созданием рандома
-     *
-     * @return {@code this}
-     */
-    @NotNull WeightedRandomBuilder<T> autoSum();
-
-    @NotNull WeightedRandomGenerator<T> build();
+public record Country(@NotNull String name, @NotNull String isoCode) {
 }

@@ -46,7 +46,7 @@ public class RandomUtils {
         return RANDOM;
     }
 
-    private <T> Collection<T> _getRandomElements(final List<T> in, final int count, final boolean distinct) {
+    private <T> List<T> _getRandomElements(final List<T> in, final int count, final boolean distinct) {
         val list = new ArrayList<T>(count);
 
         for (int i = 0; i < count; i++) {
@@ -57,7 +57,7 @@ public class RandomUtils {
         return list;
     }
 
-    public <T> @NotNull Collection<T> getRandomElements(
+    public <T> @NotNull List<T> getRandomElements(
             final T @NotNull [] array,
             final int count,
             final boolean distinct
@@ -65,7 +65,7 @@ public class RandomUtils {
         return _getRandomElements(wrapList(List.of(array), distinct), count, distinct);
     }
 
-    public <T> @NotNull Collection<T> getRandomElements(
+    public <T> @NotNull List<T> getRandomElements(
             final @NotNull List<T> list,
             final int count,
             final boolean distinct
@@ -90,7 +90,7 @@ public class RandomUtils {
                 : list;
     }
 
-    public <T> @NotNull Collection<T> getRandomElements(
+    public <T> @NotNull List<T> getRandomElements(
             final @NotNull Collection<T> collection,
             final int count,
             final boolean distinct
@@ -103,6 +103,10 @@ public class RandomUtils {
         );
     }
 
+    /**
+     * @deprecated {@link w.util.random.WeightedRandomGenerator}
+     */
+    @Deprecated
     public <T> @Nullable T weightedRandom(
             final @NotNull Collection<T> items,
             final @NotNull ToDoubleFunction<T> weightCalculator
@@ -165,24 +169,6 @@ public class RandomUtils {
 
     public <T> T getRandomElement(final @NotNull List<T> list) {
         return list.get(RANDOM.nextInt(list.size()));
-    }
-
-    /**
-     * @see #getRandomElement(Object[])
-     * @deprecated
-     */
-    @Deprecated
-    public <T> T getElement(final T @NotNull [] array) {
-        return getRandomElement(array);
-    }
-
-    /**
-     * @see #getRandomElement(List)
-     * @deprecated
-     */
-    @Deprecated
-    public <T> T getElement(final @NotNull List<T> list) {
-        return getRandomElement(list);
     }
 
     public int getInt(final int min, final int max) {

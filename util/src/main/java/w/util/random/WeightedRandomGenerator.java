@@ -16,27 +16,19 @@
 
 package w.util.random;
 
-import org.jetbrains.annotations.NotNull;
+import java.util.stream.Stream;
 
 /**
+ * Заранее подготовленный рандом с весами.
+ *
  * @author whilein
  */
-public interface WeightedRandomBuilder<T> {
+public interface WeightedRandomGenerator<T> {
 
+    T nextObject();
 
-    /**
-     * Установить фиксированную сумму для рандома.
-     *
-     * @return {@code this}
-     */
-    @NotNull WeightedRandomBuilder<T> sum(double value, T defaultValue);
+    default Stream<T> nextObjects() {
+        return Stream.generate(this::nextObject);
+    }
 
-    /**
-     * Автоматически посчитать сумму всех весов перед созданием рандома
-     *
-     * @return {@code this}
-     */
-    @NotNull WeightedRandomBuilder<T> autoSum();
-
-    @NotNull WeightedRandomGenerator<T> build();
 }
