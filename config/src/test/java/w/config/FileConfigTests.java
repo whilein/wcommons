@@ -39,7 +39,7 @@ final class FileConfigTests {
     void before() {
         file = new File("config.yml");
 
-        object = SimpleFileConfig.create(file, new JacksonConfigProvider(new ObjectMapper(new YAMLFactory())));
+        object = SimpleFileConfig.create(file, JacksonConfigProvider.create(new ObjectMapper(new YAMLFactory())));
         object.saveDefaults("/config.yml");
     }
 

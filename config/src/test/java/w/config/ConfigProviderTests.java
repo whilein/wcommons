@@ -40,7 +40,7 @@ final class ConfigProviderTests {
 
     @BeforeAll
     static void setup() {
-        provider = new JacksonConfigProvider(new ObjectMapper(new YAMLFactory()));
+        provider = JacksonConfigProvider.create(new ObjectMapper(new YAMLFactory()));
     }
 
     @Test
