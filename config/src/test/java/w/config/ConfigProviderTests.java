@@ -16,6 +16,8 @@
 
 package w.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,7 +40,7 @@ final class ConfigProviderTests {
 
     @BeforeAll
     static void setup() {
-        provider = YamlConfigProvider.create();
+        provider = new JacksonConfigProvider(new ObjectMapper(new YAMLFactory()));
     }
 
     @Test

@@ -16,6 +16,8 @@
 
 package w.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +39,7 @@ final class FileConfigTests {
     void before() {
         file = new File("config.yml");
 
-        object = SimpleFileConfig.create(file);
+        object = SimpleFileConfig.create(file, new JacksonConfigProvider(new ObjectMapper(new YAMLFactory())));
         object.saveDefaults("/config.yml");
     }
 

@@ -20,14 +20,20 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
-import w.config.path.ConfigPath;
-import w.config.transformer.Transformer;
+import w.config.mapper.Mapper;
 
 import java.io.File;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
+import java.util.Set;
 
 /**
  * @author whilein
@@ -39,9 +45,9 @@ public interface Config {
 
     <T> T asType(@NotNull Class<T> type);
 
-    @NotNull Transformer<Config> configTransformer();
+    @NotNull Mapper<? extends Config> configMapper();
 
-    <T> @NotNull Transformer<T> transformAs(@NotNull Class<T> type);
+    <T> @NotNull Mapper<T> mapAs(@NotNull Class<T> type);
 
     /**
      * Представить объект как {@link Map}.
@@ -71,14 +77,6 @@ public interface Config {
     void writeTo(@NotNull File file);
 
     void writeTo(@NotNull Path path);
-
-    void set(@NotNull String key, @Nullable Object object);
-
-    void setAll(@NotNull Config config);
-
-    @NotNull Config createObject(@NotNull String key);
-
-    void remove(@NotNull String key);
 
     boolean contains(@NotNull String key);
 
@@ -116,12 +114,12 @@ public interface Config {
     @Contract("_, !null -> !null")
     @Nullable Object getRaw(@NotNull String key, @Nullable Object defaultValue);
 
-    <T> @NotNull Optional<T> find(@NotNull String key, @NotNull Transformer<T> transformer);
+    <T> @NotNull Optional<T> find(@NotNull String key, @NotNull Mapper<T> mapper);
 
-    <T> @NotNull T get(@NotNull String key, @NotNull Transformer<T> transformer) throws ConfigMissingKeyException;
+    <T> @NotNull T get(@NotNull String key, @NotNull Mapper<T> mapper) throws ConfigMissingKeyException;
 
     @Contract("_, _, !null -> !null")
-    <T> @Nullable T get(@NotNull String key, @NotNull Transformer<T> transformer, @Nullable T def);
+    <T> @Nullable T get(@NotNull String key, @NotNull Mapper<T> mapper, @Nullable T def);
 
     /**
      * Получить значение по ключу и сериализовать его
@@ -205,7 +203,7 @@ public interface Config {
      * @param key Ключ.
      * @return Список {@link Config}
      */
-    @Unmodifiable @NotNull List<@NotNull Config> getObjectList(@NotNull String key);
+    @Unmodifiable @NotNull List<? extends @NotNull Config> getObjectList(@NotNull String key);
 
     /**
      * Получить список с неопределенным значением.
@@ -214,12 +212,12 @@ public interface Config {
      * @param def Список по умолчанию, если таковой не найден.
      *            Может быть {@code null}, тогда вернет пустой список.
      * @return Список с неопределенным значением.
-     * @see #getList(String, Transformer)
+     * @see #getList(String, Mapper)
      */
     @Contract("_, _, !null -> !null")
     @Unmodifiable @Nullable <T> List<T> getList(
             @NotNull String key,
-            @NotNull Transformer<T> transformer,
+            @NotNull Mapper<T> mapper,
             @Nullable List<T> def
     );
 
@@ -228,9 +226,9 @@ public interface Config {
      *
      * @param key Ключ.
      * @return Список.
-     * @see #getList(String, Transformer, List)
+     * @see #getList(String, Mapper, List)
      */
-    @Unmodifiable @NotNull <T> List<T> getList(@NotNull String key, @NotNull Transformer<T> transformer);
+    @Unmodifiable @NotNull <T> List<T> getList(@NotNull String key, @NotNull Mapper<T> mapper);
 
     @Contract("_, !null -> !null")
     @Unmodifiable @Nullable List<@NotNull Byte> getByteList(@NotNull String key, @Nullable List<Byte> def);
@@ -281,8 +279,6 @@ public interface Config {
 
     @NotNull Optional<@NotNull String> findString(@NotNull String key);
 
-    @NotNull Optional<@NotNull Config> findObject(@NotNull String key);
-
-    @NotNull ConfigPath walk(@NotNull String path);
+    @NotNull Optional<? extends @NotNull Config> findObject(@NotNull String key);
 
 }

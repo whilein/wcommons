@@ -19,7 +19,7 @@ package w.config;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
-import w.config.transformer.Transformer;
+import w.config.mapper.Mapper;
 
 import java.io.OutputStream;
 import java.io.Writer;
@@ -30,33 +30,23 @@ import java.util.Map;
  * @author whilein
  */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public final class SimpleConfig extends AbstractMapConfig {
+public final class InconvertibleMutableConfig extends MapBasedMutableConfig {
 
-    private SimpleConfig(final Map<String, Object> map) {
+    private InconvertibleMutableConfig(Map<String, Object> map) {
         super(map);
     }
 
-    public static @NotNull Config create(final @NotNull Map<@NotNull String, @NotNull Object> map) {
-        return new SimpleConfig(map);
+    public static @NotNull MutableConfig from(@NotNull Map<@NotNull String, @NotNull Object> map) {
+        return new InconvertibleMutableConfig(map);
+    }
+
+    public static @NotNull MutableConfig create() {
+        return new InconvertibleMutableConfig(new LinkedHashMap<>());
     }
 
     @Override
-    public int hashCode() {
-        return map.hashCode();
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        return obj == this || obj instanceof SimpleConfig config && map.equals(config.map);
-    }
-
-    public static @NotNull Config create() {
-        return new SimpleConfig(new LinkedHashMap<>());
-    }
-
-    @Override
-    protected Config createObject(final Map<String, Object> map) {
-        return new SimpleConfig(map);
+    protected MutableConfig createObject(final Map<String, Object> map) {
+        return new InconvertibleMutableConfig(map);
     }
 
     @Override
@@ -65,7 +55,7 @@ public final class SimpleConfig extends AbstractMapConfig {
     }
 
     @Override
-    public @NotNull <T> Transformer<T> transformAs(final @NotNull Class<T> type) {
+    public @NotNull <T> Mapper<T> mapAs(final @NotNull Class<T> type) {
         throw new UnsupportedOperationException();
     }
 

@@ -25,7 +25,12 @@ import lombok.experimental.NonFinal;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -110,24 +115,8 @@ public final class SimpleFileConfig implements FileConfig {
     ConfigProvider provider;
 
     @NonFinal
-    @Delegate(types = Config.class)
-    Config delegate;
-
-    private static ConfigProvider _findProvider(final String fileName) {
-        val extensionSeparator = fileName.lastIndexOf('.');
-
-        if (extensionSeparator == -1) {
-            throw new IllegalStateException("Cannot get an extension of file " + fileName);
-        }
-
-        val extension = fileName.substring(extensionSeparator + 1);
-
-        return switch (extension) {
-            case "yml", "yaml" -> YamlConfigProvider.INSTANCE;
-            case "json" -> JsonConfigProvider.INSTANCE;
-            default -> throw new IllegalStateException("Cannot find config provider for " + fileName);
-        };
-    }
+    @Delegate(types = MutableConfig.class)
+    MutableConfig delegate;
 
     @SneakyThrows
     private static FileConfig _create(
@@ -155,27 +144,11 @@ public final class SimpleFileConfig implements FileConfig {
         return config;
     }
 
-    private static FileConfig _create(
-            final Path path
-    ) {
-        return _create(path, _findProvider(path.getFileName().toString()));
-    }
-
-    private static FileConfig _create(
-            final File file
-    ) {
-        return _create(file, _findProvider(file.getName()));
-    }
-
     public static @NotNull FileConfig create(
             final @NotNull Path path,
             final @NotNull ConfigProvider provider
     ) {
         return _create(path, provider);
-    }
-
-    public static @NotNull FileConfig create(final @NotNull Path path) {
-        return _create(path);
     }
 
     public static @NotNull FileConfig create(
@@ -198,22 +171,6 @@ public final class SimpleFileConfig implements FileConfig {
             final @NotNull ConfigProvider provider
     ) {
         return _create(new File(parent, name), provider);
-    }
-
-    public static @NotNull FileConfig create(final @NotNull File file) {
-        return _create(file);
-    }
-
-    public static @NotNull FileConfig create(final @NotNull String name) {
-        return _create(new File(name));
-    }
-
-    public static @NotNull FileConfig create(final @NotNull File parent, final @NotNull String name) {
-        return _create(new File(parent, name));
-    }
-
-    public static @NotNull FileConfig create(final @NotNull String parent, final @NotNull String name) {
-        return _create(new File(parent, name));
     }
 
     public static @NotNull FileConfig create(

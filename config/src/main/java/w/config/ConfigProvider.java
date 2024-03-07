@@ -18,7 +18,11 @@ package w.config;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
 import java.nio.file.Path;
 
 /**
@@ -52,18 +56,18 @@ public interface ConfigProvider {
 
     byte @NotNull [] saveAsBytes(@NotNull Object object);
 
-    @NotNull Config newObject();
+    @NotNull MutableConfig newObject();
 
-    @NotNull Config parse(@NotNull File file);
+    @NotNull MutableConfig parse(@NotNull File file);
 
-    @NotNull Config parse(@NotNull Path path);
+    @NotNull MutableConfig parse(@NotNull Path path);
 
-    @NotNull Config parse(@NotNull Reader reader);
+    @NotNull MutableConfig parse(@NotNull Reader reader);
 
-    @NotNull Config parse(@NotNull InputStream stream);
+    @NotNull MutableConfig parse(@NotNull InputStream stream);
 
-    @NotNull Config parse(@NotNull String input);
+    @NotNull MutableConfig parse(@NotNull String input);
 
-    @NotNull Config parse(byte @NotNull [] input);
+    @NotNull MutableConfig parse(byte @NotNull [] input);
 
 }

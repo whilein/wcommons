@@ -19,14 +19,21 @@ package w.config;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import w.config.transformer.Transformer;
-import w.config.transformer.Transformers;
+import w.config.mapper.Mapper;
+import w.config.mapper.NumberMapper;
+import w.config.mapper.StringMapper;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * TODO тесты на raw, object, stringlist, objectlist
@@ -35,16 +42,16 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 final class ConfigTests {
 
-    Config config;
+    MutableConfig config;
 
     @BeforeEach
     void setup() {
-        config = SimpleConfig.create();
+        config = InconvertibleMutableConfig.create();
     }
 
     @Test
     void testEquals() {
-        val anotherConfig = SimpleConfig.create();
+        val anotherConfig = InconvertibleMutableConfig.create();
         anotherConfig.set("blablabla", List.of("123123"));
 
         config.set("blablabla", Arrays.asList("123123"));
@@ -82,29 +89,6 @@ final class ConfigTests {
         }
 
         assertSame(config.getRaw("number"), clonedConfig.getRaw("number"));
-    }
-
-    @Test
-    void testPath() {
-        val presentPath = config.walk("foo.bar.baz");
-        val missingPath = config.walk("foo.bar.foo");
-
-        config.createObject("foo").createObject("bar").set("baz", "123");
-
-        assertTrue(presentPath.isPresent());
-        assertFalse(missingPath.isPresent());
-
-        assertEquals("123", presentPath.asString());
-
-        try {
-            missingPath.asString();
-
-            fail();
-        } catch (final ConfigMissingKeyException e) {
-            assertEquals("foo.bar.foo", e.getMessage());
-        }
-
-        assertTrue(missingPath.asOptionalString().isEmpty());
     }
 
     @Test
@@ -246,96 +230,96 @@ final class ConfigTests {
 
     @Test
     void testByteFromString() {
-        assertTransformer((byte) 1, "1", Transformers.byteTransformer());
+        assertMapper((byte) 1, "1", NumberMapper.byteMapper());
     }
 
     @Test
     void testByteFromAnotherNumber() {
-        assertTransformer((byte) 2, 2, Transformers.byteTransformer());
+        assertMapper((byte) 2, 2, NumberMapper.byteMapper());
     }
 
     @Test
     void testByteFromByte() {
-        assertTransformer((byte) 3, (byte) 3, Transformers.byteTransformer());
+        assertMapper((byte) 3, (byte) 3, NumberMapper.byteMapper());
     }
 
     @Test
     void testShortFromString() {
-        assertTransformer((short) 1, "1", Transformers.shortTransformer());
+        assertMapper((short) 1, "1", NumberMapper.shortMapper());
     }
 
     @Test
     void testShortFromAnotherNumber() {
-        assertTransformer((short) 2, 2, Transformers.shortTransformer());
+        assertMapper((short) 2, 2, NumberMapper.shortMapper());
     }
 
     @Test
     void testShortFromShort() {
-        assertTransformer((short) 3, (short) 3, Transformers.shortTransformer());
+        assertMapper((short) 3, (short) 3, NumberMapper.shortMapper());
     }
 
     @Test
     void testIntFromString() {
-        assertTransformer(1, "1", Transformers.intTransformer());
+        assertMapper(1, "1", NumberMapper.intMapper());
     }
 
     @Test
     void testIntFromAnotherNumber() {
-        assertTransformer(2, 2L, Transformers.intTransformer());
+        assertMapper(2, 2L, NumberMapper.intMapper());
     }
 
     @Test
     void testIntFromInt() {
-        assertTransformer(3, 3, Transformers.intTransformer());
+        assertMapper(3, 3, NumberMapper.intMapper());
     }
 
     @Test
     void testDoubleFromString() {
-        assertTransformer(1.1d, "1.1", Transformers.doubleTransformer());
+        assertMapper(1.1d, "1.1", NumberMapper.doubleMapper());
     }
 
     @Test
     void testDoubleFromAnotherNumber() {
-        assertTransformer(2d, 2L, Transformers.doubleTransformer());
+        assertMapper(2d, 2L, NumberMapper.doubleMapper());
     }
 
     @Test
     void testDoubleFromDouble() {
-        assertTransformer(3.3d, 3.3d, Transformers.doubleTransformer());
+        assertMapper(3.3d, 3.3d, NumberMapper.doubleMapper());
     }
 
     @Test
     void testStringFromBoolean() {
-        assertTransformer("true", true, Transformers.stringTransformer());
+        assertMapper("true", true, StringMapper.stringMapper());
     }
 
     @Test
     void testStringFromNumber() {
-        assertTransformer("1.1", 1.1, Transformers.stringTransformer());
+        assertMapper("1.1", 1.1, StringMapper.stringMapper());
     }
 
     @Test
     void testStringFromString() {
-        assertTransformer("1.1", "1.1", Transformers.stringTransformer());
+        assertMapper("1.1", "1.1", StringMapper.stringMapper());
     }
 
     @Test
     void testFloatFromString() {
-        assertTransformer(1.1f, "1.1", Transformers.floatTransformer());
+        assertMapper(1.1f, "1.1", NumberMapper.floatMapper());
     }
 
     @Test
     void testFloatFromAnotherNumber() {
-        assertTransformer(2f, 2L, Transformers.floatTransformer());
+        assertMapper(2f, 2L, NumberMapper.floatMapper());
     }
 
     @Test
     void testFloatFromFloat() {
-        assertTransformer(3.3f, 3.3f, Transformers.floatTransformer());
+        assertMapper(3.3f, 3.3f, NumberMapper.floatMapper());
     }
 
-    private <T> void assertTransformer(final T expect, final Object from, final Transformer<T> transformer) {
-        assertEquals(expect, transformer.transform(from));
+    private <T> void assertMapper(final T expect, final Object from, final Mapper<T> mapper) {
+        assertEquals(expect, mapper.mapStrict(from));
     }
 
 }

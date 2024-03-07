@@ -1,5 +1,5 @@
 /*
- *    Copyright 2023 Whilein
+ *    Copyright 2024 Whilein
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,21 +14,30 @@
  *    limitations under the License.
  */
 
-package w.config;
+package w.config.mapper;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author whilein
  */
-public interface FileConfig extends MutableConfig {
+public final class StringMapper extends AbstractMapper<String> {
+    private static final AbstractMapper<String> INSTANCE = new StringMapper();
 
-    void saveDefaults(@NotNull String resource);
+    private StringMapper() {
+        super(String.class);
+    }
 
-    void saveDefaults(@NotNull ClassLoader classLoader, @NotNull String resource);
+    public static @NotNull AbstractMapper<String> stringMapper() {
+        return INSTANCE;
+    }
 
-    void save();
-
-    void reload();
+    @Override
+    protected String doMap(final Object o) {
+        return o instanceof List<?> || o instanceof Map<?, ?> ? null : o.toString();
+    }
 
 }

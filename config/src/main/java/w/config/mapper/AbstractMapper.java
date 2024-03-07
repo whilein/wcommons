@@ -14,48 +14,46 @@
  *    limitations under the License.
  */
 
-package w.config.transformer;
+package w.config.mapper;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author whilein
  */
 @FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class AbstractTransformer<T> implements Transformer<T> {
+public abstract class AbstractMapper<T> implements Mapper<T> {
 
     Class<T> type;
 
-    protected abstract T doTransform(Object o);
+    protected abstract T doMap(Object o);
 
-    private T transform0(final Object o) {
+    private T map0(final Object o) {
         if (type.isAssignableFrom(o.getClass())) {
             return type.cast(o);
         }
 
-        return doTransform(o);
-    }
-
-
-    @Override
-    public T transformOrNull(final Object o) {
-        return o == null ? null : transform0(o);
+        return doMap(o);
     }
 
     @Override
-    public T transform(final Object o) {
-        if (o == null) {
-            return null;
-        }
+    public final @Nullable T map(@Nullable Object o) {
+        return o == null ? null : map0(o);
+    }
 
-        val result = transform0(o);
+    @Override
+    public final @Nullable T mapStrict(@Nullable Object o) {
+        if (o == null) return null;
+
+        val result = map0(o);
 
         if (result == null) {
-            throw new IllegalStateException("Cannot transform " + o + " to " + type.getSimpleName());
+            throw new IllegalStateException("Cannot map " + o + " to " + type.getSimpleName());
         }
 
         return result;

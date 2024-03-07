@@ -1,5 +1,5 @@
 /*
- *    Copyright 2023 Whilein
+ *    Copyright 2024 Whilein
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,15 +14,19 @@
  *    limitations under the License.
  */
 
-package w.config.transformer;
+package w.config.mapper;
+
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author whilein
  */
-public interface Transformer<T> {
+public interface Mapper<T> {
 
-    T transform(Object o);
+    @Contract("null -> null")
+    @Nullable T map(@Nullable Object o);
 
-    T transformOrNull(Object o);
+    @Nullable T mapStrict(@Nullable Object o);
 
 }
