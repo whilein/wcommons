@@ -230,16 +230,6 @@ public final class JacksonConfigProvider implements ConfigProvider {
         }
 
         @Override
-        public int hashCode() {
-            return map.hashCode();
-        }
-
-        @Override
-        public boolean equals(final Object obj) {
-            return obj == this || obj instanceof JacksonConfig config && map.equals(config.map);
-        }
-
-        @Override
         protected MutableConfig createObject(final Map<String, Object> map) {
             return new JacksonConfig(map);
         }
