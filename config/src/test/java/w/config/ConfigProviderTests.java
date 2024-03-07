@@ -26,6 +26,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,6 +42,33 @@ final class ConfigProviderTests {
     @BeforeAll
     static void setup() {
         provider = JacksonConfigProvider.create(new ObjectMapper(new YAMLFactory()));
+    }
+
+    @Test
+    void configDeserializer() {
+        record ConfigDeserializerTest(Config nested, List<Config> list, String text) {
+        }
+
+        val config = provider.parse("""
+                nested:
+                  id: 1
+                  name: '1'
+                list:
+                  - id: 1
+                    name: '1'
+                  - id: 2
+                    name: '2'
+                text: '3'
+                """);
+
+        val result = config.asType(ConfigDeserializerTest.class);
+        assertEquals("3", result.text);
+        assertEquals(1, result.nested.getInt("id"));
+        assertEquals("1", result.nested.getString("name"));
+        assertEquals(1, result.list.get(0).getInt("id"));
+        assertEquals("1", result.list.get(0).getString("name"));
+        assertEquals(2, result.list.get(1).getInt("id"));
+        assertEquals("2", result.list.get(1).getString("name"));
     }
 
     @Test

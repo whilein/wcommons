@@ -17,17 +17,18 @@
 package w.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import w.config.deserializer.ConfigDeserializer;
 import w.config.mapper.AbstractMapper;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -48,17 +49,16 @@ public final class JacksonConfigProvider implements ConfigProvider {
     ObjectMapper objectMapper;
 
     public static @NotNull ConfigProvider create(@NotNull ObjectMapper objectMapper) {
-        return new JacksonConfigProvider(objectMapper);
+        val provider = new JacksonConfigProvider(objectMapper = objectMapper.copy());
+
+        val module = new SimpleModule();
+        module.addDeserializer(Config.class, new ConfigDeserializer(provider));
+        objectMapper.registerModule(module);
+
+        return provider;
     }
 
-    private MutableConfig loadObject(final Map<?, ?> map) {
-        val object = new JacksonConfig(new LinkedHashMap<>());
-        loadObject(map, object);
-
-        return object;
-    }
-
-    private void loadObject(final Map<?, ?> map, final MutableConfig object) {
+    private void loadObject(Map<?, ?> map, MutableConfig object) {
         for (val entry : map.entrySet()) {
             val key = entry.getKey().toString();
             val value = entry.getValue();
@@ -69,91 +69,6 @@ public final class JacksonConfigProvider implements ConfigProvider {
                 object.set(key, value);
             }
         }
-    }
-
-    @Override
-    @SneakyThrows
-    public void save(final @NotNull File file, final @NotNull Object object) {
-        try (val fos = new FileOutputStream(file)) {
-            objectMapper.writeValue(fos, object);
-        }
-    }
-
-    @Override
-    @SneakyThrows
-    public void save(final @NotNull Path path, final @NotNull Object object) {
-        try (val os = Files.newOutputStream(path)) {
-            objectMapper.writeValue(os, object);
-        }
-    }
-
-    @Override
-    @SneakyThrows
-    public void save(final @NotNull Writer writer, final @NotNull Object object) {
-        objectMapper.writeValue(writer, object);
-    }
-
-    @Override
-    @SneakyThrows
-    public void save(final @NotNull OutputStream stream, final @NotNull Object object) {
-        objectMapper.writeValue(stream, object);
-    }
-
-    @Override
-    @SneakyThrows
-    public @NotNull String saveAsString(final @NotNull Object object) {
-        return objectMapper.writeValueAsString(object);
-    }
-
-    @Override
-    @SneakyThrows
-    public byte @NotNull [] saveAsBytes(final @NotNull Object object) {
-        return objectMapper.writeValueAsBytes(object);
-    }
-
-    @Override
-    @SneakyThrows
-    public <E> @NotNull E load(final @NotNull File file, final @NotNull Class<E> type) {
-        try (val fis = new FileInputStream(file)) {
-            return objectMapper.readValue(fis, type);
-        }
-    }
-
-    @Override
-    public <E> @NotNull E load(final @NotNull Object input, final @NotNull Class<E> type) {
-        return objectMapper.convertValue(input, type);
-    }
-
-    @Override
-    @SneakyThrows
-    public <E> @NotNull E load(final @NotNull Path path, final @NotNull Class<E> type) {
-        try (val is = Files.newInputStream(path)) {
-            return objectMapper.readValue(is, type);
-        }
-    }
-
-    @Override
-    @SneakyThrows
-    public <E> @NotNull E load(final @NotNull Reader reader, final @NotNull Class<E> type) {
-        return objectMapper.readValue(reader, type);
-    }
-
-    @Override
-    @SneakyThrows
-    public <E> @NotNull E load(final @NotNull InputStream stream, final @NotNull Class<E> type) {
-        return objectMapper.readValue(stream, type);
-    }
-
-    @Override
-    @SneakyThrows
-    public <E> @NotNull E load(final @NotNull String input, final @NotNull Class<E> type) {
-        return objectMapper.readValue(input, type);
-    }
-
-    @Override
-    @SneakyThrows
-    public <E> @NotNull E load(final byte @NotNull [] input, final @NotNull Class<E> type) {
-        return objectMapper.readValue(input, type);
     }
 
     @Override
@@ -180,19 +95,27 @@ public final class JacksonConfigProvider implements ConfigProvider {
     @Override
     @SneakyThrows
     public @NotNull MutableConfig parse(final @NotNull String input) {
-        return loadObject(objectMapper.readValue(input, Map.class));
+        return convert(objectMapper.readValue(input, Map.class));
     }
 
     @Override
     @SneakyThrows
     public @NotNull MutableConfig parse(final byte @NotNull [] input) {
-        return loadObject(objectMapper.readValue(input, Map.class));
+        return convert(objectMapper.readValue(input, Map.class));
+    }
+
+    @Override
+    public @NotNull MutableConfig convert(@NotNull Map<?, ?> map) {
+        val object = new JacksonConfig(new LinkedHashMap<>());
+        loadObject(map, object);
+
+        return object;
     }
 
     @Override
     @SneakyThrows
     public @NotNull MutableConfig parse(final @NotNull Reader reader) {
-        return loadObject(objectMapper.readValue(reader, Map.class));
+        return convert(objectMapper.readValue(reader, Map.class));
     }
 
     @Override
@@ -202,7 +125,7 @@ public final class JacksonConfigProvider implements ConfigProvider {
     }
 
     private MutableConfig _parse(final InputStream is) throws IOException {
-        return loadObject(objectMapper.readValue(is, Map.class));
+        return convert(objectMapper.readValue(is, Map.class));
     }
 
     private final class JacksonMapper<T> extends AbstractMapper<T> {

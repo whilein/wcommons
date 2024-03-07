@@ -20,41 +20,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Reader;
-import java.io.Writer;
 import java.nio.file.Path;
+import java.util.Map;
 
 /**
  * @author whilein
  */
 public interface ConfigProvider {
-
-    <E> @NotNull E load(@NotNull File file, @NotNull Class<E> type);
-
-    <E> @NotNull E load(@NotNull Path path, @NotNull Class<E> type);
-
-    <E> @NotNull E load(@NotNull Reader reader, @NotNull Class<E> type);
-
-    <E> @NotNull E load(@NotNull InputStream stream, @NotNull Class<E> type);
-
-    <E> @NotNull E load(@NotNull String input, @NotNull Class<E> type);
-
-    <E> @NotNull E load(byte @NotNull [] input, @NotNull Class<E> type);
-
-    <E> @NotNull E load(@NotNull Object input, @NotNull Class<E> type);
-
-    void save(@NotNull File file, @NotNull Object object);
-
-    void save(@NotNull Path path, @NotNull Object object);
-
-    void save(@NotNull Writer writer, @NotNull Object object);
-
-    void save(@NotNull OutputStream stream, @NotNull Object object);
-
-    @NotNull String saveAsString(@NotNull Object object);
-
-    byte @NotNull [] saveAsBytes(@NotNull Object object);
 
     @NotNull MutableConfig newObject();
 
@@ -69,5 +42,7 @@ public interface ConfigProvider {
     @NotNull MutableConfig parse(@NotNull String input);
 
     @NotNull MutableConfig parse(byte @NotNull [] input);
+
+    @NotNull MutableConfig convert(@NotNull Map<?, ?> map);
 
 }
