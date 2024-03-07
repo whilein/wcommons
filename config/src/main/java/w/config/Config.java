@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import w.config.mapper.Mapper;
+import w.config.path.ConfigPath;
 
 import java.io.File;
 import java.io.OutputStream;
@@ -280,5 +281,7 @@ public interface Config {
     @NotNull Optional<@NotNull String> findString(@NotNull String key);
 
     @NotNull Optional<? extends @NotNull Config> findObject(@NotNull String key);
+
+    @NotNull ConfigPath walk(@NotNull String path);
 
 }

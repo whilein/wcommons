@@ -28,6 +28,8 @@ import w.config.mapper.BooleanMapper;
 import w.config.mapper.Mapper;
 import w.config.mapper.NumberMapper;
 import w.config.mapper.StringMapper;
+import w.config.path.ConfigPath;
+import w.config.path.SimpleConfigPath;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -544,4 +546,8 @@ public abstract class MapBasedMutableConfig implements MutableConfig, Mapper<Mut
         return createObject(object);
     }
 
+    @Override
+    public @NotNull ConfigPath walk(@NotNull String path) {
+        return SimpleConfigPath.create(this, path);
+    }
 }
