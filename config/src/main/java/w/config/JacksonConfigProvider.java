@@ -42,7 +42,7 @@ import java.util.Map;
  * @author whilein
  */
 @FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+@RequiredArgsConstructor
 public final class JacksonConfigProvider implements ConfigProvider {
 
     ObjectMapper objectMapper;
