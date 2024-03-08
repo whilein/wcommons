@@ -503,7 +503,7 @@ public abstract class MapBasedMutableConfig implements MutableConfig, Mapper<Mut
         }
 
         if (oldValue instanceof List<?> && newValue instanceof List<?>) {
-            merge((List<Object>) newValue, (List<Object>) oldValue);
+            merge((List<Object>) oldValue, (List<Object>) newValue);
             return oldValue;
         }
 
