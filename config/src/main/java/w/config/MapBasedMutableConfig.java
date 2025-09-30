@@ -312,18 +312,6 @@ public abstract class MapBasedMutableConfig implements MutableConfig, Mapper<Mut
     }
 
     @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public @Nullable MutableConfig getObject(@NotNull String key, @Nullable MutableConfig defaultValue) {
-        val value = map.get(key);
-
-        if (value instanceof Map mapValue) {
-            return createObject(mapValue);
-        }
-
-        return null;
-    }
-
-    @Override
     public @NotNull Optional<? extends @NotNull MutableConfig> findObject(@NotNull String key) {
         return find(key, configMapper());
     }

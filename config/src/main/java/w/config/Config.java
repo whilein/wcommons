@@ -190,9 +190,6 @@ public interface Config {
 
     @NotNull Config getObject(@NotNull String key) throws ConfigMissingKeyException;
 
-    @Contract("_, !null -> !null")
-    @Nullable Config getObject(@NotNull String key, @Nullable Config defaultValue);
-
     /**
      * Получает список строк.
      *

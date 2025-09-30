@@ -16,7 +16,6 @@
 
 package w.config;
 
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -36,9 +35,6 @@ public interface MutableConfig extends Config {
     @NotNull Mapper<? extends MutableConfig> configMapper();
 
     @NotNull MutableConfig getObject(@NotNull String key) throws ConfigMissingKeyException;
-
-    @Contract("_, !null -> !null")
-    @Nullable MutableConfig getObject(@NotNull String key, @Nullable MutableConfig defaultValue);
 
     @NotNull MutableConfig createObject(@NotNull String key);
 

@@ -96,20 +96,16 @@ public final class SimpleConfigPath implements ConfigPath {
         return parent != null && parent.contains(name);
     }
 
-    private <T> @Nullable Mapper<T> mapAsInternal(@NotNull Class<T> type) {
-        val parent = getParent0();
-        if (parent == null) return null;
-
-        val object = parent.getObject(name, null);
-        if (object == null) return null;
-        return object.mapAs(type);
-    }
-
     @Override
     public @NotNull <T> Mapper<T> mapAs(@NotNull Class<T> type) {
-        val mapper = mapAsInternal(type);
-        if (mapper != null) return mapper;
-        throw new ConfigMissingKeyException(path);
+        val parent = getParent();
+
+        try {
+            val object = parent.getObject(name);
+            return object.mapAs(type);
+        } catch (ConfigMissingKeyException e) {
+            throw new ConfigMissingKeyException(path, e);
+        }
     }
 
     @Override
