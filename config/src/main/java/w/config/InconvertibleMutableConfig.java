@@ -69,4 +69,8 @@ public final class InconvertibleMutableConfig extends MapBasedMutableConfig {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public String toString() {
+        return "InconvertibleMutableConfig(map=" + map + ")";
+    }
 }
