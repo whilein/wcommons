@@ -43,6 +43,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -139,7 +140,7 @@ public abstract class MapBasedMutableConfig implements MutableConfig, Mapper<Mut
 
     protected abstract MutableConfig createObject(Map<String, Object> map);
 
-    private <T> T require(T value, String key) {
+    private <T> @NotNull T require(@Nullable T value, String key) {
         if (value == null) {
             throw new ConfigMissingKeyException(key);
         }
@@ -311,6 +312,18 @@ public abstract class MapBasedMutableConfig implements MutableConfig, Mapper<Mut
     }
 
     @Override
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public @Nullable MutableConfig getObject(@NotNull String key, @Nullable MutableConfig defaultValue) {
+        val value = map.get(key);
+
+        if (value instanceof Map mapValue) {
+            return createObject(mapValue);
+        }
+
+        return null;
+    }
+
+    @Override
     public @NotNull Optional<? extends @NotNull MutableConfig> findObject(@NotNull String key) {
         return find(key, configMapper());
     }
@@ -320,7 +333,7 @@ public abstract class MapBasedMutableConfig implements MutableConfig, Mapper<Mut
             @NotNull String key,
             @NotNull Mapper<T> mapper
     ) throws ConfigMissingKeyException {
-        return mapper.mapStrict(require(map.get(key), key));
+        return Objects.requireNonNull(mapper.mapStrict(require(map.get(key), key)));
     }
 
     @Override
@@ -514,9 +527,8 @@ public abstract class MapBasedMutableConfig implements MutableConfig, Mapper<Mut
         for (val entry : newMap.entrySet()) {
             val key = entry.getKey();
             val newValue = entry.getValue();
-            val oldValue = oldMap.get(key);
 
-            oldMap.put(key, merge(oldValue, newValue));
+            oldMap.compute(key, (k, oldValue) -> merge(oldValue, newValue));
         }
     }
 

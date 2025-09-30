@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import w.config.Config;
 import w.config.ConfigMissingKeyException;
+import w.config.mapper.Mapper;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +37,13 @@ public interface ConfigPath {
 
     boolean isPresent();
 
+    <T> @NotNull Mapper<T> mapAs(@NotNull Class<T> type);
+
+    <T> @NotNull T as(@NotNull Mapper<T> mapper) throws ConfigMissingKeyException;
+
+    @Contract("_, !null -> !null")
+    <T> @Nullable T as(@NotNull Mapper<T> mapper, @Nullable T defaultValue);
+
     @NotNull Optional<@NotNull String> asOptionalString();
 
     <T> @NotNull Optional<T> asOptional(@NotNull Class<T> type);
@@ -46,7 +54,10 @@ public interface ConfigPath {
 
     @NotNull OptionalDouble asOptionalDouble();
 
-    <T> T asType(@NotNull Class<T> type) throws ConfigMissingKeyException;
+    <T> @NotNull T asType(@NotNull Class<T> type) throws ConfigMissingKeyException;
+
+    @Contract("_, !null -> !null")
+    <T> @Nullable T asType(@NotNull Class<T> type, @Nullable T defaultValue);
 
     @NotNull String asString() throws ConfigMissingKeyException;
 
@@ -75,6 +86,11 @@ public interface ConfigPath {
     long asLong(long defaultValue);
 
     @NotNull Config asObject() throws ConfigMissingKeyException;
+
+    @Contract("_, !null -> !null")
+    @Unmodifiable @Nullable <T> List<T> asList(@NotNull Mapper<T> mapper, @Nullable List<T> def);
+
+    @Unmodifiable @NotNull <T> List<T> asList(@NotNull Mapper<T> mapper);
 
     @Unmodifiable @NotNull List<@NotNull String> asStringList();
 

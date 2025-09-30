@@ -27,6 +27,7 @@ public interface Mapper<T> {
     @Contract("null -> null")
     @Nullable T map(@Nullable Object o);
 
+    @Contract("null -> null")
     @Nullable T mapStrict(@Nullable Object o);
 
 }

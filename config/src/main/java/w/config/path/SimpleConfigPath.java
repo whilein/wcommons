@@ -26,6 +26,10 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 import w.config.Config;
 import w.config.ConfigMissingKeyException;
+import w.config.mapper.BooleanMapper;
+import w.config.mapper.Mapper;
+import w.config.mapper.NumberMapper;
+import w.config.mapper.StringMapper;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +37,8 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author whilein
@@ -90,19 +96,59 @@ public final class SimpleConfigPath implements ConfigPath {
         return parent != null && parent.contains(name);
     }
 
+    private <T> @Nullable Mapper<T> mapAsInternal(@NotNull Class<T> type) {
+        val parent = getParent0();
+        if (parent == null) return null;
+
+        val object = parent.getObject(name, null);
+        if (object == null) return null;
+        return object.mapAs(type);
+    }
+
+    @Override
+    public @NotNull <T> Mapper<T> mapAs(@NotNull Class<T> type) {
+        val mapper = mapAsInternal(type);
+        if (mapper != null) return mapper;
+        throw new ConfigMissingKeyException(path);
+    }
+
+    @Override
+    public <T> @NotNull T as(@NotNull Mapper<T> mapper) throws ConfigMissingKeyException {
+        val parent = getParent();
+
+        try {
+            return parent.get(name, mapper);
+        } catch (ConfigMissingKeyException e) {
+            throw new ConfigMissingKeyException(path, e);
+        }
+    }
+
+    @Override
+    public <T> @Nullable T as(@NotNull Mapper<T> mapper, @Nullable T defaultValue) {
+        val parent = getParent0();
+        return parent != null
+                ? parent.get(name, mapper, defaultValue)
+                : defaultValue;
+    }
+
+    private <T, U> T find(Supplier<T> defaultValue, Function<U, T> wrap, Mapper<U> mapper) {
+        val parent = getParent0();
+        if (parent == null) return defaultValue.get();
+
+        val result = parent.get(name, mapper, null);
+        return result == null
+                ? defaultValue.get()
+                : wrap.apply(result);
+    }
+
     @Override
     public @NotNull Optional<@NotNull String> asOptionalString() {
-        val parent = getParent0();
-
-        return parent != null
-                ? parent.findString(name)
-                : Optional.empty();
+        return find(Optional::empty, Optional::of, StringMapper.stringMapper());
     }
 
     @Override
     public @NotNull <T> Optional<T> asOptional(@NotNull Class<T> type) {
         val parent = getParent0();
-
         return parent != null
                 ? parent.findAs(name, type)
                 : Optional.empty();
@@ -110,33 +156,21 @@ public final class SimpleConfigPath implements ConfigPath {
 
     @Override
     public @NotNull OptionalInt asOptionalInt() {
-        val parent = getParent0();
-
-        return parent != null
-                ? parent.findInt(name)
-                : OptionalInt.empty();
+        return find(OptionalInt::empty, OptionalInt::of, NumberMapper.intMapper());
     }
 
     @Override
     public @NotNull OptionalLong asOptionalLong() {
-        val parent = getParent0();
-
-        return parent != null
-                ? parent.findLong(name)
-                : OptionalLong.empty();
+        return find(OptionalLong::empty, OptionalLong::of, NumberMapper.longMapper());
     }
 
     @Override
     public @NotNull OptionalDouble asOptionalDouble() {
-        val parent = getParent0();
-
-        return parent != null
-                ? parent.findDouble(name)
-                : OptionalDouble.empty();
+        return find(OptionalDouble::empty, OptionalDouble::of, NumberMapper.doubleMapper());
     }
 
     @Override
-    public <T> T asType(@NotNull Class<T> type) throws ConfigMissingKeyException {
+    public <T> @NotNull T asType(@NotNull Class<T> type) throws ConfigMissingKeyException {
         val parent = getParent();
 
         try {
@@ -147,25 +181,21 @@ public final class SimpleConfigPath implements ConfigPath {
     }
 
     @Override
-    public @NotNull String asString() throws ConfigMissingKeyException {
-        val parent = getParent();
+    public <T> @Nullable T asType(@NotNull Class<T> type, @Nullable T defaultValue) {
+        val parent = getParent0();
+        return parent != null
+                ? parent.getAs(name, type, defaultValue)
+                : defaultValue;
+    }
 
-        try {
-            return parent.getString(name);
-        } catch (ConfigMissingKeyException e) {
-            throw new ConfigMissingKeyException(path, e);
-        }
+    @Override
+    public @NotNull String asString() throws ConfigMissingKeyException {
+        return as(StringMapper.stringMapper());
     }
 
     @Override
     public @Nullable String asString(@Nullable String defaultValue) {
-        val parent = getParent();
-
-        try {
-            return parent.getString(name, defaultValue);
-        } catch (ConfigMissingKeyException e) {
-            throw new ConfigMissingKeyException(path, e);
-        }
+        return as(StringMapper.stringMapper(), defaultValue);
     }
 
     @Override
@@ -181,101 +211,50 @@ public final class SimpleConfigPath implements ConfigPath {
 
     @Override
     public @Nullable Object asRaw(@Nullable Object defaultValue) {
-        val parent = getParent();
-
-        try {
-            return parent.getRaw(name, defaultValue);
-        } catch (ConfigMissingKeyException e) {
-            throw new ConfigMissingKeyException(path, e);
-        }
-    }
-
-    @Override
-    public boolean asBoolean(boolean defaultValue) {
-        val parent = getParent();
-
-        try {
-            return parent.getBoolean(name, defaultValue);
-        } catch (ConfigMissingKeyException e) {
-            throw new ConfigMissingKeyException(path, e);
-        }
+        val parent = getParent0();
+        return parent != null
+                ? parent.getRaw(name, defaultValue)
+                : defaultValue;
     }
 
     @Override
     public boolean asBoolean() throws ConfigMissingKeyException {
-        val parent = getParent();
+        return as(BooleanMapper.booleanMapper());
+    }
 
-        try {
-            return parent.getBoolean(name);
-        } catch (ConfigMissingKeyException e) {
-            throw new ConfigMissingKeyException(path, e);
-        }
+    @Override
+    public boolean asBoolean(boolean defaultValue) {
+        return as(BooleanMapper.booleanMapper(), defaultValue);
     }
 
     @Override
     public int asInt() throws ConfigMissingKeyException {
-        val parent = getParent();
-
-        try {
-            return parent.getInt(name);
-        } catch (ConfigMissingKeyException e) {
-            throw new ConfigMissingKeyException(path, e);
-        }
+        return as(NumberMapper.intMapper());
     }
 
     @Override
     public double asDouble() throws ConfigMissingKeyException {
-        val parent = getParent();
-
-        try {
-            return parent.getDouble(name);
-        } catch (ConfigMissingKeyException e) {
-            throw new ConfigMissingKeyException(path, e);
-        }
+        return as(NumberMapper.doubleMapper());
     }
 
     @Override
     public long asLong() throws ConfigMissingKeyException {
-        val parent = getParent();
-
-        try {
-            return parent.getLong(name);
-        } catch (ConfigMissingKeyException e) {
-            throw new ConfigMissingKeyException(path, e);
-        }
+        return as(NumberMapper.longMapper());
     }
 
     @Override
     public int asInt(int defaultValue) {
-        val parent = getParent();
-
-        try {
-            return parent.getInt(name, defaultValue);
-        } catch (ConfigMissingKeyException e) {
-            throw new ConfigMissingKeyException(path, e);
-        }
+        return as(NumberMapper.intMapper(), defaultValue);
     }
 
     @Override
     public double asDouble(double defaultValue) {
-        val parent = getParent();
-
-        try {
-            return parent.getDouble(name, defaultValue);
-        } catch (ConfigMissingKeyException e) {
-            throw new ConfigMissingKeyException(path, e);
-        }
+        return as(NumberMapper.doubleMapper(), defaultValue);
     }
 
     @Override
     public long asLong(long defaultValue) {
-        val parent = getParent();
-
-        try {
-            return parent.getLong(name, defaultValue);
-        } catch (ConfigMissingKeyException e) {
-            throw new ConfigMissingKeyException(path, e);
-        }
+        return as(NumberMapper.longMapper(), defaultValue);
     }
 
     @Override
@@ -290,12 +269,21 @@ public final class SimpleConfigPath implements ConfigPath {
     }
 
     @Override
-    public @Unmodifiable @NotNull List<@NotNull String> asStringList() {
+    public @Unmodifiable <T> @Nullable List<T> asList(@NotNull Mapper<T> mapper, @Nullable List<T> def) {
         val parent = getParent0();
-
         return parent != null
-                ? parent.getStringList(name)
-                : Collections.emptyList();
+                ? parent.getList(name, mapper, def)
+                : def;
+    }
+
+    @Override
+    public @Unmodifiable <T> @NotNull List<T> asList(@NotNull Mapper<T> mapper) {
+        return asList(mapper, Collections.emptyList());
+    }
+
+    @Override
+    public @Unmodifiable @NotNull List<@NotNull String> asStringList() {
+        return asList(StringMapper.stringMapper());
     }
 
     @Override
@@ -307,131 +295,74 @@ public final class SimpleConfigPath implements ConfigPath {
                 : Collections.emptyList();
     }
 
-
     @Override
     public @Unmodifiable @Nullable List<@NotNull Byte> asByteList(@Nullable List<Byte> def) {
-        val parent = getParent0();
-
-        return parent != null
-                ? parent.getByteList(name, def)
-                : def;
+        return asList(NumberMapper.byteMapper(), def);
     }
 
     @Override
     public @Unmodifiable @NotNull List<@NotNull Byte> asByteList() {
-        val parent = getParent0();
-
-        return parent != null
-                ? parent.getByteList(name)
-                : Collections.emptyList();
+        return asList(NumberMapper.byteMapper());
     }
 
     @Override
     public @Unmodifiable @Nullable List<@NotNull Integer> asIntList(@Nullable List<Integer> def) {
-        val parent = getParent0();
-
-        return parent != null
-                ? parent.getIntList(name, def)
-                : def;
+        return asList(NumberMapper.intMapper(), def);
     }
 
     @Override
     public @Unmodifiable @NotNull List<@NotNull Integer> asIntList() {
-        val parent = getParent0();
-
-        return parent != null
-                ? parent.getIntList(name)
-                : Collections.emptyList();
+        return asList(NumberMapper.intMapper());
     }
 
     @Override
     public @Unmodifiable @Nullable List<@NotNull Long> asLongList(@Nullable List<Long> def) {
-        val parent = getParent0();
-
-        return parent != null
-                ? parent.getLongList(name, def)
-                : def;
+        return asList(NumberMapper.longMapper(), def);
     }
 
     @Override
     public @Unmodifiable @NotNull List<@NotNull Long> asLongList() {
-        val parent = getParent0();
-
-        return parent != null
-                ? parent.getLongList(name)
-                : Collections.emptyList();
+        return asList(NumberMapper.longMapper());
     }
 
     @Override
     public @Unmodifiable @Nullable List<@NotNull Short> asShortList(@Nullable List<Short> def) {
-        val parent = getParent0();
-
-        return parent != null
-                ? parent.getShortList(name, def)
-                : def;
+        return asList(NumberMapper.shortMapper(), def);
     }
 
     @Override
     public @Unmodifiable @NotNull List<@NotNull Short> asShortList() {
-        val parent = getParent0();
-
-        return parent != null
-                ? parent.getShortList(name)
-                : Collections.emptyList();
+        return asList(NumberMapper.shortMapper());
     }
 
     @Override
     public @Unmodifiable @Nullable List<@NotNull Double> asDoubleList(@Nullable List<Double> def) {
-        val parent = getParent0();
-
-        return parent != null
-                ? parent.getDoubleList(name, def)
-                : def;
+        return asList(NumberMapper.doubleMapper(), def);
     }
 
     @Override
     public @Unmodifiable @NotNull List<@NotNull Double> asDoubleList() {
-        val parent = getParent0();
-
-        return parent != null
-                ? parent.getDoubleList(name)
-                : Collections.emptyList();
+        return asList(NumberMapper.doubleMapper());
     }
 
     @Override
     public @Unmodifiable @Nullable List<@NotNull Float> asFloatList(@Nullable List<Float> def) {
-        val parent = getParent0();
-
-        return parent != null
-                ? parent.getFloatList(name, def)
-                : def;
+        return asList(NumberMapper.floatMapper(), def);
     }
 
     @Override
     public @Unmodifiable @NotNull List<@NotNull Float> asFloatList() {
-        val parent = getParent0();
-
-        return parent != null
-                ? parent.getFloatList(name)
-                : Collections.emptyList();
+        return asList(NumberMapper.floatMapper());
     }
 
     @Override
     public @Unmodifiable @Nullable List<@NotNull Boolean> asBooleanList(@Nullable List<Boolean> def) {
-        val parent = getParent0();
-
-        return parent != null
-                ? parent.getBooleanList(name, def)
-                : def;
+        return asList(BooleanMapper.booleanMapper(), def);
     }
 
     @Override
     public @Unmodifiable @NotNull List<@NotNull Boolean> asBooleanList() {
-        val parent = getParent0();
-
-        return parent != null
-                ? parent.getBooleanList(name)
-                : Collections.emptyList();
+        return asList(BooleanMapper.booleanMapper());
     }
 
 }
