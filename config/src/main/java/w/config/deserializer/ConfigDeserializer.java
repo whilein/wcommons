@@ -16,16 +16,15 @@
 
 package w.config.deserializer;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import tools.jackson.databind.ValueDeserializer;
 import w.config.Config;
 import w.config.ConfigProvider;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -33,12 +32,12 @@ import java.util.Map;
  */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
-public final class ConfigDeserializer extends JsonDeserializer<Config> {
+public final class ConfigDeserializer extends ValueDeserializer<Config> {
 
     ConfigProvider configProvider;
 
     @Override
-    public Config deserialize(JsonParser jp, DeserializationContext dc) throws IOException {
+    public Config deserialize(JsonParser jp, DeserializationContext dc) {
         return configProvider.convert(jp.readValueAs(Map.class));
     }
 }

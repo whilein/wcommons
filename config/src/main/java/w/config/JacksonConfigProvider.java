@@ -16,8 +16,9 @@
 
 package w.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import lombok.experimental.NonFinal;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.module.SimpleModule;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -42,18 +43,21 @@ import java.util.Map;
 /**
  * @author whilein
  */
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class JacksonConfigProvider implements ConfigProvider {
 
     ObjectMapper objectMapper;
 
     public static @NotNull ConfigProvider create(@NotNull ObjectMapper objectMapper) {
-        val provider = new JacksonConfigProvider(objectMapper = objectMapper.copy());
+        val provider = new JacksonConfigProvider();
 
         val module = new SimpleModule();
         module.addDeserializer(Config.class, new ConfigDeserializer(provider));
-        objectMapper.registerModule(module);
+
+        provider.objectMapper = objectMapper.rebuild()
+                .addModule(module)
+                .build();
 
         return provider;
     }
