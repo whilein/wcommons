@@ -18,9 +18,9 @@ package w.geo.maxmind;
 
 import com.maxmind.db.NoCache;
 import com.maxmind.geoip2.DatabaseReader;
+import com.maxmind.geoip2.NamedRecord;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import com.maxmind.geoip2.model.CityResponse;
-import com.maxmind.geoip2.record.AbstractNamedRecord;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -66,8 +66,8 @@ public final class MaxmindGeoLocationManager implements GeoLocationManager {
         return new MaxmindGeoLocationManager(locale, reader);
     }
 
-    private static String resolveNamed(AbstractNamedRecord record, String locale) {
-        val names = record.getNames();
+    private static String resolveNamed(NamedRecord record, String locale) {
+        val names = record.names();
         if (names.isEmpty()) return null;
 
         String name = names.get(locale);
@@ -79,11 +79,11 @@ public final class MaxmindGeoLocationManager implements GeoLocationManager {
     }
 
     private GeoLocation mapResponse(CityResponse response) {
-        val mmCountry = response.getCountry();
-        val mmCity = response.getCity();
+        val mmCountry = response.country();
+        val mmCity = response.city();
 
         val countryName = resolveNamed(mmCountry, locale);
-        val country = countryName == null ? null : new Country(countryName, mmCountry.getIsoCode());
+        val country = countryName == null ? null : new Country(countryName, mmCountry.isoCode());
 
         val city = resolveNamed(mmCity, locale);
 

@@ -1,0 +1,38 @@
+[versions]
+lombok = "1.18.34"
+slf4j = "2.0.9"
+jetbrains-annotations = "25.0.0"
+spotbugs-annotations = "4.8.6"
+junit = "5.11.2"
+mockito = "4.11.0"
+asm = "9.7"
+jackson = "3.1.0"
+caffeine = "3.1.8"
+jtar = "2.3"
+geoip2 = "6.0.0"
+guava = "33.5.0-jre"
+
+[libraries]
+# region testing
+junit-bom = { group = "org.junit", name = "junit-bom", version.ref = "junit" }
+junit-api = { group = "org.junit.jupiter", name = "junit-jupiter-api" }
+junit-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine" }
+mockito = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+# endregion
+# region slf4j
+slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
+slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version.ref = "slf4j" }
+# endregion
+# region jackson
+jackson-databind = { group = "tools.jackson.core", name = "jackson-databind", version.ref = "jackson" }
+jackson-dataformat-yaml = { group = "tools.jackson.dataformat", name = "jackson-dataformat-yaml", version.ref = "jackson" }
+# endregion
+lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
+jetbrains-annotations = { group = "org.jetbrains", name = "annotations", version.ref = "jetbrains-annotations" }
+spotbugs-annotations = { group = "com.github.spotbugs", name = "spotbugs-annotations", version.ref = "spotbugs-annotations" }
+
+asm = { group = "org.ow2.asm", name = "asm", version.ref = "asm" }
+jtar = { group = "org.kamranzafar", name = "jtar", version.ref = "jtar" }
+geoip2 = { group = "com.maxmind.geoip2", name = "geoip2", version.ref = "geoip2" }
+guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
+caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version.ref = "caffeine" }

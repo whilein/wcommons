@@ -3,6 +3,7 @@
 !/.idea/copyright/
 !/.idea/scopes/**
 !/.idea/copyright/**
-target/
 *.iml
-.flattened-pom.xml
+/gradle.properties
+build
+.gradle
